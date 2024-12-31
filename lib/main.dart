@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:mtaa_frontend/core/config/app_config.dart';
 
 void main() {
+  const environment = String.fromEnvironment('ENV', defaultValue: 'development');
+  AppConfig.loadConfig(environment);
   runApp(const MyApp());
 }
 
