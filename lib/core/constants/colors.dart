@@ -23,7 +23,7 @@ const Color lightPrimarily11Color = Color.fromRGBO(55, 85, 99, 1);
 const Color darkPrimarily11Color = Color.fromRGBO(255, 255, 255, 1);
 
 const Color lightInversePrimarily12Color = Color.fromRGBO(255, 112, 67, 1);
-const Color darkInversePrimarily12Color = Color.fromRGBO(55, 85, 99, 1);
+const Color darkInversePrimarily12Color = Color.fromRGBO(38, 50, 56, 1);
 
 const Color lightPrimarily12Color = Color.fromRGBO(55, 85, 99, 1);
 const Color darkPrimarily12Color = Color.fromRGBO(255, 112, 67, 1);

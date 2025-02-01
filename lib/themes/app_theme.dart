@@ -10,7 +10,7 @@ class AppTheme {
       brightness: Brightness.light,
       fontFamily: "Almarai",
       primaryColor: lightPrimarily1Color,
-      scaffoldBackgroundColor: Colors.white,
+      scaffoldBackgroundColor: lightBackgroundColor,
       iconTheme: const IconThemeData(color: lightPrimarily1Color),
       textTheme: const TextTheme(
         bodyMedium: TextStyle(color: lightPrimarily1Color, fontSize: 16),
@@ -27,12 +27,14 @@ class AppTheme {
     static ThemeData darkTheme(BuildContext context) {
     return ThemeData(
       brightness: Brightness.light,
-      fontFamily: "Audiowide",
-      primaryColor: lightPrimarily1Color,
-      scaffoldBackgroundColor: Colors.white,
-      iconTheme: const IconThemeData(color: lightPrimarily1Color),
+      fontFamily: "Almarai",
+      primaryColor: darkPrimarily1Color,
+      scaffoldBackgroundColor: darkBackgroundColor,
+      iconTheme: const IconThemeData(color: darkPrimarily1Color),
       textTheme: const TextTheme(
-        bodyMedium: TextStyle(color: lightPrimarily1Color),
+        bodyMedium: TextStyle(color: darkPrimarily1Color, fontSize: 16),
+        headlineLarge: TextStyle(color: darkPrimarily2Color, fontSize: 30, fontWeight: FontWeight.bold),
+        headlineMedium: TextStyle(color: darkPrimarily2Color, fontSize: 20, fontWeight: FontWeight.bold),
         labelLarge: TextStyle(color: darkThird11Color, fontSize: 30, fontWeight: FontWeight.bold),
       ),
       textButtonTheme: darkTextButtonThemeData,

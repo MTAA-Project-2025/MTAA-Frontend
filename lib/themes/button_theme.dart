@@ -37,6 +37,7 @@ final darkTextButtonThemeData = TextButtonThemeData(
   style: TextButton.styleFrom(
     foregroundColor: whiteColor,
     backgroundColor: secondary1InvincibleColor,
+    minimumSize: Size(100,57),
     textStyle: const TextStyle(
       fontSize: 18,
       fontWeight: FontWeight.w500,

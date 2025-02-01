@@ -2,11 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:mtaa_frontend/core/config/app_config.dart';
 import 'package:mtaa_frontend/features/authentication/sign-up/presentation/pages/startPage.dart';
 import 'package:mtaa_frontend/themes/app_theme.dart';
+import 'package:mtaa_frontend/themes/bloc/theme_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mtaa_frontend/themes/bloc/theme_state.dart';
 
 void main() {
   const environment = String.fromEnvironment('ENV', defaultValue: 'development');
   AppConfig.loadConfig(environment);
-  runApp(const MyApp());
+  runApp(BlocProvider(
+      create: (_) => ThemeBloc(),
+      child: const MyApp(),
+    ));
 }
 
 class MyApp extends StatelessWidget {
@@ -14,10 +20,16 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: AppTheme.lightTheme(context),
-      home: const StartPage(),
+    return BlocBuilder<ThemeBloc, ThemeState>(
+      builder: (context, state) {
+        return MaterialApp(
+          title: 'Flutter Demo',
+          theme: AppTheme.lightTheme(context),
+          darkTheme: AppTheme.darkTheme(context),
+          themeMode: state.themeMode,
+          home: const StartPage(),
+        );
+      },
     );
   }
 }

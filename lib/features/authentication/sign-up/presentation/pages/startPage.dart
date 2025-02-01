@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:mtaa_frontend/core/constants/colors.dart';
+import 'package:mtaa_frontend/themes/bloc/theme_bloc.dart';
+import 'package:mtaa_frontend/themes/bloc/theme_event.dart';
 import 'package:mtaa_frontend/themes/button_theme.dart';
 
 class StartPage extends StatelessWidget {
@@ -28,8 +30,7 @@ class StartPage extends StatelessWidget {
             icon: const Icon(Icons.dark_mode),
             tooltip: 'Change theme',
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('This is a snackbar')));
+              context.read<ThemeBloc>().add(ToggleThemeEvent());
             },
           ))],
       ),
