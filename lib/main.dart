@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mtaa_frontend/core/config/app_config.dart';
+import 'package:mtaa_frontend/features/authentication/sign-up/presentation/pages/startPage.dart';
+import 'package:mtaa_frontend/themes/app_theme.dart';
 
 void main() {
   const environment = String.fromEnvironment('ENV', defaultValue: 'development');
@@ -14,11 +16,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      theme: AppTheme.lightTheme(context),
+      home: const StartPage(),
     );
   }
 }
