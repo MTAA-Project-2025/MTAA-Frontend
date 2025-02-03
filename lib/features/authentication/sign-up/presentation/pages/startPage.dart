@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
+import 'package:mtaa_frontend/core/constants/route_constants.dart';
 import 'package:mtaa_frontend/themes/bloc/theme_bloc.dart';
 import 'package:mtaa_frontend/themes/bloc/theme_event.dart';
 import 'package:mtaa_frontend/themes/button_theme.dart';
@@ -101,7 +103,9 @@ class StartPage extends StatelessWidget {
                     child: SizedBox(
                       width: double.infinity, // Occupy all available space
                       child: TextButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          GoRouter.of(context).push(startSignUpPageRoute);
+                        },
                         style: Theme.of(context).textButtonTheme.style,
                         child: Text(
                           'Sign Up',
