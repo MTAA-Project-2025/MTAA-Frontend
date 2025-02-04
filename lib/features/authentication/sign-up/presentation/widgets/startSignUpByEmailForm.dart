@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mtaa_frontend/core/constants/validators.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/customTextInput.dart';
 
@@ -21,7 +20,7 @@ class StartSignUpByEmailForm extends StatelessWidget {
       child: Column(
         children: [
             CustomTextInput(
-              placeholder: 'Enter your email',
+              placeholder: 'Email',
               validator: emailValidator,
               textInputType: TextInputType.emailAddress,
               controller: emailController

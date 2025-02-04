@@ -11,3 +11,7 @@ final emailValidator = MultiValidator([
   RequiredValidator(errorText: 'Email is required'),
   EmailValidator(errorText: "Enter a valid email address"),
 ]);
+
+final usernameValidator = MultiValidator([
+  RequiredValidator(errorText: 'Username is required'),
+]);

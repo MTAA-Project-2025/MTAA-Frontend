@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mtaa_frontend/core/config/app_config.dart';
-import 'package:mtaa_frontend/features/authentication/data/network/identity_api.dart';
+import 'package:mtaa_frontend/features/authentication/shared/data/network/identity_api.dart';
 
 final GetIt getIt = GetIt.instance;
 

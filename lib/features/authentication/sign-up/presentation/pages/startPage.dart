@@ -27,14 +27,15 @@ class StartPage extends StatelessWidget {
         ),*/
         actions: <Widget>[
           Container(
-            margin:const EdgeInsets.fromLTRB(0,0,21,0),
-            child:IconButton(
-            icon: const Icon(Icons.dark_mode),
-            tooltip: 'Change theme',
-            onPressed: () {
-              context.read<ThemeBloc>().add(ToggleThemeEvent());
-            },
-          ))],
+              margin: const EdgeInsets.fromLTRB(0, 0, 21, 0),
+              child: IconButton(
+                icon: const Icon(Icons.dark_mode),
+                tooltip: 'Change theme',
+                onPressed: () {
+                  context.read<ThemeBloc>().add(ToggleThemeEvent());
+                },
+              ))
+        ],
       ),
       body: Center(
         child: Column(
@@ -48,9 +49,10 @@ class StartPage extends StatelessWidget {
                   width: 100,
                   height: 100,
                 ),
-              const SizedBox(width: 5),
-              Text('Likely', style: Theme.of(context).textTheme.labelLarge)
-            ],),
+                const SizedBox(width: 5),
+                Text('Likely', style: Theme.of(context).textTheme.labelLarge)
+              ],
+            ),
             Row(
               children: [
                 Expanded(
@@ -95,9 +97,9 @@ class StartPage extends StatelessWidget {
             ),
             const Spacer(),
             Container(
-              padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 28),
-              child: Column(
-                children: [
+                padding:
+                    const EdgeInsets.symmetric(vertical: 28, horizontal: 28),
+                child: Column(children: [
                   ConstrainedBox(
                     constraints: const BoxConstraints.tightFor(width: 300),
                     child: SizedBox(
@@ -120,16 +122,14 @@ class StartPage extends StatelessWidget {
                       width: double.infinity, // Occupy all available space
                       child: TextButton(
                         onPressed: () {},
-                        style:specialTextButtonThemeData.style,
+                        style: specialTextButtonThemeData.style,
                         child: Text(
                           'Log In',
                         ),
                       ),
                     ),
                   ),
-                ]
-              )
-            )
+                ]))
           ],
         ),
       ),
