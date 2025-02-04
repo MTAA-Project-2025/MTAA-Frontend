@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:mtaa_frontend/core/config/app_config.dart';
 import 'package:mtaa_frontend/core/utils/app_injections.dart';
 import 'package:mtaa_frontend/features/authentication/shared/blocs/verification_email_phone_bloc.dart';
-import 'package:mtaa_frontend/features/authentication/sign-up/presentation/pages/signUpVerificationByEmailScreen.dart';
 import 'package:mtaa_frontend/themes/app_theme.dart';
 import 'package:mtaa_frontend/themes/bloc/theme_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

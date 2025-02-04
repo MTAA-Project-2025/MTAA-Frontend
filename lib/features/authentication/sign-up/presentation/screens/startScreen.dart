@@ -7,8 +7,8 @@ import 'package:mtaa_frontend/themes/bloc/theme_bloc.dart';
 import 'package:mtaa_frontend/themes/bloc/theme_event.dart';
 import 'package:mtaa_frontend/themes/button_theme.dart';
 
-class StartPage extends StatelessWidget {
-  const StartPage({Key? key}) : super(key: key);
+class StartScreen extends StatelessWidget {
+  const StartScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

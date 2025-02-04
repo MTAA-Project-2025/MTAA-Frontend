@@ -4,21 +4,21 @@ import 'package:mtaa_frontend/core/constants/route_constants.dart';
 import 'package:mtaa_frontend/core/utils/app_injections.dart';
 import 'package:mtaa_frontend/features/authentication/shared/data/network/identity_api.dart';
 import 'package:mtaa_frontend/features/authentication/shared/presentation/screens/firstAddFullNameScreen.dart';
-import 'package:mtaa_frontend/features/authentication/sign-up/presentation/pages/createAccountScreen.dart';
-import 'package:mtaa_frontend/features/authentication/sign-up/presentation/pages/signUpVerificationByEmailScreen.dart';
-import 'package:mtaa_frontend/features/authentication/sign-up/presentation/pages/startPage.dart';
-import 'package:mtaa_frontend/features/authentication/sign-up/presentation/pages/startSignUpPage.dart';
+import 'package:mtaa_frontend/features/authentication/sign-up/presentation/screens/createAccountScreen.dart';
+import 'package:mtaa_frontend/features/authentication/sign-up/presentation/screens/signUpVerificationByEmailScreen.dart';
+import 'package:mtaa_frontend/features/authentication/sign-up/presentation/screens/startScreen.dart';
+import 'package:mtaa_frontend/features/authentication/sign-up/presentation/screens/startSignUpScreen.dart';
 
 class AppRouter {
   static final router = GoRouter(
     routes: [
       GoRoute(
         path: '/',
-        builder: (context, state) => const StartPage(),
+        builder: (context, state) => const StartScreen(),
       ),
       GoRoute(
         path: startSignUpPageRoute,
-        builder: (context, state) => StartSignUpPage(
+        builder: (context, state) => StartSignUpScreen(
           identityApi: getIt<IdentityApi>(),
         ),
       ),

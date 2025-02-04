@@ -12,7 +12,6 @@ import 'package:mtaa_frontend/features/authentication/sign-up/presentation/widge
 import 'package:mtaa_frontend/features/shared/presentation/widgets/dotLoader.dart';
 import 'package:mtaa_frontend/themes/bloc/theme_bloc.dart';
 import 'package:mtaa_frontend/themes/bloc/theme_event.dart';
-import 'package:mtaa_frontend/themes/button_theme.dart';
 
 class CreateAccountScreen extends StatefulWidget {
   final IdentityApi identityApi;

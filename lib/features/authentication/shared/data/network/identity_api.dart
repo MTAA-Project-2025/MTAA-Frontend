@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:mtaa_frontend/core/config/app_config.dart';
 import 'package:mtaa_frontend/features/authentication/shared/data/models/token.dart';
 import 'package:mtaa_frontend/features/authentication/sign-up/data/models/requests/signUpByEmailRequest.dart';
 import 'package:mtaa_frontend/features/authentication/sign-up/data/models/requests/signUpVerifyEmailRequest.dart';

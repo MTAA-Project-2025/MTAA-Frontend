@@ -13,16 +13,16 @@ import 'package:mtaa_frontend/themes/bloc/theme_bloc.dart';
 import 'package:mtaa_frontend/themes/bloc/theme_event.dart';
 import 'package:mtaa_frontend/themes/button_theme.dart';
 
-class StartSignUpPage extends StatefulWidget {
+class StartSignUpScreen extends StatefulWidget {
   final IdentityApi identityApi;
 
-  const StartSignUpPage({super.key, required this.identityApi});
+  const StartSignUpScreen({super.key, required this.identityApi});
 
   @override
-  State<StartSignUpPage> createState() => _StartSignUpPageState();
+  State<StartSignUpScreen> createState() => _StartSignUpScreenState();
 }
 
-class _StartSignUpPageState extends State<StartSignUpPage> {
+class _StartSignUpScreenState extends State<StartSignUpScreen> {
   final GlobalKey<FormState> _emailformKey = GlobalKey<FormState>();
   bool isShowEmailForm = true;
   final emailController = TextEditingController();
