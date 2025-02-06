@@ -38,11 +38,14 @@ class StartLogInForm extends StatelessWidget {
                   textInputType: TextInputType.visiblePassword,
                   controller: passwordController)),
           const SizedBox(height: 8),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Text(
-              'Forgot Password?',
-              style: Theme.of(context).textTheme.labelSmall,
+          ConstrainedBox(
+            constraints: const BoxConstraints.tightFor(width: 300),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+               'Forgot Password?',
+               style: Theme.of(context).textTheme.labelSmall,
+              ),
             ),
           ),
         ],

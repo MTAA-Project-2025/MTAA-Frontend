@@ -83,12 +83,31 @@ class _StartLogInState extends State<StartLogInScreen> {
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {
                         setState(() => isLoading = true);
-                        Token? res = await widget.identityApi.logIn(LogInRequest(email:state.str, phone:state.str, password: passwordController.text));
+
+                        String input = state.str.trim();
+                        String? email;
+                        String? phone;
+
+                        // Check if input is an email or phone number
+                        if (RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(input)) {
+                          email = input; // It's an email
+                        } else if (RegExp(r'^\+?\d+$').hasMatch(input)) {
+                          phone = input; // It's a phone number
+                        }
+
+                        Token? res = await widget.identityApi.logIn(
+                          LogInRequest(email: email, phone: phone, password: passwordController.text),
+                        );
+
                         setState(() => isLoading = false);
-                        if(res != null)
-                        {
-                          TokenStorage.saveToken(res.token);
-                          _navigateToChangeFullNameScreen();
+
+                        if (res != null) {
+                          if (email != null) {
+                            TokenStorage.saveToken("email_token_${res.token}");
+                          } else if (phone != null) {
+                            TokenStorage.saveToken("phone_token_${res.token}");
+                          }
+                        _navigateToChangeFullNameScreen();
                         }
                       }
                     },
@@ -101,9 +120,9 @@ class _StartLogInState extends State<StartLogInScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text("Need an account?"),
+                              Text("Need an account? "),
                               Text(
-                                  'Sign Up',
+                                  "Sign Up",
                                   style: Theme.of(context).textTheme.labelSmall,
                                 ),
                             ],
