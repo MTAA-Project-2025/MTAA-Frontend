@@ -4,12 +4,14 @@ import 'package:mtaa_frontend/features/authentication/shared/data/models/token.d
 import 'package:mtaa_frontend/features/authentication/sign-up/data/models/requests/signUpByEmailRequest.dart';
 import 'package:mtaa_frontend/features/authentication/sign-up/data/models/requests/signUpVerifyEmailRequest.dart';
 import 'package:mtaa_frontend/features/authentication/sign-up/data/models/requests/startSignUpEmailVerificationRequest.dart';
+import 'package:mtaa_frontend/features/authentication/log-in/data/models/requests/logInRequest.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 abstract class IdentityApi {
   Future<bool> signUpStartEmailVerification(StartSignUpEmailVerificationRequest request);
   Future<bool> signUpVerifyEmail(SignUpVerifyEmailRequest request);
   Future<Token?> signUpByEmail(SignUpByEmailRequest request);
+  Future<Token?> logIn(LogInRequest request);
 }
 
 
@@ -87,6 +89,38 @@ class IdentityImplApi extends IdentityApi {
   @override
   Future<Token?> signUpByEmail(SignUpByEmailRequest request) async {
     final fullUrl = controllerName + '/sign-up-by-email';
+    try {
+      var res = await dio.post(fullUrl,data: request.toJson());
+      return Token.fromJson(res.data);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        print(e.response?.data);
+        print(e.response?.headers);
+        print(e.response?.requestOptions);
+        String? msg = e.response?.data['Message'];
+
+        if(msg!=null){
+          Fluttertoast.showToast(
+            msg: msg,
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0
+          );
+        }
+        return null;
+      } else {
+        print(e);
+        return null;
+      }
+    }
+  }
+
+  @override
+  Future<Token?> logIn(LogInRequest request) async {
+    final fullUrl = controllerName + '/log-in';
     try {
       var res = await dio.post(fullUrl,data: request.toJson());
       return Token.fromJson(res.data);

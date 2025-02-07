@@ -8,6 +8,7 @@ import 'package:mtaa_frontend/features/authentication/sign-up/presentation/scree
 import 'package:mtaa_frontend/features/authentication/sign-up/presentation/screens/signUpVerificationByEmailScreen.dart';
 import 'package:mtaa_frontend/features/authentication/sign-up/presentation/screens/startScreen.dart';
 import 'package:mtaa_frontend/features/authentication/sign-up/presentation/screens/startSignUpScreen.dart';
+import 'package:mtaa_frontend/features/authentication/log-in/presentation/screens/startLogInScreen.dart';
 
 class AppRouter {
   static final router = GoRouter(
@@ -33,6 +34,12 @@ class AppRouter {
       GoRoute(
         path: firstAddFullNameScreenRoute,
         builder: (context, state) => FirstAddFullNameScreen(identityApi: getIt<IdentityApi>()),
+      ),
+      GoRoute(
+        path: startLogInPageRoute,
+        builder: (context, state) => StartLogInScreen(
+          identityApi: getIt<IdentityApi>(),
+        ),
       ),
     ],
   );

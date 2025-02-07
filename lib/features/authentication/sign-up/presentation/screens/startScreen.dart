@@ -121,7 +121,9 @@ class StartScreen extends StatelessWidget {
                     child: SizedBox(
                       width: double.infinity, // Occupy all available space
                       child: TextButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          GoRouter.of(context).push(startLogInPageRoute);
+                        },
                         style: specialTextButtonThemeData.style,
                         child: Text(
                           'Log In',
