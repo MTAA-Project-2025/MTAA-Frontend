@@ -2,8 +2,8 @@ import 'package:form_field_validator/form_field_validator.dart';
 
 final passwordValidator = MultiValidator([
   RequiredValidator(errorText: 'Password is required'),
-  MinLengthValidator(8, errorText: 'password must be at least 8 digits long'),
-  MaxLengthValidator(200, errorText: 'password must be at most 200 digits long'),
+  MinLengthValidator(8, errorText: 'Password must be at least 8 digits long'),
+  MaxLengthValidator(200, errorText: 'Password must be at most 200 digits long'),
 ]);
 
 final emailValidator = MultiValidator([
@@ -13,9 +13,16 @@ final emailValidator = MultiValidator([
 
 final usernameValidator = MultiValidator([
   RequiredValidator(errorText: 'Username is required'),
-  MinLengthValidator(3, errorText: 'username must be at least 8 digits long'),
-  MaxLengthValidator(50, errorText: 'username must be at most 200 digits long'),
+  MinLengthValidator(3, errorText: 'Username must be at least 3 digits long'),
+  MaxLengthValidator(50, errorText: 'Username must be at most 50 digits long'),
   AllowedCharactersValidator(allowedCharacters: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_', errorText: 'username must contain only letters, numbers, and underscores'),
+]);
+
+final abstractNameValidator = MultiValidator([
+  RequiredValidator(errorText: 'Name is required'),
+  MinLengthValidator(3, errorText: 'Name must be at least 3 digits long'),
+  MaxLengthValidator(100, errorText: 'Name must be at most 100 digits long'),
+  AllowedCharactersValidator(allowedCharacters: 'АБВГҐДЕЄЖЗИІЇЙКЛМНОПРСТУФХЦЧШЩЬЮЯабвгґдеєжзиіїйклмнопрстуфхцчшщьюяĆćČčĎďĐđŁłŃńŇňŐőŘřŚśŠšŤťŽžљњћџђњћџABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿĀāĂăĄąĆćĈĉĊċČčĎďĐđĒēĔĕĖėĘęĚěĜĝĞğĠġĢģĤĥĦħĨĩĪīĬĭĮįİıĴĵĶķĹĺĻļĽľĿŀŁłŃńŅņŇňŉŌōŎŏŐőŒœŔŕŖŗŘřŚśŜŝŞşŠšŢţŤťŦŧŨũŪūŬŭŮůŰűŲųŴŵŶŷŸŹźŻżŽžǺǻǼǽǾǿȘșȚțəɐɑɒɓɔɕɖɗəɛɜɡɣɥɨɪɫɬɭɯɰɱɲɳɵɹɻɽɾʀʁʂʃʄʅʉʊʋʌʍʎʏʐʑʒʔμאבגдהוזחטיכלמנסעפצקרשתاآبتثجحخدذرزسشصضطظعغفقكلمنهوياأإآةىءصقفعظعظةلىكسمنتيكى_- ', errorText: 'Name must contain only letters, numbers, and underscores'),
 ]);
 
 final phoneValidator = MultiValidator([
