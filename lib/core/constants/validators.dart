@@ -1,4 +1,5 @@
 import 'package:form_field_validator/form_field_validator.dart';
+import 'package:image_picker/image_picker.dart';
 
 final passwordValidator = MultiValidator([
   RequiredValidator(errorText: 'Password is required'),
@@ -58,3 +59,8 @@ final loginValidator = MultiValidator([
   RequiredValidator(errorText: 'This field is required'),
   EmailOrPhoneValidator(errorText: 'Enter a valid email or phone number'),
 ]);
+
+bool isImage(XFile file) {
+  final extension = file.path.split('.').last.toLowerCase();
+  return ['jpg', 'jpeg', 'png'].contains(extension);
+}
