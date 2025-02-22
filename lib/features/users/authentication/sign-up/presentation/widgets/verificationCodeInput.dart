@@ -5,7 +5,7 @@ import 'package:mtaa_frontend/core/constants/colors.dart';
 class VerificationCodeInput extends StatefulWidget {
   final void Function(String) onCompleted;
 
-  const VerificationCodeInput({Key? key, required this.onCompleted}) : super(key: key);
+  const VerificationCodeInput({super.key, required this.onCompleted});
 
   @override
   _VerificationCodeInputState createState() => _VerificationCodeInputState();

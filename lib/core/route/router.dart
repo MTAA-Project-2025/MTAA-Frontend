@@ -15,56 +15,59 @@ import 'package:mtaa_frontend/features/users/authentication/sign-up/presentation
 import 'package:mtaa_frontend/features/users/authentication/log-in/presentation/screens/logInScreen.dart';
 
 class AppRouter {
-  static final router = GoRouter(
-    routes: [
-      GoRoute(
-        path: '/',
-        builder: (context, state) => const StartScreen(),
-      ),
-      GoRoute(
-        path: startSignUpPageRoute,
-        builder: (context, state) => StartSignUpScreen(
-          identityApi: getIt<IdentityApi>(),
+  static GoRouter createRouter(String initialRoute) {
+    return GoRouter(
+      initialLocation: initialRoute,
+      routes: [
+        GoRoute(
+          path: '/',
+          builder: (context, state) => const StartScreen(),
         ),
-      ),
-      GoRoute(
-        path: signUpVerificationByEmailScreenRoute,
-        builder: (context, state) => SignUpVerificationByEmailScreen(identityApi: getIt<IdentityApi>()),
-      ),
-      GoRoute(
-        path: createAccountScreenRoute,
-        builder: (context, state) => CreateAccountScreen(identityApi: getIt<IdentityApi>()),
-      ),
-      GoRoute(
-        path: firstUpdateDisplayNameScreenRoute,
-        builder: (context, state) => FirstUpdateDisplayNameScreen(accountApi: getIt<AccountApi>()),
-      ),
-      GoRoute(
-        path: firstUpdateBirthDateScreenRoute,
-        builder: (context, state) => FirstUpdateBirthDateScreen(accountApi: getIt<AccountApi>()),
-      ),
-      GoRoute(
-        path: firstUpdateAvatarScreenRoute,
-        builder: (context, state) => FirstUpdateAvatarScreen(accountApi: getIt<AccountApi>()),
-      ),
-      GoRoute(
-        path: userGroupListScreenRoute,
-        builder: (context, state) => UserGroupListScreen(identityApi: getIt<IdentityApi>()),
-      ),
-      GoRoute(
-        path: userGroupListScreenRoute,
-        builder: (context, state) => UserGroupListScreen(identityApi: getIt<IdentityApi>()),
-      ),
-      GoRoute(
-        path:'/test',
-        builder: (context, state) => HomePage(title: '213'),
-      ),
-      GoRoute(
-        path: logInScreenRoute,
-        builder: (context, state) => LogInScreen(
-          identityApi: getIt<IdentityApi>(),
+        GoRoute(
+          path: startSignUpPageRoute,
+          builder: (context, state) => StartSignUpScreen(
+            identityApi: getIt<IdentityApi>(),
+          ),
         ),
-      ),
-    ],
-  );
+        GoRoute(
+          path: signUpVerificationByEmailScreenRoute,
+          builder: (context, state) => SignUpVerificationByEmailScreen(identityApi: getIt<IdentityApi>()),
+        ),
+        GoRoute(
+          path: createAccountScreenRoute,
+          builder: (context, state) => CreateAccountScreen(identityApi: getIt<IdentityApi>()),
+        ),
+        GoRoute(
+          path: firstUpdateDisplayNameScreenRoute,
+          builder: (context, state) => FirstUpdateDisplayNameScreen(accountApi: getIt<AccountApi>()),
+        ),
+        GoRoute(
+          path: firstUpdateBirthDateScreenRoute,
+          builder: (context, state) => FirstUpdateBirthDateScreen(accountApi: getIt<AccountApi>()),
+        ),
+        GoRoute(
+          path: firstUpdateAvatarScreenRoute,
+          builder: (context, state) => FirstUpdateAvatarScreen(accountApi: getIt<AccountApi>()),
+        ),
+        GoRoute(
+          path: userGroupListScreenRoute,
+          builder: (context, state) => UserGroupListScreen(identityApi: getIt<IdentityApi>()),
+        ),
+        GoRoute(
+          path: userGroupListScreenRoute,
+          builder: (context, state) => UserGroupListScreen(identityApi: getIt<IdentityApi>()),
+        ),
+        GoRoute(
+          path: '/test',
+          builder: (context, state) => HomePage(title: '213'),
+        ),
+        GoRoute(
+          path: logInScreenRoute,
+          builder: (context, state) => LogInScreen(
+            identityApi: getIt<IdentityApi>(),
+          ),
+        ),
+      ],
+    );
+  }
 }

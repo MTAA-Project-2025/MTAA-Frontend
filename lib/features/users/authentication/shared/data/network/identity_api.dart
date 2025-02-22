@@ -24,7 +24,7 @@ class IdentityImplApi extends IdentityApi {
 
   @override
   Future<bool> signUpStartEmailVerification(StartSignUpEmailVerificationRequest request) async {
-    final fullUrl = controllerName + '/sign-up-start-email-verification';
+    final fullUrl = '$controllerName/sign-up-start-email-verification';
     try {
       await dio.post(fullUrl,data: request.toJson());
       return true;
@@ -56,7 +56,7 @@ class IdentityImplApi extends IdentityApi {
 
   @override
   Future<bool> signUpVerifyEmail(SignUpVerifyEmailRequest request) async {
-    final fullUrl = controllerName + '/sign-up-verify-email';
+    final fullUrl = '$controllerName/sign-up-verify-email';
     try {
       var res = await dio.post(fullUrl,data: request.toJson());
       return res.data as bool;
@@ -88,7 +88,7 @@ class IdentityImplApi extends IdentityApi {
 
   @override
   Future<Token?> signUpByEmail(SignUpByEmailRequest request) async {
-    final fullUrl = controllerName + '/sign-up-by-email';
+    final fullUrl = '$controllerName/sign-up-by-email';
     try {
       var res = await dio.post(fullUrl,data: request.toJson());
       return Token.fromJson(res.data);
@@ -120,7 +120,7 @@ class IdentityImplApi extends IdentityApi {
 
   @override
   Future<Token?> logIn(LogInRequest request) async {
-    final fullUrl = controllerName + '/log-in';
+    final fullUrl = '$controllerName/log-in';
     try {
       var res = await dio.post(fullUrl,data: request.toJson());
       return Token.fromJson(res.data);

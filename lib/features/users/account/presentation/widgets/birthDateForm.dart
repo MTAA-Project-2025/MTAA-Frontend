@@ -12,7 +12,7 @@ class BirthDateForm extends StatefulWidget {
 }
 
 class _BirthDateFormState extends State<BirthDateForm> {
-  DateTime? birthDate = null;
+  DateTime? birthDate;
   bool isError = false;
 
   @override

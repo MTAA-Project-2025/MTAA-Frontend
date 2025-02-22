@@ -16,7 +16,7 @@ class PresetAvatarImagesApiImpl extends PresetAvatarImagesApi {
 
   @override
   Future<List<MyImageGroupResponse>> getAllPresetImages() async {
-    final fullUrl = controllerName + '/get-all';
+    final fullUrl = '$controllerName/get-all';
     try {
       var res = await dio.get(fullUrl);
       List<dynamic> data = res.data;

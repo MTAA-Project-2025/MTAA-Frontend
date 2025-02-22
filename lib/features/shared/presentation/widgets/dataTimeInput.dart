@@ -28,7 +28,6 @@ class _DateTimeInputState extends State<DateTimeInput> {
 
   _selectDate(BuildContext context) {
     final ThemeData theme = Theme.of(context);
-    assert(theme.platform != null);
     switch (theme.platform) {
       case TargetPlatform.android:
       case TargetPlatform.fuchsia:

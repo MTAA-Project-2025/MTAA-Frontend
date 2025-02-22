@@ -8,7 +8,7 @@ class ResendEmailButton extends StatefulWidget {
   final Duration cooldownDuration;
   final void Function() onTriggered;
 
-  const ResendEmailButton({Key? key, this.cooldownDuration = verificationSpan, required this.onTriggered}) : super(key: key);
+  const ResendEmailButton({super.key, this.cooldownDuration = verificationSpan, required this.onTriggered});
 
   @override
   State<ResendEmailButton> createState() => _ResendEmailButtonState();
@@ -58,7 +58,7 @@ class _ResendEmailButtonState extends State<ResendEmailButton> {
         alignment: Alignment.center,
         children: [
           // Outer border and main button container
-          Container(
+          SizedBox(
             width: 320,
             height: 94,
             child: Stack(

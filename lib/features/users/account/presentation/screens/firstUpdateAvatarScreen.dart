@@ -46,7 +46,7 @@ class _FirstUpdateAvatarScreenState extends State<FirstUpdateAvatarScreen> {
   void _navigateToGroupListScreen() {
     Future.microtask(() {
       if (!mounted) return;
-      GoRouter.of(context).push(userGroupListScreenRoute);
+      GoRouter.of(context).go(userGroupListScreenRoute);
     });
   }
 

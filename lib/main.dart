@@ -1,7 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mtaa_frontend/core/config/app_config.dart';
+import 'package:mtaa_frontend/core/constants/route_constants.dart';
 import 'package:mtaa_frontend/core/utils/app_injections.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/dotLoader.dart';
 import 'package:mtaa_frontend/features/users/authentication/shared/blocs/verification_email_phone_bloc.dart';
@@ -12,11 +14,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mtaa_frontend/themes/bloc/theme_state.dart';
 import 'package:mtaa_frontend/core/route/router.dart' as router;
 
-void main() {
+Future<void> main() async {
   const environment = String.fromEnvironment('ENV', defaultValue: 'development');
   AppConfig.loadConfig(environment);
   setupDependencies();
   HttpOverrides.global = MyHttpOverrides();
+  WidgetsFlutterBinding.ensureInitialized();
+  String initialRoute = await getInitialRoute();
   runApp(MultiBlocProvider(
     providers: [
       BlocProvider<ThemeBloc>(
@@ -26,52 +30,41 @@ void main() {
         create: (_) => VerificationEmailPhoneBloc(),
       ),
     ],
-    child: const MyApp(),
+    child: MyApp(initialRoute: initialRoute,),
   ));
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  Future<bool> _checkToken() async {
+  Future<bool> isAuthorized() async {
     final token = await TokenStorage.getToken();
-    return token != null;
+    return token != null && token.isNotEmpty;
   }
+
+  Future<String> getInitialRoute() async {
+    var res = await isAuthorized();
+    if (res) {
+      return userGroupListScreenRoute;
+    }
+    return '/';
+  }
+
+class MyApp extends StatelessWidget {
+  final String initialRoute;
+  const MyApp({super.key, required this.initialRoute});
+
+
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<bool>(
-      future: _checkToken(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return MaterialApp(
-            home: Scaffold(
-              body: Center(
-                child: DotLoader(),
-              ),
-            ),
-          );
-        } else if (snapshot.hasError) {
-          return MaterialApp(
-            home: Scaffold(
-              body: Center(
-                child: Text('Error: ${snapshot.error}'),
-              ),
-            ),
-          );
-        } else {
-          return BlocBuilder<ThemeBloc, ThemeState>(
-            builder: (context, state) {
-              return MaterialApp.router(
-                title: 'Flutter Demo',
-                theme: AppTheme.lightTheme(context),
-                darkTheme: AppTheme.darkTheme(context),
-                themeMode: state.themeMode,
-                routerConfig: router.AppRouter.router,
-              );
-            },
-          );
-        }
+    return BlocBuilder<ThemeBloc, ThemeState>(
+      builder: (context, state) {
+        return MaterialApp.router(
+          title: 'Flutter Demo',
+          theme: AppTheme.lightTheme(context),
+          darkTheme: AppTheme.darkTheme(context),
+          themeMode: state.themeMode,
+          routerConfig: router.AppRouter.createRouter(initialRoute),
+          
+        );
       },
     );
   }

@@ -38,7 +38,7 @@ class _CreateAccountState extends State<CreateAccountScreen> {
   void _navigateToFirstUpdateDisplayNameScreenRoute() {
     Future.microtask(() {
       if (!mounted) return;
-      GoRouter.of(context).push(firstUpdateDisplayNameScreenRoute);
+      GoRouter.of(context).go(firstUpdateDisplayNameScreenRoute);
     });
   }
 

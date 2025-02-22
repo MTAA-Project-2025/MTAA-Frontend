@@ -27,7 +27,7 @@ class AccountImplApi extends AccountApi {
 
   @override
   Future<MyImageGroupResponse?> customUpdateAccountAvatar(CustomUpdateAccountAvatarRequest request) async {
-    final fullUrl = controllerName + '/custom-update-account-avatar';
+    final fullUrl = '$controllerName/custom-update-account-avatar';
     try {
       FormData formData = FormData.fromMap({
         'avatar': await MultipartFile.fromFile(request.avatar.path, filename: request.avatar.path.split('/').last),
@@ -54,7 +54,7 @@ class AccountImplApi extends AccountApi {
 
   @override
   Future<MyImageGroupResponse?> presetUpdateAccountAvatar(PresetUpdateAccountAvatarRequest request) async {
-    final fullUrl = controllerName + '/preset-update-account-avatar';
+    final fullUrl = '$controllerName/preset-update-account-avatar';
     try {
       var res = await dio.put(fullUrl, data: request.toJson());
       return MyImageGroupResponse.fromJson(res.data);
@@ -78,7 +78,7 @@ class AccountImplApi extends AccountApi {
 
   @override
   Future<PublicFullAccountResponse?> publicGetFullAccount(String id) async {
-    final fullUrl = controllerName + '/public-full-account/'+id;
+    final fullUrl = '$controllerName/public-full-account/$id';
     try {
       var res = await dio.get(fullUrl);
       return PublicFullAccountResponse.fromJson(res.data);
@@ -102,7 +102,7 @@ class AccountImplApi extends AccountApi {
 
   @override
   Future<bool> updateAccountBirthDate(UpdateAccountBirthDateRequest request) async {
-    final fullUrl = controllerName + '/update-account-birth-date';
+    final fullUrl = '$controllerName/update-account-birth-date';
     try {
       await dio.put(fullUrl, data: request.toJson());
       return true;
@@ -126,7 +126,7 @@ class AccountImplApi extends AccountApi {
 
   @override
   Future<bool> updateAccountDisplayName(UpdateAccountDisplayNameRequest request) async {
-    final fullUrl = controllerName + '/update-account-display-name';
+    final fullUrl = '$controllerName/update-account-display-name';
     try {
       await dio.put(fullUrl, data: request.toJson());
       return true;
@@ -150,7 +150,7 @@ class AccountImplApi extends AccountApi {
 
   @override
   Future<bool> updateAccountUsername(UpdateAccountUsernameRequest request) async {
-    final fullUrl = controllerName + '/update-account-username';
+    final fullUrl = '$controllerName/update-account-username';
     try {
       await dio.put(fullUrl, data: request.toJson());
       return true;
