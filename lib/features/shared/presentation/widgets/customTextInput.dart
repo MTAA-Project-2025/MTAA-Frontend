@@ -9,12 +9,12 @@ class CustomTextInput extends StatefulWidget {
   final TextEditingController controller;
 
   const CustomTextInput({
-    Key? key,
+    super.key,
     required this.placeholder,
     this.validator,
     this.textInputType = TextInputType.text,
     required this.controller,
-  }) : super(key: key);
+  });
 
   @override
   State<CustomTextInput> createState() => _CustomTextInputState();

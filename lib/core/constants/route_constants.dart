@@ -1,5 +1,11 @@
+const String logInScreenRoute = "/logInScreen";
+
 const String startSignUpPageRoute = "/startSignUpPage";
 const String signUpVerificationByEmailScreenRoute = "/signUpVerificationByEmailScreen";
 const String createAccountScreenRoute = "/createAccountScreen";
-const String firstAddFullNameScreenRoute = "/firstAddFullNameScreen";
-const String startLogInPageRoute = "/startLogInPage";
+
+const String firstUpdateDisplayNameScreenRoute = "/firstUpdateDisplayNameScreen";
+const String firstUpdateBirthDateScreenRoute = "/firstUpdateBirthDateScreen";
+const String firstUpdateAvatarScreenRoute = "/firstUpdateAvatarScreen";
+
+const String userGroupListScreenRoute = "/userGroupListScreen";
