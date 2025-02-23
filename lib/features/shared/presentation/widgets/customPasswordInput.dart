@@ -9,12 +9,12 @@ class CustomPasswordInput extends StatefulWidget {
   final TextEditingController controller;
 
   const CustomPasswordInput({
-    Key? key,
+    super.key,
     this.placeholder = 'Password',
     this.validator,
     this.textInputType = TextInputType.text,
     required this.controller,
-  }) : super(key: key);
+  });
 
   @override
   State<CustomPasswordInput> createState() => _CustomPasswordInputState();
