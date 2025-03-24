@@ -8,8 +8,6 @@ class PublicFullAccountResponse {
   final String status;
   final DateTime lastSeen;
   final DateTime dataCreationTime;
-  final bool isContact;
-  final bool isBlocked;
   final MyImageGroupResponse? avatar;
 
   PublicFullAccountResponse({
@@ -20,8 +18,6 @@ class PublicFullAccountResponse {
     required this.status,
     required this.lastSeen,
     required this.dataCreationTime,
-    required this.isContact,
-    required this.isBlocked,
     this.avatar,
   });
 
@@ -34,8 +30,6 @@ class PublicFullAccountResponse {
       'status': status,
       'lastSeen': lastSeen.toIso8601String(),
       'dataCreationTime': dataCreationTime.toIso8601String(),
-      'isContact': isContact,
-      'isBlocked': isBlocked,
       'avatar': avatar?.toJson(),
     };
   }
@@ -49,11 +43,10 @@ class PublicFullAccountResponse {
       status: json['status'],
       lastSeen: DateTime.parse(json['lastSeen']),
       dataCreationTime: DateTime.parse(json['dataCreationTime']),
-      isContact: json['isContact'],
-      isBlocked: json['isBlocked'],
       avatar: json['avatar'] != null
           ? MyImageGroupResponse.fromJson(json['avatar'])
           : null,
     );
   }
+
 }

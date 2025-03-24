@@ -7,6 +7,8 @@ class CustomTextInput extends StatefulWidget {
   final MultiValidator? validator;
   final TextInputType textInputType;
   final TextEditingController controller;
+  final int? minLines;
+  final int? maxLines;
 
   const CustomTextInput({
     super.key,
@@ -14,6 +16,8 @@ class CustomTextInput extends StatefulWidget {
     this.validator,
     this.textInputType = TextInputType.text,
     required this.controller,
+    this.minLines,
+    this.maxLines,
   });
 
   @override
@@ -38,6 +42,8 @@ class _CustomTextInputState extends State<CustomTextInput> {
           style: Theme.of(context).textTheme.bodyMedium,
           cursorColor: Theme.of(context).textTheme.labelMedium?.decorationColor,
           controller:widget.controller,
+          minLines: widget.minLines,
+          maxLines: widget.maxLines,
           decoration: InputDecoration(
             labelText: widget.placeholder,
             labelStyle: TextStyle(

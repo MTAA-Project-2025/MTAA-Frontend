@@ -45,7 +45,7 @@ class StartScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 SvgPicture.asset(
-                  'assets/svgs/small_logo.svg', // Replace with your asset path
+                  'assets/svgs/small_logo.svg',
                   width: 100,
                   height: 100,
                 ),
@@ -59,12 +59,12 @@ class StartScreen extends StatelessWidget {
                   child: Column(
                     children: [
                       SvgPicture.asset(
-                        'assets/svgs/start_svg_1.svg', // Replace with your asset path
+                        'assets/svgs/start_svg_1.svg',
                         width: 200,
                         height: 200,
                       ),
                       SvgPicture.asset(
-                        'assets/svgs/start_svg_3.svg', // Replace with your asset path
+                        'assets/svgs/start_svg_3.svg',
                         width: 200,
                         height: 200,
                       ),
@@ -75,7 +75,7 @@ class StartScreen extends StatelessWidget {
                   child: Column(
                     children: [
                       SvgPicture.asset(
-                        'assets/svgs/start_svg_2.svg', // Replace with your asset path
+                        'assets/svgs/start_svg_2.svg',
                         width: 200,
                         height: 200,
                       ),
@@ -103,7 +103,7 @@ class StartScreen extends StatelessWidget {
                   ConstrainedBox(
                     constraints: const BoxConstraints.tightFor(width: 300),
                     child: SizedBox(
-                      width: double.infinity, // Occupy all available space
+                      width: double.infinity,
                       child: TextButton(
                         onPressed: () {
                           GoRouter.of(context).push(startSignUpPageRoute);
@@ -119,7 +119,7 @@ class StartScreen extends StatelessWidget {
                   ConstrainedBox(
                     constraints: const BoxConstraints.tightFor(width: 300),
                     child: SizedBox(
-                      width: double.infinity, // Occupy all available space
+                      width: double.infinity,
                       child: TextButton(
                         onPressed: () {
                           GoRouter.of(context).push(logInScreenRoute);

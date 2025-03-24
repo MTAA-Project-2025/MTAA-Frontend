@@ -1,5 +1,7 @@
+import 'package:uuid/uuid.dart';
+
 class PresetUpdateAccountAvatarRequest {
-  final String imageGroupId;
+  final UuidValue imageGroupId;
 
   PresetUpdateAccountAvatarRequest({required this.imageGroupId});
 

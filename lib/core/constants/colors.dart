@@ -77,6 +77,7 @@ const Color darkMsg1Color = Color.fromRGBO(90, 138, 162, 1);
 const Color lightMsg2Color = Color.fromRGBO(255, 243, 224, 1);
 const Color darkMsg2Color = Color.fromRGBO(90, 162, 132, 1);
 
+const Color errorColor = Color.fromRGBO(255, 0, 0, 1);
 
 
 

@@ -1,0 +1,127 @@
+import 'package:dio/dio.dart';
+import 'package:mtaa_frontend/core/services/exceptions_service.dart';
+import 'package:mtaa_frontend/features/posts/data/models/requests/add_post_request.dart';
+import 'package:mtaa_frontend/features/posts/data/models/requests/get_global_posts_request.dart';
+import 'package:mtaa_frontend/features/posts/data/models/requests/update_post_request.dart';
+import 'package:mtaa_frontend/features/posts/data/models/responses/full_post_response.dart';
+import 'package:mtaa_frontend/features/posts/data/models/responses/simple_post_response.dart';
+import 'package:mtaa_frontend/features/shared/data/models/page_parameters.dart';
+import 'package:uuid/uuid.dart';
+
+abstract class PostsApi {
+  Future<UuidValue?> addPost(AddPostRequest request);
+  Future<bool> updatePost(UpdatePostRequest request);
+  Future<List<FullPostResponse>> getRecommendedPosts(PageParameters request);
+  Future<List<FullPostResponse>> getGlobalPosts(GetGLobalPostsRequest request);
+  Future<FullPostResponse?> getFullPostById(UuidValue id);
+  Future<List<SimplePostResponse>> getAccountPosts(String userId, PageParameters pageParameters);
+  Future<bool> deletePost(UuidValue id);
+  Future<bool> likePost(UuidValue id);
+  Future<bool> removePostLike(UuidValue id);
+}
+
+class PostsApiImpl extends PostsApi {
+  final Dio dio;
+  final String controllerName = 'Posts';
+  final ExceptionsService exceptionsService;
+  CancelToken cancelToken = CancelToken();
+
+  PostsApiImpl(this.dio, this.exceptionsService);
+
+  @override
+  Future<UuidValue?> addPost(AddPostRequest request) async {
+    final fullUrl = '$controllerName/add';
+    try {
+      var res = await dio.post(fullUrl,data: request.toFormData());
+      return UuidValue.fromString(res.data);
+    } on DioException catch (e) {
+      exceptionsService.httpError(e);
+      return null;
+    }
+  }
+
+  @override
+  Future<bool> updatePost(UpdatePostRequest request) async {
+    final fullUrl = '$controllerName/update';
+    try {
+      await dio.put(fullUrl,data: request.toFormData());
+      return true;
+    } on DioException catch (e) {
+      exceptionsService.httpError(e);
+      return false;
+    }
+  }
+
+  @override
+  Future<List<FullPostResponse>> getRecommendedPosts(PageParameters request) async {
+    final fullUrl = '$controllerName/get-recommendations';
+    try {
+      var res = await dio.post(fullUrl,data: request.toJson());
+      List<dynamic> data = res.data;
+      return data.map((item) => FullPostResponse.fromJson(item)).toList();
+    } on DioException catch (e) {
+      exceptionsService.httpError(e);
+      return [];
+    }
+  }
+
+  @override
+  Future<List<FullPostResponse>> getGlobalPosts(GetGLobalPostsRequest request) async {
+    final fullUrl = '$controllerName/get-global';
+    try {
+      var res = await dio.post(fullUrl,data: request.toJson());
+      List<dynamic> data = res.data;
+      return data.map((item) => FullPostResponse.fromJson(item)).toList();
+    } on DioException catch (e) {
+      exceptionsService.httpError(e);
+      return [];
+    }
+  }
+
+  @override
+  Future<FullPostResponse?> getFullPostById(UuidValue id) async {
+    final fullUrl = '$controllerName/get-by-id/${id.uuid}';
+    try {
+      var res = await dio.get(fullUrl);
+      return FullPostResponse.fromJson(res.data);
+    } on DioException catch (e) {
+      exceptionsService.httpError(e);
+      return null;
+    }
+  }
+
+  @override
+  Future<List<SimplePostResponse>> getAccountPosts(String userId, PageParameters pageParameters) async {
+    final fullUrl = '$controllerName/get-from-account/$userId';
+    try {
+      var res = await dio.post(fullUrl,data:pageParameters.toJson());
+      List<dynamic> data = res.data;
+      return data.map((item) => SimplePostResponse.fromJson(item)).toList();
+    } on DioException catch (e) {
+      exceptionsService.httpError(e);
+      return [];
+    }
+  }
+
+  @override
+  Future<bool> deletePost(UuidValue id) async {
+    final fullUrl = '$controllerName/${id.uuid}';
+    try {
+      await dio.delete(fullUrl);
+      return true;
+    } on DioException catch (e) {
+      exceptionsService.httpError(e);
+      return false;
+    }
+  }
+
+  @override
+  Future<bool> likePost(UuidValue id) async {
+    return true; //TODO
+  }
+
+  @override
+  Future<bool> removePostLike(UuidValue id) async {
+    return true; //TODO
+  }
+}
