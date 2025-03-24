@@ -1,17 +1,21 @@
 import 'package:mtaa_frontend/features/images/data/models/responses/myImageGroupResponse.dart';
-import 'package:mtaa_frontend/features/users/account/data/models/responses/baseFullAccountResponse.dart';
 
-class PublicFullAccountResponse extends BaseFullAccountResponse{
-  final bool isFollowed;
+class BaseFullAccountResponse {
+  final String id;
+  final MyImageGroupResponse? avatar;
+  final String username;
+  final String displayName;
+  final int friendsCount;
+  final int followersCount;
+  
 
-  PublicFullAccountResponse({
-    required super.id,
-    super.avatar,
-    required super.username,
-    required super.displayName,
-    required super.friendsCount,
-    required super.followersCount,
-    required this.isFollowed,
+  BaseFullAccountResponse({
+    required this.id,
+    this.avatar,
+    required this.username,
+    required this.displayName,
+    required this.friendsCount,
+    required this.followersCount,
   });
 
   Map<String, dynamic> toJson() {
@@ -22,12 +26,11 @@ class PublicFullAccountResponse extends BaseFullAccountResponse{
       'displayName': displayName,
       'friendsCount': friendsCount,
       'followersCount': followersCount,
-      'isFollowed': isFollowed,
     };
   }
 
-  factory PublicFullAccountResponse.fromJson(Map<String, dynamic> json) {
-    return PublicFullAccountResponse(
+  factory BaseFullAccountResponse.fromJson(Map<String, dynamic> json) {
+    return BaseFullAccountResponse(
       id: json['id'],
       avatar: json['avatar'] != null
           ? MyImageGroupResponse.fromJson(json['avatar'])
@@ -36,7 +39,6 @@ class PublicFullAccountResponse extends BaseFullAccountResponse{
       displayName: json['displayName'],
       friendsCount: json['friendsCount'],
       followersCount: json['followersCount'],
-      isFollowed: json['isFollowed'],
     );
   }
 }
