@@ -7,11 +7,7 @@ class AddPostRequest {
   final String description;
   final AddLocationRequest? location;
 
-  AddPostRequest({
-    required this.images,
-    required this.description,
-    this.location
-  });
+  AddPostRequest({required this.images, required this.description, this.location});
 
   Map<String, dynamic> toJson() {
     return {
@@ -20,12 +16,24 @@ class AddPostRequest {
       'location': location?.toJson(),
     };
   }
-  
+
   FormData toFormData() {
-    return FormData.fromMap({
-      'images': images.map((image) => image.toFormData()).toList(),
-      'description': description,
-      'location': location?.toJson(),
-    });
+    FormData formData = FormData();
+
+    for (var image in images) {
+      formData.files.add(MapEntry(
+        'images[${image.position}].image',
+        MultipartFile.fromFileSync(image.image.path, filename: image.image.path.split('/').last),
+      ));
+      formData.fields.add(MapEntry(
+        'images[${image.position}].position',
+        image.position.toString(),
+      ));
+    }
+
+    formData.fields.add(MapEntry('description', description));
+    if (location != null) formData.fields.add(MapEntry('location', location.toString()));
+
+    return formData;
   }
 }

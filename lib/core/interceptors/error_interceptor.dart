@@ -11,7 +11,9 @@ class ErrorInterceptor extends Interceptor {
   Future<void> onError(DioError err, ErrorInterceptorHandler handler) async {
     if (getIt.isRegistered<BuildContext>()) {
       var context = getIt.get<BuildContext>();
-      context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: true, exceptionType: ExceptionTypes.serverError, message: 'Failed to add post'));
+      if(context.mounted){
+        context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: true, exceptionType: ExceptionTypes.serverError, message: 'Failed to add post'));
+      }
     }
 
     super.onError(err, handler);

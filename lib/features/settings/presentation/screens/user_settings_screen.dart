@@ -41,11 +41,11 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
                 child: TextButton(
                   onPressed: () {
                     TokenStorage.deleteToken();
-                    GoRouter.of(context).push('/');
+                    GoRouter.of(context).go('/');
                   },
                   style: Theme.of(context).textButtonTheme.style,
                   child: Text(
-                    'Sign Up',
+                    'Log out',
                   ),
                 ),
               ),

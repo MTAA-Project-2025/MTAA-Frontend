@@ -6,6 +6,10 @@ import 'package:mtaa_frontend/core/config/app_config.dart';
 import 'package:mtaa_frontend/core/constants/route_constants.dart';
 import 'package:mtaa_frontend/core/constants/storages/storage_boxes.dart';
 import 'package:mtaa_frontend/core/utils/app_injections.dart';
+import 'package:mtaa_frontend/domain/hive_data/add-posts/add_image_hive.dart';
+import 'package:mtaa_frontend/domain/hive_data/add-posts/add_location_hive.dart';
+import 'package:mtaa_frontend/domain/hive_data/add-posts/add_post_hive.dart';
+import 'package:mtaa_frontend/domain/hive_data/add-posts/crop_aspect_ratio_preset_custom_hive.dart';
 import 'package:mtaa_frontend/domain/hive_data/posts/full_post_hive.dart';
 import 'package:mtaa_frontend/domain/hive_data/posts/my_image_group_hive.dart';
 import 'package:mtaa_frontend/domain/hive_data/posts/my_image_hive.dart';
@@ -25,6 +29,10 @@ Future<void> main() async {
   Hive.registerAdapter(MyImageGroupHiveAdapter());
   Hive.registerAdapter(SimpleUserHiveAdapter());
   Hive.registerAdapter(FullPostHiveAdapter());
+  Hive.registerAdapter(AddImageHiveAdapter());
+  Hive.registerAdapter(AddLocationHiveAdapter());
+  Hive.registerAdapter(AddPostHiveAdapter());
+  Hive.registerAdapter(CropAspectRatioPresetCustomHiveAdapter());
   
   await Hive.openBox(currentUserDataBox);
   await Hive.openBox<List>(postsDataBox);

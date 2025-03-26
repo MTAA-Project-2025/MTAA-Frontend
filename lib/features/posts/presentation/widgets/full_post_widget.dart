@@ -16,13 +16,16 @@ import 'package:mtaa_frontend/features/posts/data/models/responses/full_post_res
 import 'package:mtaa_frontend/features/posts/data/repositories/posts_repository.dart';
 import 'package:mtaa_frontend/features/posts/presentation/widgets/post_like_widget.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
 
 class FullPostWidget extends StatefulWidget {
   final FullPostResponse post;
   final TimeFormatingService timeFormatingService;
   final bool isFull;
 
-  const FullPostWidget({super.key, required this.post, required this.timeFormatingService, required this.isFull});
+  const FullPostWidget({super.key, required this.post,
+  required this.timeFormatingService,
+  required this.isFull});
 
   @override
   State<FullPostWidget> createState() => _FullPostWidgetState();
@@ -38,6 +41,7 @@ class _FullPostWidgetState extends State<FullPostWidget> {
   late int maxPos;
   List<NetworkImage> images = [];
   late NetworkImage avatar;
+  late String userId='';
 
   @override
   void initState() {
@@ -46,6 +50,12 @@ class _FullPostWidgetState extends State<FullPostWidget> {
       isNextImageAllowed = true;
     }
     maxPos = widget.post.images.length - 1;
+    Future.microtask(() async {
+      var uId = await TokenStorage.getUserId();
+      if(uId!=null){
+        userId = uId;
+      }
+    });
   }
 
   ImageProvider<Object> getImage(MyImageResponse img){
@@ -95,8 +105,8 @@ class _FullPostWidgetState extends State<FullPostWidget> {
                   },
                   itemBuilder: (BuildContext context) => <PopupMenuEntry<PostMenuElements>>[
                     PopupMenuItem<PostMenuElements>(value: PostMenuElements.share, child: Text('Share', style: Theme.of(context).textTheme.bodyMedium)),
-                    PopupMenuItem<PostMenuElements>(value: PostMenuElements.edit, child: Text('Edit', style: Theme.of(context).textTheme.bodyMedium)),
-                    PopupMenuItem<PostMenuElements>(value: PostMenuElements.delete, child: Text('Delete', style: Theme.of(context).textTheme.bodyMedium)),
+                    if(userId==widget.post.owner.id) PopupMenuItem<PostMenuElements>(value: PostMenuElements.edit, child: Text('Edit', style: Theme.of(context).textTheme.bodyMedium)),
+                    if(userId==widget.post.owner.id) PopupMenuItem<PostMenuElements>(value: PostMenuElements.delete, child: Text('Delete', style: Theme.of(context).textTheme.bodyMedium)),
                   ],
                 ),
               ],
@@ -186,9 +196,7 @@ class _FullPostWidgetState extends State<FullPostWidget> {
                 PostLikeWidget(
                     repository: getIt<PostsRepository>(),
                     numberFormatingService: getIt<NumberFormatingService>(),
-                    initialLikesCount: widget.post.likesCount,
-                    initialIsLiked: widget.post.isLiked,
-                    postId: widget.post.id),
+                    post: widget.post),
                 GestureDetector(
                     onTap: () {
                       if (widget.isFull) return;

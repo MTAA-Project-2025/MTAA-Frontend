@@ -2,6 +2,8 @@ import 'package:airplane_mode_checker/airplane_mode_checker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mtaa_frontend/core/utils/app_injections.dart';
+import 'package:mtaa_frontend/domain/hive_data/add-posts/add_post_hive.dart';
+import 'package:mtaa_frontend/features/locations/data/models/requests/add_location_request.dart';
 import 'package:mtaa_frontend/features/posts/data/models/requests/add_post_request.dart';
 import 'package:mtaa_frontend/features/posts/data/models/requests/get_global_posts_request.dart';
 import 'package:mtaa_frontend/features/posts/data/models/requests/update_post_request.dart';
@@ -9,6 +11,8 @@ import 'package:mtaa_frontend/features/posts/data/models/responses/full_post_res
 import 'package:mtaa_frontend/features/posts/data/models/responses/simple_post_response.dart';
 import 'package:mtaa_frontend/features/posts/data/network/posts_api.dart';
 import 'package:mtaa_frontend/features/posts/data/storages/posts_storage.dart';
+import 'package:mtaa_frontend/features/posts/presentation/screens/add_post_screen.dart';
+import 'package:mtaa_frontend/features/posts/presentation/widgets/add_post_form.dart';
 import 'package:mtaa_frontend/features/shared/bloc/exception_type.dart';
 import 'package:mtaa_frontend/features/shared/bloc/exceptions_bloc.dart';
 import 'package:mtaa_frontend/features/shared/bloc/exceptions_event.dart';
@@ -29,6 +33,10 @@ abstract class PostsRepository {
   //Future<bool> deletePost(UuidValue id);
   Future<bool> likePost(UuidValue id);
   Future<bool> removePostLike(UuidValue id);
+
+  Future<AddPostHive?> getTempPostAddForm();
+Future setTempPostAddForm(List<AddPostImageScreenDTO> images, List<ImageDTO> imageDTOs, String text, AddLocationRequest? addLocation);
+  Future deleteTempPostAddForm();
 }
 
 class PostsRepositoryImpl extends PostsRepository {
@@ -163,5 +171,20 @@ class PostsRepositoryImpl extends PostsRepository {
   @override
   Future<bool> removePostLike(UuidValue id) async {
     return true;
+  }
+
+  @override
+  Future<AddPostHive?> getTempPostAddForm() async{
+    return await postsStorage.getTempPostAddForm();
+  }
+
+  @override
+  Future setTempPostAddForm(List<AddPostImageScreenDTO> images, List<ImageDTO> imageDTOs, String text, AddLocationRequest? addLocation) async{
+    return await postsStorage.setTempPostAddForm(images,imageDTOs,text,addLocation);
+  }
+
+  @override
+  Future deleteTempPostAddForm() async{
+    return await postsStorage.deleteTempPostAddForm();
   }
 }

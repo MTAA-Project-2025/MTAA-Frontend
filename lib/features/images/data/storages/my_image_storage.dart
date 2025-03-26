@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:drift/drift.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:uuid/uuid.dart';
 
 abstract class MyImageStorage {
   Future<String> saveTempImage(Uint8List data, String name);
@@ -12,7 +13,8 @@ class MyImageStorageImpl extends MyImageStorage {
   @override
   Future<String> saveTempImage(Uint8List data, String name) async {
     final tempDir = await getApplicationDocumentsDirectory();
-    final imageFile = File('${tempDir.path}/$name.jpg');
+    String id = Uuid().v4();
+    final imageFile = File('${tempDir.path}/${name}_$id.jpg');
     await imageFile.writeAsBytes(data);
 
     return imageFile.path;

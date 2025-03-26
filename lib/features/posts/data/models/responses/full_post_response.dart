@@ -10,9 +10,9 @@ class FullPostResponse {
 
   final PublicSimpleAccountResponse owner;
 
-  final int likesCount;
-  final int commentsCount;
-  final bool isLiked;
+  int likesCount;
+  int commentsCount;
+  bool isLiked;
 
   final UuidValue? locationId;
 

@@ -3,6 +3,7 @@ import 'package:mtaa_frontend/core/constants/route_constants.dart';
 import 'package:mtaa_frontend/core/services/my_toast_service.dart';
 import 'package:mtaa_frontend/core/utils/app_injections.dart';
 import 'package:mtaa_frontend/features/groups/presentation/screens/userGroupListScreen.dart';
+import 'package:mtaa_frontend/features/images/data/storages/my_image_storage.dart';
 import 'package:mtaa_frontend/features/images/presentation/widgets/test.dart';
 import 'package:mtaa_frontend/features/posts/data/models/responses/full_post_response.dart';
 import 'package:mtaa_frontend/features/posts/data/repositories/posts_repository.dart';
@@ -71,7 +72,7 @@ class AppRouter {
         ),
         GoRoute(
           path: addPostScreenRoute,
-          builder: (context, state) => AddPostScreen(repository: getIt<PostsRepository>(), toastService: getIt<MyToastService>(),)
+          builder: (context, state) => AddPostScreen(repository: getIt<PostsRepository>(), toastService: getIt<MyToastService>(), imageStorage: getIt<MyImageStorage>())
         ),
         GoRoute(
           path: userSettingsScreenRoute,
