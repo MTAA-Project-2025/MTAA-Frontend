@@ -83,14 +83,14 @@ class PostsStorageImpl extends PostsStorage {
 
       for (var imgGroup in origPost.images) {
         var img = imgGroup.images.firstWhere((e) => e.type == ImageSizeType.middle.index);
-        var uint8List = await urlToUint8List(img.fullPath);
+        var uint8List = await imageStorage.urlToUint8List(img.fullPath);
         if (uint8List == null) continue;
         var path = await imageStorage.saveTempImage(uint8List, 'postImg_${imgGroup.title}_${img.id}');
         img.localPath = path;
       }
       if (origPost.owner.avatar != null) {
         for (var img in origPost.owner.avatar!.images) {
-          var uint8List = await urlToUint8List(img.fullPath);
+          var uint8List = await imageStorage.urlToUint8List(img.fullPath);
           if (uint8List == null) continue;
           var path = await imageStorage.saveTempImage(uint8List, 'recommend_system_avatar_${img.id}');
           img.localPath = path;
@@ -145,22 +145,6 @@ class PostsStorageImpl extends PostsStorage {
     
     var box = await Hive.openBox<AddPostHive>(tempAddPostDataBox);
     await box.put(tempAddPost, hivePost);
-  }
-
-  //Gpt
-  Future<Uint8List?> urlToUint8List(String imageUrl) async {
-    try {
-      final response = await http.get(Uri.parse(imageUrl));
-
-      if (response.statusCode == 200) {
-        return response.bodyBytes;
-      } else {
-        print('Failed to load image: ${response.statusCode}');
-        return null;
-      }
-    } catch (e) {
-      return null;
-    }
   }
 
   @override

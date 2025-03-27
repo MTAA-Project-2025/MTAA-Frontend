@@ -34,7 +34,14 @@ class _PostLikeWidgetState extends State<PostLikeWidget> {
               }
             });
 
-            var res = await widget.repository.likePost(widget.post.id);
+            bool res = false;
+
+            if(widget.post.isLiked) {
+              res = await widget.repository.likePost(widget.post.id);
+            } else {
+              res = await widget.repository.removePostLike(widget.post.id);
+            }
+
             setState(() {
               if (!res) {
                 widget.post.isLiked = !widget.post.isLiked;

@@ -117,11 +117,25 @@ class PostsApiImpl extends PostsApi {
 
   @override
   Future<bool> likePost(UuidValue id) async {
-    return true; //TODO
+    final fullUrl = '$controllerName/add-like/${id.uuid}';
+    try {
+      await dio.post(fullUrl);
+      return true;
+    } on DioException catch (e) {
+      exceptionsService.httpError(e);
+      return false;
+    }
   }
 
   @override
   Future<bool> removePostLike(UuidValue id) async {
-    return true; //TODO
+    final fullUrl = '$controllerName/remove-like/${id.uuid}';
+    try {
+      await dio.delete(fullUrl);
+      return true;
+    } on DioException catch (e) {
+      exceptionsService.httpError(e);
+      return false;
+    }
   }
 }

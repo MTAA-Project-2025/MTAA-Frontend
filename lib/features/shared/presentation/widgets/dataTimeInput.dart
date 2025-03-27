@@ -50,7 +50,7 @@ class _DateTimeInputState extends State<DateTimeInput> {
             ConstrainedBox(
                 constraints: const BoxConstraints.tightFor(width: 250),
                 child: SizedBox(
-                  width: double.infinity, // Occupy all available space
+                  width: double.infinity,
                   child: FocusScope(
                     child: isFirstTime
                         ? OutlinedButton(
@@ -74,9 +74,9 @@ class _DateTimeInputState extends State<DateTimeInput> {
                         : OutlinedButton(
                             onPressed: () => _selectDate(context),
                             style: OutlinedButton.styleFrom(
-                              side: BorderSide(color: primarily0InvincibleColor), // Border color
+                              side: BorderSide(color: primarily0InvincibleColor),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8), // Rounded corners
+                                borderRadius: BorderRadius.circular(8),
                               ),
                               foregroundColor: Theme.of(context).colorScheme.secondary,
                               backgroundColor: Theme.of(context).scaffoldBackgroundColor,

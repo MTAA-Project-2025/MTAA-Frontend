@@ -22,10 +22,12 @@ class FullPostWidget extends StatefulWidget {
   final FullPostResponse post;
   final TimeFormatingService timeFormatingService;
   final bool isFull;
+  final PostsRepository repository;
 
   const FullPostWidget({super.key, required this.post,
   required this.timeFormatingService,
-  required this.isFull});
+  required this.isFull,
+  required this.repository});
 
   @override
   State<FullPostWidget> createState() => _FullPostWidgetState();
@@ -35,12 +37,9 @@ class _FullPostWidgetState extends State<FullPostWidget> {
   CarouselSliderController carouselController = CarouselSliderController();
 
   bool isNextImageAllowed = false;
-  bool isPreviousImageAllowed = false;
   bool isTextOpen = false;
   int currentPos = 0;
   late int maxPos;
-  List<NetworkImage> images = [];
-  late NetworkImage avatar;
   late String userId='';
 
   @override
@@ -101,6 +100,13 @@ class _FullPostWidgetState extends State<FullPostWidget> {
                 PopupMenuButton<PostMenuElements>(
                   initialValue: null,
                   onSelected: (PostMenuElements item) {
+                    if(item==PostMenuElements.edit){
+                      GoRouter.of(context).push(updatePostScreenRoute, extra: widget.post);
+                    }
+                    else if(item==PostMenuElements.delete){
+                      //TODO: implement confirmation
+                      widget.repository.deletePost(widget.post.id);
+                    }
                     setState(() {});
                   },
                   itemBuilder: (BuildContext context) => <PopupMenuEntry<PostMenuElements>>[
@@ -135,6 +141,9 @@ class _FullPostWidgetState extends State<FullPostWidget> {
                     aspectRatio: widget.post.images.first.images.firstWhere((element) => element.type == ImageSizeType.middle).aspectRatio,
                     enlargeStrategy: CenterPageEnlargeStrategy.height,
                     scrollDirection: Axis.horizontal,
+                    onPageChanged: (index, reason) => setState(() {
+                      currentPos = index;
+                    }),
                   )),
             ),
             if (currentPos < maxPos)
@@ -143,9 +152,6 @@ class _FullPostWidgetState extends State<FullPostWidget> {
                 child: IconButton(
                   onPressed: () {
                     if (currentPos < maxPos) {
-                      setState(() {
-                        currentPos++;
-                      });
                       carouselController.nextPage(duration: Duration(milliseconds: 800), curve: Curves.fastOutSlowIn);
                     }
                   },
@@ -159,9 +165,6 @@ class _FullPostWidgetState extends State<FullPostWidget> {
                   child: IconButton(
                       onPressed: () {
                         if (currentPos > 0) {
-                          setState(() {
-                            currentPos--;
-                          });
                           carouselController.previousPage(duration: Duration(milliseconds: 800), curve: Curves.fastOutSlowIn);
                         }
                       },
@@ -172,7 +175,7 @@ class _FullPostWidgetState extends State<FullPostWidget> {
                 bottom: 10,
                 child: Row(
                   children: [
-                    for (int i = 0; i < images.length; i++)
+                    for (int i = 0; i < widget.post.images.length; i++)
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: 5),
                         child: Container(

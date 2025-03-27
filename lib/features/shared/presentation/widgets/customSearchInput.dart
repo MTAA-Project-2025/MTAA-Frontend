@@ -2,27 +2,28 @@ import 'package:flutter/material.dart';
 import 'package:form_field_validator/form_field_validator.dart';
 import 'package:mtaa_frontend/core/constants/colors.dart';
 
-class CustomPasswordInput extends StatefulWidget {
+class CustomSearchInput extends StatefulWidget {
   final String placeholder;
   final MultiValidator? validator;
   final TextInputType textInputType;
   final TextEditingController controller;
+  final void Function() onSearch;
 
-  const CustomPasswordInput({
+  const CustomSearchInput({
     super.key,
-    this.placeholder = 'Password',
+    this.placeholder = 'Search',
     this.validator,
     this.textInputType = TextInputType.text,
+    required this.onSearch,
     required this.controller,
   });
 
   @override
-  State<CustomPasswordInput> createState() => _CustomPasswordInputState();
+  State<CustomSearchInput> createState() => _CustomSearchInputState();
 }
 
-class _CustomPasswordInputState extends State<CustomPasswordInput> {
+class _CustomSearchInputState extends State<CustomSearchInput> {
   bool _isFocused = false;
-  bool passwordVisible = false;
 
   @override
   void dispose() {
@@ -30,18 +31,16 @@ class _CustomPasswordInputState extends State<CustomPasswordInput> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    passwordVisible = false;
-  }
-
-  @override
   Widget build(BuildContext context) {
     return FocusScope(
       child: Focus(
-        onFocusChange: (focus) => setState(() => _isFocused = focus),
+        onFocusChange: (focus) {
+          setState(() => _isFocused = focus);
+          if(!_isFocused){
+            widget.onSearch.call();
+          }
+        },
         child: TextFormField(
-          obscureText: !passwordVisible,
           validator: widget.validator?.call,
           style: Theme.of(context).textTheme.bodyMedium,
           cursorColor: Theme.of(context).textTheme.labelMedium?.decorationColor,
@@ -54,20 +53,21 @@ class _CustomPasswordInputState extends State<CustomPasswordInput> {
                   ? Theme.of(context).textTheme.labelMedium?.decorationColor
                   : Theme.of(context).textTheme.labelMedium?.color,
             ),
-            suffixIcon: IconButton(
-              icon: Icon(passwordVisible ? Icons.visibility : Icons.visibility_off),
+            prefixIcon: IconButton(
+              icon: Icon(Icons.search_rounded),
               color: Theme.of(context).textTheme.labelMedium?.decorationColor,
               onPressed: () {
                 setState(
                   () {
-                    passwordVisible = !passwordVisible;
+                    _isFocused=!_isFocused;
+                    widget.onSearch.call();
                   },
                 );
               },
             ),
             filled: true,
             fillColor: Theme.of(context).scaffoldBackgroundColor,
-            contentPadding: const EdgeInsets.fromLTRB(28, 28, 12, 16),
+            contentPadding: const EdgeInsets.fromLTRB(15, 15, 12, 16),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
               borderSide: const BorderSide(

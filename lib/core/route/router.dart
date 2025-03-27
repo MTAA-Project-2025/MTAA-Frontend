@@ -11,6 +11,7 @@ import 'package:mtaa_frontend/features/posts/presentation/screens/add_post_scree
 import 'package:mtaa_frontend/features/posts/presentation/screens/full_post_screen.dart';
 import 'package:mtaa_frontend/features/posts/presentation/screens/post_recommendations_screen.dart';
 import 'package:mtaa_frontend/features/posts/presentation/screens/posts_global_search_screen.dart';
+import 'package:mtaa_frontend/features/posts/presentation/screens/update_post_screen.dart';
 import 'package:mtaa_frontend/features/settings/presentation/screens/user_settings_screen.dart';
 import 'package:mtaa_frontend/features/users/account/data/network/account_api.dart';
 import 'package:mtaa_frontend/features/users/account/presentation/screens/firstUpdateAvatarScreen.dart';
@@ -73,6 +74,15 @@ class AppRouter {
         GoRoute(
           path: addPostScreenRoute,
           builder: (context, state) => AddPostScreen(repository: getIt<PostsRepository>(), toastService: getIt<MyToastService>(), imageStorage: getIt<MyImageStorage>())
+        ),
+        GoRoute(
+          path: updatePostScreenRoute,
+          builder: (context, state) {
+            FullPostResponse? post;
+            if(state.extra!=null && state.extra is FullPostResponse) post = state.extra as FullPostResponse;
+            
+            return UpdatePostScreen(repository: getIt<PostsRepository>(), toastService: getIt<MyToastService>(), imageStorage: getIt<MyImageStorage>(), post:post!);
+          }  
         ),
         GoRoute(
           path: userSettingsScreenRoute,

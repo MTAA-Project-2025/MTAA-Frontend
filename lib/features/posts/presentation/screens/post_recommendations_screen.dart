@@ -142,6 +142,7 @@ class _PostRecommendationsScreenState extends State<PostRecommendationsScreen> {
                       post: posts[index],
                       timeFormatingService: getIt<TimeFormatingService>(),
                       isFull: false,
+                      repository: widget.repository,
                     );
                   }
                   if (paginationScrollController.isLoading) {

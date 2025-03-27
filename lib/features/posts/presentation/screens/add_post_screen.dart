@@ -52,30 +52,6 @@ class _AddPostScreenState extends State<AddPostScreen> {
     }
     getIt.registerSingleton<BuildContext>(context);
 
-    /*Future.microtask(() async {
-      if (!mounted) return;
-      var hiveData = await widget.repository.getTempPostAddForm();
-      if (hiveData != null) {
-        setState(() {
-          descriptionController.text = hiveData.description;
-          for (int i = 0; i < hiveData.origImagesPaths.length; i++) {
-            origs.add(XFile(hiveData.origImagesPaths[i]));
-          }
-          bool flag = false;
-          for (var img in hiveData.images) {
-            var image = AddImageRequest.fromHive(img);
-            image.isLocal = true;
-            images.add(image);
-            if (image.isAspectRatioError) {
-              flag = true;
-            }
-          }
-
-          if (flag) isAspectRatioError = true;
-        });
-      }
-    });*/
-
     Future.microtask(() async {
       if (!mounted) return;
       var hiveData = await widget.repository.getTempPostAddForm();
@@ -122,27 +98,6 @@ class _AddPostScreenState extends State<AddPostScreen> {
       GoRouter.of(context).go(userRecommendationsScreenRoute);
     });
   }
-
-  /*void deleteImg(int pos) {
-    setState(() {
-      List<AddImageRequest> newImages = [];
-      for (int i = 0; i < images.length; i++) {
-        if (i < pos) {
-          newImages.add(images[i]);
-        } else if (i == pos) {
-          if (images[i].isLocal) {
-            imagePathsForDelete.add(images[i].image.path);
-            imagePathsForDelete.add(origs[i].path);
-          }
-        } else if (i > pos) {
-          newImages.add(images[i]);
-          newImages[i - 1].position--;
-        }
-      }
-      images = newImages;
-      origs.removeAt(currentPos);
-    });
-  }*/
 
   void deleteImg(int pos) {
     setState(() {
@@ -322,7 +277,8 @@ class _AddPostScreenState extends State<AddPostScreen> {
                     onUpload: uploadImg,
                     onUpdate: updateImg,
                     isAspectRatioError: isAspectRatioError,
-                    toastService: widget.toastService),
+                    toastService: widget.toastService,
+                    imageStorage: widget.imageStorage),
                 const SizedBox(height: 20),
                 Expanded(flex: 1, child: Container()),
                 isLoading

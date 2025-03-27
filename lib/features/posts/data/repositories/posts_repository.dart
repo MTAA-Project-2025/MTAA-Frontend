@@ -30,12 +30,12 @@ abstract class PostsRepository {
   Future<List<FullPostResponse>> getGlobalPosts(GetGLobalPostsRequest request);
   Future<FullPostResponse?> getFullPostById(UuidValue id);
   Future<List<SimplePostResponse>> getAccountPosts(String userId, PageParameters pageParameters);
-  //Future<bool> deletePost(UuidValue id);
+  Future<bool> deletePost(UuidValue id);
   Future<bool> likePost(UuidValue id);
   Future<bool> removePostLike(UuidValue id);
 
   Future<AddPostHive?> getTempPostAddForm();
-Future setTempPostAddForm(List<AddPostImageScreenDTO> images, List<ImageDTO> imageDTOs, String text, AddLocationRequest? addLocation);
+  Future setTempPostAddForm(List<AddPostImageScreenDTO> images, List<ImageDTO> imageDTOs, String text, AddLocationRequest? addLocation);
   Future deleteTempPostAddForm();
 }
 
@@ -51,7 +51,9 @@ class PostsRepositoryImpl extends PostsRepository {
     if (status == AirplaneModeStatus.on) {
       if (getIt.isRegistered<BuildContext>()) {
         var context = getIt.get<BuildContext>();
+        if(context.mounted){
         context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: true, exceptionType: ExceptionTypes.flightMode, message: 'Flight mode is enabled'));
+        }
         return null;
       }
     }
@@ -64,7 +66,9 @@ class PostsRepositoryImpl extends PostsRepository {
     if (status == AirplaneModeStatus.on) {
       if (getIt.isRegistered<BuildContext>()) {
         var context = getIt.get<BuildContext>();
+        if(context.mounted){
         context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: true, exceptionType: ExceptionTypes.flightMode, message: 'Flight mode is enabled'));
+        }
         return false;
       }
     }
@@ -145,32 +149,34 @@ class PostsRepositoryImpl extends PostsRepository {
     return posts;
   }
 
-  /*@override
+  @override
   Future<bool> deletePost(UuidValue id) async {
     final status = await AirplaneModeChecker.instance.checkAirplaneMode();
     if (status == AirplaneModeStatus.on) {
       if (getIt.isRegistered<BuildContext>()) {
         var context = getIt.get<BuildContext>();
+        if(context.mounted){
         context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: true, exceptionType: ExceptionTypes.flightMode, message: 'Flight mode is enabled'));
+        }
         return false;
       }
     }
     var res = await postsApi.deletePost(id);
     if (res) {
-      await postsStorage.deleteRecommendedPost(id);
+      //Todo: implement deleting of local posts
       return true;
     }
     return false;
-  }*/
+  }
 
   @override
   Future<bool> likePost(UuidValue id) async {
-    return true;
+    return await postsApi.likePost(id);
   }
 
   @override
   Future<bool> removePostLike(UuidValue id) async {
-    return true;
+    return await postsApi.removePostLike(id);
   }
 
   @override

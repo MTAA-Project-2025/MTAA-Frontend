@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:mtaa_frontend/core/constants/colors.dart';
 import 'package:mtaa_frontend/core/constants/validators.dart';
 import 'package:mtaa_frontend/core/services/my_toast_service.dart';
+import 'package:mtaa_frontend/features/images/data/storages/my_image_storage.dart';
 import 'package:mtaa_frontend/features/images/domain/utils/cropAspectRatioPresetCustom.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/customTextInput.dart';
 
@@ -19,6 +20,7 @@ class AddPostForm extends StatefulWidget {
 
   final bool isAspectRatioError;
   final MyToastService toastService;
+  final MyImageStorage imageStorage;
 
   const AddPostForm(
       {super.key,
@@ -29,7 +31,8 @@ class AddPostForm extends StatefulWidget {
       required this.onUpload,
       required this.onUpdate,
       required this.isAspectRatioError,
-      required this.toastService});
+      required this.toastService,
+      required this.imageStorage});
 
   @override
   State<AddPostForm> createState() => _AddPostFormState();
@@ -38,6 +41,18 @@ class AddPostForm extends StatefulWidget {
 class _AddPostFormState extends State<AddPostForm> {
   int currentPos = 0;
   XFile? pickedFile;
+  List<String> imagesForDelete = [];
+
+  @override
+  void dispose() {
+    Future.microtask(() async {
+      for (var path in imagesForDelete) {
+        widget.imageStorage.deleteImage(path);
+      }
+    });
+
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -169,8 +184,27 @@ class _AddPostFormState extends State<AddPostForm> {
         }
         aspectRatios.add(widget.images[i].aspectRatioPreset);
       }
+      String originalPath = '';
+      if (isFromUpload) {
+        originalPath = pickedFile!.path;
+      } else {
+        if (widget.images[currentPos].originalPath.startsWith('http')) {
+          var data = await widget.imageStorage.urlToUint8List(widget.images[currentPos].originalPath);
+          if (data != null) {
+            originalPath = await widget.imageStorage.saveStortLifeTempImage(data, 'original_img');
+            widget.images[currentPos].originalPath = originalPath;
+            imagesForDelete.add(originalPath);
+          } else {
+            if (context.mounted && mounted) {
+              await widget.toastService.showErrorWithContext('Internal storage error', context);
+            }
+            return;
+          }
+        }
+      }
+
       final croppedFile = await ImageCropper().cropImage(
-        sourcePath: isFromUpload ? pickedFile!.path : widget.images[currentPos].originalPath,
+        sourcePath: originalPath,
         compressFormat: ImageCompressFormat.jpg,
         compressQuality: 100,
         uiSettings: [

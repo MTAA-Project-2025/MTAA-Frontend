@@ -14,13 +14,14 @@ import 'package:mtaa_frontend/features/shared/bloc/exceptions_event.dart';
 import 'package:mtaa_frontend/features/shared/bloc/exceptions_state.dart';
 import 'package:mtaa_frontend/features/shared/data/controllers/pagination_scroll_controller.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/airmode_error_notification_section.dart';
+import 'package:mtaa_frontend/features/shared/presentation/widgets/customSearchInput.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/dotLoader.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/empty_data_notification_section.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/phone_bottom_menu.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/server_error_notification_section.dart';
 
 class PostsGlobalSearchScreen extends StatefulWidget {
-    final PostsRepository repository;
+  final PostsRepository repository;
 
   const PostsGlobalSearchScreen({super.key, required this.repository});
 
@@ -32,6 +33,8 @@ class _PostsGlobalSearchScreenState extends State<PostsGlobalSearchScreen> {
   PaginationScrollController paginationScrollController = PaginationScrollController();
   List<FullPostResponse> posts = [];
   bool isLoading = false;
+  final searchController = TextEditingController();
+  String filterStr = '';
 
   @override
   void initState() {
@@ -46,6 +49,7 @@ class _PostsGlobalSearchScreenState extends State<PostsGlobalSearchScreen> {
     context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: false, exceptionType: ExceptionTypes.none, message: ''));
 
     Future.microtask(() async {
+      if (!context.mounted || !mounted) return;
       final status = await AirplaneModeChecker.instance.checkAirplaneMode();
       if (status == AirplaneModeStatus.on) {
         context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: true, exceptionType: ExceptionTypes.flightMode, message: 'Flight mode is enabled'));
@@ -55,10 +59,12 @@ class _PostsGlobalSearchScreenState extends State<PostsGlobalSearchScreen> {
     AppLifecycleListener(
       onResume: () async {
         Future.microtask(() async {
-          if (context.mounted) {
+          if (mounted && context.mounted) {
             final status = await AirplaneModeChecker.instance.checkAirplaneMode();
             if (status == AirplaneModeStatus.off) {
-              context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: false, exceptionType: ExceptionTypes.none, message: ''));
+              if(mounted && context.mounted){
+                context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: false, exceptionType: ExceptionTypes.none, message: ''));
+              }
               loadFirst();
             }
           }
@@ -70,7 +76,7 @@ class _PostsGlobalSearchScreenState extends State<PostsGlobalSearchScreen> {
   }
 
   Future loadPosts() async {
-    var res = await widget.repository.getGlobalPosts(new GetGLobalPostsRequest(filterStr: '', pageParameters: paginationScrollController.pageParameters));
+    var res = await widget.repository.getGlobalPosts(new GetGLobalPostsRequest(filterStr: filterStr, pageParameters: paginationScrollController.pageParameters));
     if (res.length < paginationScrollController.pageParameters.pageSize) {
       paginationScrollController.stopLoading = true;
     }
@@ -84,6 +90,7 @@ class _PostsGlobalSearchScreenState extends State<PostsGlobalSearchScreen> {
   @override
   void dispose() {
     paginationScrollController.dispose();
+    searchController.dispose();
     super.dispose();
   }
 
@@ -91,9 +98,9 @@ class _PostsGlobalSearchScreenState extends State<PostsGlobalSearchScreen> {
     posts.clear();
     paginationScrollController.dispose();
     paginationScrollController.init(loadAction: () => loadPosts());
-    
+
     setState(() {
-      paginationScrollController.isLoading=true;
+      paginationScrollController.isLoading = true;
     });
     await loadPosts();
     setState(() {
@@ -110,14 +117,28 @@ class _PostsGlobalSearchScreenState extends State<PostsGlobalSearchScreen> {
             Expanded(
               child: ListView.builder(
                 cacheExtent: 9999,
-                itemCount: posts.length + 1,
+                itemCount: posts.length + 2,
                 controller: paginationScrollController.scrollController,
                 itemBuilder: (context, index) {
-                  if (index < posts.length) {
+                  if (index == 0) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                      child: CustomSearchInput(
+                        controller: searchController,
+                        textInputType: TextInputType.text,
+                        onSearch: () {
+                          filterStr = searchController.text;
+                          loadFirst();
+                        },
+                      ),
+                    );
+                  }
+                  if (index - 1 < posts.length) {
                     return FullPostWidget(
-                      post: posts[index],
+                      post: posts[index - 1],
                       timeFormatingService: getIt<TimeFormatingService>(),
                       isFull: false,
+                      repository: widget.repository,
                     );
                   }
                   if (paginationScrollController.isLoading) {
@@ -137,12 +158,12 @@ class _PostsGlobalSearchScreenState extends State<PostsGlobalSearchScreen> {
                   }
                   if (state.isException && state.exceptionType == ExceptionTypes.serverError) {
                     return ServerErrorNotificationSectionWidget(
-                      onPressed: (){
+                      onPressed: () {
                         loadFirst();
                       },
                     );
                   }
-                  if(posts.isEmpty){
+                  if (posts.isEmpty) {
                     return EmptyErrorNotificationSectionWidget(
                       onPressed: () {
                         loadFirst();

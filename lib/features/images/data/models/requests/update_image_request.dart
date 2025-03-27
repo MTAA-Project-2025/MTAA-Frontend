@@ -2,11 +2,10 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:uuid/uuid.dart';
 
 class UpdateImageRequest {
   final File? newImage;
-  final Uuid? oldImageId; 
+  final String? oldImageId; 
   final int position;
 
   UpdateImageRequest({
@@ -24,7 +23,7 @@ class UpdateImageRequest {
 
     return {
       'image': base64Image??null,
-      'oldImageId': oldImageId?.toString(),
+      'oldImageId': oldImageId,
       'position': position,
     };
   }
@@ -34,7 +33,7 @@ class UpdateImageRequest {
     return FormData.fromMap({
       'image':  newImage==null?null:MultipartFile.fromFile(newImage!.path, filename: newImage!.path.split('/').last),
       'position': position,
-      'oldImageId':oldImageId?.toString(),
+      'oldImageId':oldImageId,
     });
   }
 }

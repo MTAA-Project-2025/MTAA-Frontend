@@ -99,6 +99,7 @@ class _FullPostScreenScreenState extends State<FullPostScreen> {
                     post: post!,
                     timeFormatingService: getIt<TimeFormatingService>(),
                     isFull: true,
+                    repository: widget.repository,
                   ),
                 ],
               ),
