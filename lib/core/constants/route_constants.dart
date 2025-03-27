@@ -9,3 +9,16 @@ const String firstUpdateBirthDateScreenRoute = "/firstUpdateBirthDateScreen";
 const String firstUpdateAvatarScreenRoute = "/firstUpdateAvatarScreen";
 
 const String userGroupListScreenRoute = "/userGroupListScreen";
+
+const String userRecommendationsScreenRoute = "/userRecommendationsScreen";
+
+const String userMapScreenRoute = "/userMapScreen";
+const String userFriendsScreenRoute = "/userFriendsScreen";
+const String accountProfileScreenRoute = "/accountProfileScreen";
+const String userSettingsScreenRoute = "/userSettingsScreen";
+
+const String globalSearchScreenRoute = "/globalSearchScreen";
+
+const String fullPostScreenRoute = "/fullPostScreen";
+const String addPostScreenRoute = "/addPostScreen";
+const String updatePostScreenRoute = "/updatePostScreen";

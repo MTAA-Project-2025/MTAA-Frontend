@@ -64,3 +64,12 @@ bool isImage(XFile file) {
   final extension = file.path.split('.').last.toLowerCase();
   return ['jpg', 'jpeg', 'png'].contains(extension);
 }
+
+final descriptionValidator = MultiValidator([
+  RequiredValidator(errorText: 'Description is required'),
+  MinLengthValidator(3, errorText: 'Description must be at least 3 digits long'),
+  MaxLengthValidator(3000, errorText: 'Description must be at most 3000 digits long')
+]);
+
+final double minPostImageAspectRatio = 0.5;
+final double maxPostImageAspectRatio = 2;

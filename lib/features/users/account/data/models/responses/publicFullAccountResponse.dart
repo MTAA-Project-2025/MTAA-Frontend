@@ -39,4 +39,5 @@ class PublicFullAccountResponse extends BaseFullAccountResponse{
       isFollowed: json['isFollowed'],
     );
   }
+
 }

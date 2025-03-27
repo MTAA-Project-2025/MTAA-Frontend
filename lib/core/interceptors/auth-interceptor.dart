@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
 
 class AuthInterceptor extends Interceptor {
   AuthInterceptor();
@@ -8,8 +9,8 @@ class AuthInterceptor extends Interceptor {
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
-    var token = '';
-    options.headers.addAll({'Authorization': token});
+    var token = await TokenStorage.getToken();
+    options.headers.addAll({'Authorization': 'Bearer $token'});
     return handler.next(options);
   }
 

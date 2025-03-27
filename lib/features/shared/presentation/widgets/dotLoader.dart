@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 
+//created by Copilot
 class DotLoader extends StatefulWidget {
   const DotLoader({super.key});
 
@@ -17,14 +18,12 @@ class _DotLoaderState extends State<DotLoader> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    // Initialize colors based on current theme
     colors = [
       Theme.of(context).colorScheme.primary,
       Theme.of(context).colorScheme.secondary,
       Theme.of(context).colorScheme.tertiary,
     ];
 
-    // Initialize timer if not already running
     _colorChangeTimer ??= Timer.periodic(const Duration(milliseconds: 200), (timer) {
       setState(() {
         _currentIndex = (_currentIndex + 1) % colors.length;
@@ -43,7 +42,6 @@ class _DotLoaderState extends State<DotLoader> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        // Left block of circles
         Row(
           children: List.generate(3, (index) {
             int colorIndex = (_currentIndex + (2 - index)) % colors.length;
@@ -54,13 +52,12 @@ class _DotLoaderState extends State<DotLoader> {
               height: 16,
               decoration: BoxDecoration(
                 color: colors[colorIndex],
-                borderRadius: BorderRadius.circular(9999),
+                borderRadius: BorderRadius.circular(100),
               ),
             );
           }),
         ),
-        const SizedBox(width: 24), // Space between the two blocks
-        // Right block of circles
+        const SizedBox(width: 24),
         Row(
           children: List.generate(3, (index) {
             int colorIndex = (_currentIndex + index) % colors.length;
@@ -71,7 +68,7 @@ class _DotLoaderState extends State<DotLoader> {
               height: 16,
               decoration: BoxDecoration(
                 color: colors[colorIndex],
-                borderRadius: BorderRadius.circular(9999),
+                borderRadius: BorderRadius.circular(100),
               ),
             );
           }),
