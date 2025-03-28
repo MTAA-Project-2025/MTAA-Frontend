@@ -28,7 +28,7 @@ class FullPostScreen extends StatefulWidget {
 }
 
 class _FullPostScreenScreenState extends State<FullPostScreen> {
-  late FullPostResponse? post;
+  FullPostResponse? post;
 
   @override
   void initState() {
@@ -70,7 +70,9 @@ class _FullPostScreenScreenState extends State<FullPostScreen> {
     } else {
       var res = await widget.repository.getFullPostById(UuidValue.fromString(widget.postId!));
       if(res!=null){
-        post=res;
+        setState(() {
+          post = res;
+        });
       }
     }
   }

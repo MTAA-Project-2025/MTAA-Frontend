@@ -26,20 +26,15 @@ class PaginationScrollController {
     scrollController.dispose();
   }
 
-  void scrollListener() {
+  void scrollListener() async {
     if (stopLoading) {
       return;
     }
     if (scrollController.offset >= scrollController.position.maxScrollExtent * boundaryOffset && !isLoading) {
       isLoading = true;
-      loadAction().then((shouldStop) {
-        isLoading = false;
-        pageParameters.pageNumber++;
-        boundaryOffset = 1 - 1 / (pageParameters.pageNumber * 2);
-        if (shouldStop == true) {
-          stopLoading = true;
-        }
-      });
+      await loadAction();
+      isLoading = false;
+      boundaryOffset = 1 - 1 / (pageParameters.pageNumber * 2);
     }
   }
 }

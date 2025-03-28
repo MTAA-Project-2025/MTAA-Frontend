@@ -2,6 +2,7 @@ import 'package:airplane_mode_checker/airplane_mode_checker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mtaa_frontend/core/constants/route_constants.dart';
 import 'package:mtaa_frontend/core/utils/app_injections.dart';
 import 'package:mtaa_frontend/features/posts/data/models/responses/simple_post_response.dart';
 import 'package:mtaa_frontend/features/posts/data/repositories/posts_repository.dart';
@@ -72,6 +73,7 @@ class _AccountPostListWidgetState extends State<AccountPostListWidget> {
 
   Future loadPosts() async {
     var res = await widget.repository.getAccountPosts(widget.userId, paginationScrollController.pageParameters);
+    paginationScrollController.pageParameters.pageNumber++;
     if (res.length < paginationScrollController.pageParameters.pageSize) {
       paginationScrollController.stopLoading = true;
     }
@@ -109,6 +111,7 @@ class _AccountPostListWidgetState extends State<AccountPostListWidget> {
   Widget build(BuildContext contex) {
     return BlocBuilder<ExceptionsBloc, ExceptionsState>(builder: (context, state) {
       return CustomScrollView(
+        controller: paginationScrollController.scrollController,
         slivers: [
           SliverGrid(
             delegate: SliverChildBuilderDelegate(
@@ -116,9 +119,7 @@ class _AccountPostListWidgetState extends State<AccountPostListWidget> {
               (context, index) {
                 return GestureDetector(
                   onTap: () {
-                    context.pushNamed(
-                      'fullPostScreenRoute/${posts[index].id}',
-                    );
+                    GoRouter.of(context).push('$fullPostScreenRoute/${posts[index].id}');
                   },
                   child: Image(image: NetworkImage(posts[index].smallFirstImage.fullPath)),
                 );
@@ -138,19 +139,19 @@ class _AccountPostListWidgetState extends State<AccountPostListWidget> {
                 DotLoader(),
               ],
             )),
-          if (state.isException && state.exceptionType == ExceptionTypes.flightMode)
+          if (!paginationScrollController.isLoading && state.isException && state.exceptionType == ExceptionTypes.flightMode)
             SliverToBoxAdapter(child: AirModeErrorNotificationSectionWidget(
               onPressed: () {
                 loadFirst();
               },
             )),
-          if (state.isException && state.exceptionType == ExceptionTypes.serverError)
+          if (!paginationScrollController.isLoading && state.isException && state.exceptionType == ExceptionTypes.serverError)
             SliverToBoxAdapter(child: ServerErrorNotificationSectionWidget(
               onPressed: () {
                 loadFirst();
               },
             )),
-          if (posts.isEmpty)
+          if (!paginationScrollController.isLoading && !state.isException && posts.isEmpty)
             SliverToBoxAdapter(
                 child: EmptyErrorNotificationSectionWidget(
               onPressed: () {

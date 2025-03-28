@@ -75,8 +75,9 @@ class _PostsGlobalSearchScreenState extends State<PostsGlobalSearchScreen> {
     loadFirst();
   }
 
-  Future loadPosts() async {
+  Future<bool> loadPosts() async {
     var res = await widget.repository.getGlobalPosts(new GetGLobalPostsRequest(filterStr: filterStr, pageParameters: paginationScrollController.pageParameters));
+    paginationScrollController.pageParameters.pageNumber++;
     if (res.length < paginationScrollController.pageParameters.pageSize) {
       paginationScrollController.stopLoading = true;
     }
@@ -84,7 +85,9 @@ class _PostsGlobalSearchScreenState extends State<PostsGlobalSearchScreen> {
       setState(() {
         posts.addAll(res);
       });
+      return true;
     }
+    return false;
   }
 
   @override

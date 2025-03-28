@@ -76,6 +76,7 @@ class _PostRecommendationsScreenState extends State<PostRecommendationsScreen> {
 
   Future loadPosts() async {
     var res = await widget.repository.getRecommendedPosts(paginationScrollController.pageParameters);
+    paginationScrollController.pageParameters.pageNumber++;
     if (res.length < paginationScrollController.pageParameters.pageSize) {
       paginationScrollController.stopLoading = true;
     }
