@@ -1,6 +1,6 @@
 import 'package:mtaa_frontend/domain/hive_data/posts/full_post_hive.dart';
 import 'package:mtaa_frontend/features/images/data/models/responses/myImageGroupResponse.dart';
-import 'package:mtaa_frontend/features/users/account/data/models/responses/publicSimpleAccountResponse.dart';
+import 'package:mtaa_frontend/features/users/account/data/models/responses/publicBaseAccountResponse.dart';
 import 'package:uuid/uuid.dart';
 
 class FullPostResponse {
@@ -8,7 +8,7 @@ class FullPostResponse {
   final String description;
   final List<MyImageGroupResponse> images;
 
-  final PublicSimpleAccountResponse owner;
+  final PublicBaseAccountResponse owner;
 
   int likesCount;
   int commentsCount;
@@ -50,7 +50,7 @@ class FullPostResponse {
     return FullPostResponse(
       id: UuidValue.fromString(json['id']),
       description: json['description'],
-      owner: PublicSimpleAccountResponse.fromJson(json['owner']),
+      owner: PublicBaseAccountResponse.fromJson(json['owner']),
       likesCount: json['likesCount'],
       commentsCount: json['commentsCount'],
       isLiked: json['isLiked'],
@@ -68,7 +68,7 @@ class FullPostResponse {
       id: UuidValue.fromString(hive.id),
       description: hive.description,
       images: hive.images.map((image) => MyImageGroupResponse.fromHive(image)).toList(),
-      owner: PublicSimpleAccountResponse.fromHive(hive.owner),
+      owner: PublicBaseAccountResponse.fromHive(hive.owner),
       likesCount: hive.likesCount,
       commentsCount: hive.commentsCount,
       isLiked: hive.isLiked,

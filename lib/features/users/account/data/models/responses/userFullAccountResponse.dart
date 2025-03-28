@@ -1,24 +1,29 @@
 import 'package:mtaa_frontend/features/images/data/models/responses/myImageGroupResponse.dart';
-import 'package:mtaa_frontend/features/users/account/data/models/responses/publicBaseAccountResponse.dart';
+import 'package:mtaa_frontend/features/users/account/data/models/responses/publicFullAccountResponse.dart';
 
-class PublicFullAccountResponse extends PublicBaseAccountResponse{
-  final DateTime dataCreationTime;
-  int followersCount;
-  int friendsCount;
+class UserFullAccountResponse extends PublicFullAccountResponse {
+  final DateTime? birthDate;
+  final String? email;
+  final String? phoneNumber;
+  final int likesCount;
 
-  PublicFullAccountResponse({
+  UserFullAccountResponse({
     required super.id,
     super.avatar,
     required super.username,
     required super.displayName,
     required super.isFollowing,
-    required this.dataCreationTime,
-    required this.friendsCount,
-    required this.followersCount,
+    required super.dataCreationTime,
+    required super.friendsCount,
+    required super.followersCount,
+    this.birthDate,
+    this.email,
+    this.phoneNumber,
+    required this.likesCount,
   });
 
   Map<String, dynamic> toJson() {
-    return {  
+    return {
       'id': id,    
       'avatar': avatar?.toJson(),
       'username': username,
@@ -27,11 +32,15 @@ class PublicFullAccountResponse extends PublicBaseAccountResponse{
       'followersCount': followersCount,
       'isFollowing': isFollowing,
       'dataCreationTime': dataCreationTime.toIso8601String(),
+      'birthDate': birthDate?.toIso8601String(),
+      'email': email,
+      'phoneNumber': phoneNumber,
+      'likesCount': likesCount,
     };
   }
 
-  factory PublicFullAccountResponse.fromJson(Map<String, dynamic> json) {
-    return PublicFullAccountResponse(
+  factory UserFullAccountResponse.fromJson(Map<String, dynamic> json) {
+    return UserFullAccountResponse(
       id: json['id'],
       avatar: json['avatar'] != null
           ? MyImageGroupResponse.fromJson(json['avatar'])
@@ -42,7 +51,12 @@ class PublicFullAccountResponse extends PublicBaseAccountResponse{
       followersCount: json['followersCount'],
       isFollowing: json['isFollowing'],
       dataCreationTime: DateTime.parse(json['dataCreationTime']),
+      birthDate: json['birthDate'] != null
+          ? DateTime.parse(json['birthDate'])
+          : null,
+      email: json['email'],
+      phoneNumber: json['phoneNumber'],
+      likesCount: json['likesCount'],
     );
   }
-
 }

@@ -1,21 +1,20 @@
+import 'package:mtaa_frontend/domain/hive_data/posts/simple_user_hive.dart';
 import 'package:mtaa_frontend/features/images/data/models/responses/myImageGroupResponse.dart';
 
-class BaseFullAccountResponse {
+class PublicBaseAccountResponse {
   final String id;
   final MyImageGroupResponse? avatar;
   final String username;
   final String displayName;
-  final int friendsCount;
-  final int followersCount;
+  bool isFollowing;
   
 
-  BaseFullAccountResponse({
+  PublicBaseAccountResponse({
     required this.id,
     this.avatar,
     required this.username,
     required this.displayName,
-    required this.friendsCount,
-    required this.followersCount,
+    required this.isFollowing
   });
 
   Map<String, dynamic> toJson() {
@@ -24,21 +23,31 @@ class BaseFullAccountResponse {
       'avatar': avatar?.toJson(),
       'username': username,
       'displayName': displayName,
-      'friendsCount': friendsCount,
-      'followersCount': followersCount,
+      'isFollowing': isFollowing,
     };
   }
 
-  factory BaseFullAccountResponse.fromJson(Map<String, dynamic> json) {
-    return BaseFullAccountResponse(
+  factory PublicBaseAccountResponse.fromJson(Map<String, dynamic> json) {
+    return PublicBaseAccountResponse(
       id: json['id'],
       avatar: json['avatar'] != null
           ? MyImageGroupResponse.fromJson(json['avatar'])
           : null,
       username: json['username'],
       displayName: json['displayName'],
-      friendsCount: json['friendsCount'],
-      followersCount: json['followersCount'],
+      isFollowing: json['isFollowing'],
+    );
+  }
+
+  factory PublicBaseAccountResponse.fromHive(SimpleUserHive hive){
+    return PublicBaseAccountResponse(
+      id: hive.id,
+      username: hive.username,
+      displayName: hive.displayName,
+      isFollowing: false,
+      avatar: hive.avatar != null
+          ? MyImageGroupResponse.fromHive(hive.avatar!)
+          : null,
     );
   }
 }

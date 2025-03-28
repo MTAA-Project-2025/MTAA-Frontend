@@ -14,6 +14,8 @@ import 'package:mtaa_frontend/features/posts/presentation/screens/posts_global_s
 import 'package:mtaa_frontend/features/posts/presentation/screens/update_post_screen.dart';
 import 'package:mtaa_frontend/features/settings/presentation/screens/user_settings_screen.dart';
 import 'package:mtaa_frontend/features/users/account/data/network/account_api.dart';
+import 'package:mtaa_frontend/features/users/account/data/repositories/account_repository.dart';
+import 'package:mtaa_frontend/features/users/account/presentation/screens/account_information_screen.dart';
 import 'package:mtaa_frontend/features/users/account/presentation/screens/firstUpdateAvatarScreen.dart';
 import 'package:mtaa_frontend/features/users/account/presentation/screens/firstUpdateBirthDateScreen.dart';
 import 'package:mtaa_frontend/features/users/account/presentation/screens/firstUpdateDisplayNameScreen.dart';
@@ -70,6 +72,10 @@ class AppRouter {
         GoRoute(
           path: userRecommendationsScreenRoute,
           builder: (context, state) => PostRecommendationsScreen(repository: getIt<PostsRepository>())
+        ),
+        GoRoute(
+          path: accountProfileScreenRoute,
+          builder: (context, state) => AccountInformationScreen(repository: getIt<AccountRepository>()),
         ),
         GoRoute(
           path: addPostScreenRoute,

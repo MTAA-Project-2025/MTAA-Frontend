@@ -108,45 +108,56 @@ class _AccountPostListWidgetState extends State<AccountPostListWidget> {
   @override
   Widget build(BuildContext contex) {
     return BlocBuilder<ExceptionsBloc, ExceptionsState>(builder: (context, state) {
-      return Column(
-        children: [
-          GridView.count(
-            crossAxisCount: 2,
-            children: List.generate(posts.length, (index) {
-              return GestureDetector(
-                onTap:() {
-                  context.pushNamed('fullPostScreenRoute/${posts[index].id}',);
-                },
-                child: Image(image: NetworkImage(posts[index].smallFirstImage.fullPath))
-              );
-            }),
+      return CustomScrollView(
+        slivers: [
+          SliverGrid(
+            delegate: SliverChildBuilderDelegate(
+              childCount: posts.length,
+              (context, index) {
+                return GestureDetector(
+                  onTap: () {
+                    context.pushNamed(
+                      'fullPostScreenRoute/${posts[index].id}',
+                    );
+                  },
+                  child: Image(image: NetworkImage(posts[index].smallFirstImage.fullPath)),
+                );
+              },
+            ),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              mainAxisSpacing: 8,
+              crossAxisSpacing: 8,
+            ),
           ),
           if (paginationScrollController.isLoading)
-            Column(
+            SliverToBoxAdapter(
+                child: Column(
               children: [
                 const SizedBox(height: 20),
                 DotLoader(),
               ],
-            ),
+            )),
           if (state.isException && state.exceptionType == ExceptionTypes.flightMode)
-            AirModeErrorNotificationSectionWidget(
+            SliverToBoxAdapter(child: AirModeErrorNotificationSectionWidget(
               onPressed: () {
                 loadFirst();
               },
-            ),
+            )),
           if (state.isException && state.exceptionType == ExceptionTypes.serverError)
-            ServerErrorNotificationSectionWidget(
+            SliverToBoxAdapter(child: ServerErrorNotificationSectionWidget(
               onPressed: () {
                 loadFirst();
               },
-            ),
+            )),
           if (posts.isEmpty)
-            EmptyErrorNotificationSectionWidget(
+            SliverToBoxAdapter(
+                child: EmptyErrorNotificationSectionWidget(
               onPressed: () {
                 loadFirst();
               },
               title: 'No posts found',
-            ),
+            )),
         ],
       );
     });

@@ -19,7 +19,6 @@ import 'package:mtaa_frontend/features/posts/presentation/widgets/add_post_form.
 import 'package:mtaa_frontend/features/shared/data/models/page_parameters.dart';
 import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
 import 'package:uuid/uuid.dart';
-import 'package:http/http.dart' as http;
 
 abstract class PostsStorage {
   Future<List<FullPostResponse>> getRecommended();

@@ -1,6 +1,6 @@
 import 'package:hive/hive.dart';
 import 'package:mtaa_frontend/domain/hive_data/posts/my_image_group_hive.dart';
-import 'package:mtaa_frontend/features/users/account/data/models/responses/publicSimpleAccountResponse.dart';
+import 'package:mtaa_frontend/features/users/account/data/models/responses/publicBaseAccountResponse.dart';
 
 part 'simple_user_hive.g.dart';
 
@@ -26,7 +26,7 @@ class SimpleUserHive extends HiveObject{
     this.avatar,
   });
 
-  factory SimpleUserHive.fromResponse(PublicSimpleAccountResponse response){
+  factory SimpleUserHive.fromResponse(PublicBaseAccountResponse response){
     return SimpleUserHive(
       id: response.id,
       username: response.username,

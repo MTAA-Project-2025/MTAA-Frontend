@@ -14,6 +14,7 @@ import 'package:mtaa_frontend/features/posts/data/network/posts_api.dart';
 import 'package:mtaa_frontend/features/posts/data/repositories/posts_repository.dart';
 import 'package:mtaa_frontend/features/posts/data/storages/posts_storage.dart';
 import 'package:mtaa_frontend/features/users/account/data/network/account_api.dart';
+import 'package:mtaa_frontend/features/users/account/data/repositories/account_repository.dart';
 import 'package:mtaa_frontend/features/users/authentication/shared/data/network/identity_api.dart';
 
 final GetIt getIt = GetIt.instance;
@@ -51,9 +52,6 @@ void setupDependencies() {
   getIt.registerSingleton<IdentityApi>(
     IdentityImplApi(getIt<Dio>()),
   );
-  getIt.registerSingleton<AccountApi>(
-    AccountImplApi(getIt<Dio>()),
-  );
 
   getIt.registerSingleton<PostsApi>(
     PostsApiImpl(getIt<Dio>(), getIt<ExceptionsService>()),
@@ -63,5 +61,12 @@ void setupDependencies() {
   );
   getIt.registerSingleton<PostsRepository>(
     PostsRepositoryImpl(getIt<PostsApi>(), getIt<PostsStorage>()),
+  );
+
+  getIt.registerSingleton<AccountApi>(
+    AccountApiImpl(getIt<Dio>(), getIt<ExceptionsService>()),
+  );
+  getIt.registerSingleton<AccountRepository>(
+    AccountRepositoryImpl(getIt<AccountApi>()),
   );
 }
