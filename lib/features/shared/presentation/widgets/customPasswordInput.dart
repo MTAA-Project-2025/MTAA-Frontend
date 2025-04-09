@@ -41,7 +41,7 @@ class _CustomPasswordInputState extends State<CustomPasswordInput> {
       child: Focus(
         onFocusChange: (focus) => setState(() => _isFocused = focus),
         child: TextFormField(
-          obscureText: passwordVisible,
+          obscureText: !passwordVisible,
           validator: widget.validator?.call,
           style: Theme.of(context).textTheme.bodyMedium,
           cursorColor: Theme.of(context).textTheme.labelMedium?.decorationColor,
@@ -85,14 +85,14 @@ class _CustomPasswordInputState extends State<CustomPasswordInput> {
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
               borderSide: const BorderSide(
-                color: Colors.red,
+                color: errorColor,
                 width: 2,
               ),
             ),
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
               borderSide: const BorderSide(
-                color: Colors.red,
+                color: errorColor,
                 width: 2,
               ),
             ),

@@ -6,7 +6,7 @@ class CustomUpdateAccountAvatarRequest {
 
   CustomUpdateAccountAvatarRequest({required this.avatar});
 
-Map<String, dynamic> toJson() {
+  Map<String, dynamic> toJson() {
     final bytes = avatar.readAsBytesSync();
     final base64Avatar = base64Encode(bytes);
 

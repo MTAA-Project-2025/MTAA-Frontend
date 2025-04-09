@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mtaa_frontend/core/constants/colors.dart';
 import 'package:mtaa_frontend/themes/app_bar_theme.dart';
+import 'package:mtaa_frontend/themes/buttom_bar_theme.dart';
 import 'package:mtaa_frontend/themes/button_theme.dart';
 
 
@@ -20,6 +21,8 @@ class AppTheme {
       ),
       textTheme: const TextTheme( 
         bodyMedium: TextStyle(color: lightPrimarily1Color, fontSize: 16),
+        bodySmall: TextStyle(color: lightPrimarily2Color, fontSize: 10),
+        displaySmall: TextStyle(color: primarily0InvincibleColor, fontSize: 8),
         headlineLarge: TextStyle(color: lightPrimarily2Color, fontSize: 30, fontWeight: FontWeight.bold),
         headlineMedium: TextStyle(color: lightPrimarily2Color, fontSize: 20, fontWeight: FontWeight.bold),
         labelSmall: TextStyle(color: lightThird1Color, fontSize: 16, fontWeight: FontWeight.normal),
@@ -29,7 +32,8 @@ class AppTheme {
       ),
       textButtonTheme: lightTextButtonThemeData,
       iconButtonTheme: lightIconButtonThemeData,
-      appBarTheme: lightAppBarThemeData
+      appBarTheme: lightAppBarThemeData,
+      bottomAppBarTheme: lightBottomBarThemeData
     );
   }
 
@@ -48,6 +52,8 @@ class AppTheme {
       ),
       textTheme: const TextTheme(
         bodyMedium: TextStyle(color: darkPrimarily1Color, fontSize: 16),
+        bodySmall: TextStyle(color: darkPrimarily2Color, fontSize: 10),
+        displaySmall: TextStyle(color: darkPrimarily1Color, fontSize: 8),
         headlineLarge: TextStyle(color: darkPrimarily2Color, fontSize: 30, fontWeight: FontWeight.bold),
         headlineMedium: TextStyle(color: darkPrimarily2Color, fontSize: 20, fontWeight: FontWeight.bold),
         labelSmall: TextStyle(color: darkThird1Color, fontSize: 16, fontWeight: FontWeight.normal),
@@ -57,7 +63,8 @@ class AppTheme {
       ),
       textButtonTheme: darkTextButtonThemeData,
       iconButtonTheme: darkIconButtonThemeData,
-      appBarTheme: darkAppBarThemeData
+      appBarTheme: darkAppBarThemeData,
+      bottomAppBarTheme: darkBottomBarThemeData,
     );
   }
 }

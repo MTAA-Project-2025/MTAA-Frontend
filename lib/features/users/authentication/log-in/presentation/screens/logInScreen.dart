@@ -36,7 +36,7 @@ class _LogInScreenState extends State<LogInScreen> {
   void _navigateToMainScreen() {
     Future.microtask(() {
       if (!mounted) return;
-      GoRouter.of(context).go(userGroupListScreenRoute);
+      GoRouter.of(context).go(userRecommendationsScreenRoute);
     });
   }
 

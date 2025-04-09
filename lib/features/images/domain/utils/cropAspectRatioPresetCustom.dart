@@ -1,9 +1,22 @@
 import 'package:image_cropper/image_cropper.dart';
 
 class CropAspectRatioPresetCustom implements CropAspectRatioPresetData {
-  @override
-  (int, int)? get data => (1, 1);
+  int width;
+  int height;
+  String _name;
+
+  CropAspectRatioPresetCustom(this.width, this.height, this._name);
 
   @override
-  String get name => '1x1';
+  (int, int)? get data => (width, height);
+
+  void set data((int, int)? value) {
+    if (value != null) {
+      width = value.$1;
+      height = value.$2;
+    }
+  }
+
+  @override
+  String get name => _name;
 }

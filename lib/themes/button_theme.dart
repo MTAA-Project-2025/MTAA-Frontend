@@ -8,7 +8,7 @@ final specialTextButtonThemeData = TextButtonThemeData(
     minimumSize: Size(100,57),
     textStyle: const TextStyle(
       fontSize: 18,
-      fontWeight: FontWeight.w500,
+      fontWeight: FontWeight.w800,
     ),
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(8),
@@ -24,7 +24,7 @@ final lightTextButtonThemeData = TextButtonThemeData(
     minimumSize: Size(100,57),
     textStyle: const TextStyle(
       fontSize: 18,
-      fontWeight: FontWeight.w500,
+      fontWeight: FontWeight.w800,
     ),
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(8),
@@ -40,7 +40,7 @@ final darkTextButtonThemeData = TextButtonThemeData(
     minimumSize: Size(100,57),
     textStyle: const TextStyle(
       fontSize: 18,
-      fontWeight: FontWeight.w500,
+      fontWeight: FontWeight.w800,
     ),
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(8),
