@@ -56,6 +56,7 @@ class AccountApiImpl extends AccountApi {
     }
   }
 
+  @override
   Future<List<PublicBaseAccountResponse>> getFriends(GlobalSearch request) async {
     final fullUrl = '$controllerName/get-friends';
     try {

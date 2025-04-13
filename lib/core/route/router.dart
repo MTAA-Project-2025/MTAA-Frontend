@@ -15,7 +15,7 @@ import 'package:mtaa_frontend/features/posts/presentation/screens/update_post_sc
 import 'package:mtaa_frontend/features/settings/presentation/screens/user_settings_screen.dart';
 import 'package:mtaa_frontend/features/users/account/data/network/account_api.dart';
 import 'package:mtaa_frontend/features/users/account/data/repositories/account_repository.dart';
-import 'package:mtaa_frontend/features/users/account/presentation/screens/account_information_screen.dart';
+import 'package:mtaa_frontend/features/users/account/presentation/screens/accountInformationScreen.dart';
 import 'package:mtaa_frontend/features/users/account/presentation/screens/firstUpdateAvatarScreen.dart';
 import 'package:mtaa_frontend/features/users/account/presentation/screens/firstUpdateBirthDateScreen.dart';
 import 'package:mtaa_frontend/features/users/account/presentation/screens/firstUpdateDisplayNameScreen.dart';

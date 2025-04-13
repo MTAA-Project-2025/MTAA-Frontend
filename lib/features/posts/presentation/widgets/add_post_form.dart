@@ -59,7 +59,7 @@ class _AddPostFormState extends State<AddPostForm> {
     return Form(
         key: widget.formKey,
         child: Column(children: [
-          Container(
+          SizedBox(
               height: 200,
               child: ListView.separated(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -71,7 +71,7 @@ class _AddPostFormState extends State<AddPostForm> {
                 },
                 itemBuilder: (context, index) {
                   if (index < widget.images.length) {
-                    return Container(
+                    return SizedBox(
                         height: 100,
                         child: Stack(
                           children: [

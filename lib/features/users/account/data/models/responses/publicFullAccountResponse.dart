@@ -17,6 +17,7 @@ class PublicFullAccountResponse extends PublicBaseAccountResponse{
     required this.followersCount,
   });
 
+  @override
   Map<String, dynamic> toJson() {
     return {  
       'id': id,    
