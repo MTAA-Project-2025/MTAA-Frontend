@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mtaa_frontend/core/constants/colors.dart';
+import 'package:mtaa_frontend/core/constants/route_constants.dart';
 
 class ProfileInfoWidget extends StatelessWidget {
   final String avatarUrl;
@@ -10,14 +12,14 @@ class ProfileInfoWidget extends StatelessWidget {
   final int likes;
 
   const ProfileInfoWidget({
-    Key? key,
+    super.key,
     required this.avatarUrl,
     required this.name,
     required this.username,
     required this.friends,
     required this.followers,
     required this.likes,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -92,7 +94,7 @@ class ProfileInfoWidget extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               _buildButton('Change Profile', () {
-
+                GoRouter.of(context).go(updateUserScreenRoute);
               }),
               const SizedBox(width: 10),
               _buildButton('Notifications', () {

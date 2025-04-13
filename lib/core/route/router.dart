@@ -19,6 +19,7 @@ import 'package:mtaa_frontend/features/users/account/presentation/screens/accoun
 import 'package:mtaa_frontend/features/users/account/presentation/screens/firstUpdateAvatarScreen.dart';
 import 'package:mtaa_frontend/features/users/account/presentation/screens/firstUpdateBirthDateScreen.dart';
 import 'package:mtaa_frontend/features/users/account/presentation/screens/firstUpdateDisplayNameScreen.dart';
+import 'package:mtaa_frontend/features/users/account/presentation/screens/updateAccountScreen.dart';
 import 'package:mtaa_frontend/features/users/authentication/shared/data/network/identity_api.dart';
 import 'package:mtaa_frontend/features/users/authentication/sign-up/presentation/screens/createAccountScreen.dart';
 import 'package:mtaa_frontend/features/users/authentication/sign-up/presentation/screens/signUpVerificationByEmailScreen.dart';
@@ -76,6 +77,10 @@ class AppRouter {
         GoRoute(
           path: accountProfileScreenRoute,
           builder: (context, state) => AccountInformationScreen(repository: getIt<AccountRepository>()),
+        ),
+        GoRoute(
+          path: updateUserScreenRoute,
+          builder: (context, state) => UpdateAccountScreen(repository: getIt<AccountRepository>()),
         ),
         GoRoute(
           path: addPostScreenRoute,

@@ -16,6 +16,7 @@ const String userMapScreenRoute = "/userMapScreen";
 const String userFriendsScreenRoute = "/userFriendsScreen";
 const String accountProfileScreenRoute = "/accountProfileScreen";
 const String userSettingsScreenRoute = "/userSettingsScreen";
+const String updateUserScreenRoute = "/updateAccountScreen";
 
 const String globalSearchScreenRoute = "/globalSearchScreen";
 
