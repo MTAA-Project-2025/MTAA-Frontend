@@ -1,23 +1,24 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:mtaa_frontend/core/constants/menu_buttons.dart';
+import 'package:mtaa_frontend/core/constants/route_constants.dart';
 import 'package:mtaa_frontend/core/utils/app_injections.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/dotLoader.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/phone_bottom_menu.dart';
+import 'package:mtaa_frontend/features/users/account/data/models/requests/customUpdateAccountAvatarRequest.dart';
 import 'package:mtaa_frontend/features/users/account/data/models/requests/updateAccountBirthDateRequest.dart';
 import 'package:mtaa_frontend/features/users/account/data/models/requests/updateAccountDisplayNameRequest.dart';
 import 'package:mtaa_frontend/features/users/account/data/models/requests/updateAccountUsernameRequest.dart';
 import 'package:mtaa_frontend/features/users/account/data/models/responses/userFullAccountResponse.dart';
 import 'package:mtaa_frontend/features/users/account/data/repositories/account_repository.dart';
-import 'package:mtaa_frontend/features/users/account/data/models/requests/customUpdateAccountAvatarRequest.dart';
-import 'package:image_picker/image_picker.dart';
-import 'dart:io';
+import 'package:mtaa_frontend/features/users/account/presentation/widgets/updateFieldWidget.dart';
 
 class UpdateAccountScreen extends StatefulWidget {
   final AccountRepository repository;
 
-  const UpdateAccountScreen({super.key, required this.repository});
+  const UpdateAccountScreen({Key? key, required this.repository}) : super(key: key);
 
   @override
   State<UpdateAccountScreen> createState() => _UpdateAccountScreenState();
@@ -27,17 +28,12 @@ class _UpdateAccountScreenState extends State<UpdateAccountScreen> {
   bool isLoading = false;
   bool isSaving = false;
   UserFullAccountResponse? user;
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController fullNameController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController birthDateController = TextEditingController();
+  File? selectedImageFile;
   
-  final _formKey = GlobalKey<FormState>();
-  final _usernameController = TextEditingController();
-  final _displayNameController = TextEditingController();
-  DateTime? _birthDate;
-  File? _imageFile;
-  bool _hasUsernameChanged = false;
-  bool _hasDisplayNameChanged = false;
-  bool _hasBirthDateChanged = false;
-  bool _hasAvatarChanged = false;
-
   @override
   void initState() {
     super.initState();
@@ -50,340 +46,313 @@ class _UpdateAccountScreenState extends State<UpdateAccountScreen> {
     setState(() {
       isLoading = true;
     });
-    
-    Future.microtask(() async {
-      if (!mounted) return;
+    fetchUserData();
+  }
 
-      var res = await widget.repository.getFullAccount();
+  Future<void> fetchUserData() async {
+    if (!mounted) return;
 
-      if (res != null) {
-        setState(() {
-          user = res;
-          _usernameController.text = res.username;
-          _displayNameController.text = res.displayName;
-          _birthDate = res.birthDate;
-        });
-      }
-      
+    var res = await widget.repository.getFullAccount();
+
+    if (res != null) {
       setState(() {
-        isLoading = false;
+        user = res;
+        usernameController.text = res.username;
+        fullNameController.text = res.displayName;
+        phoneController.text = res.phoneNumber ?? '';
+        birthDateController.text = res.birthDate != null
+    ? formatDate(res.birthDate!)
+    : '13/05/2005';
       });
+    }
+    setState(() {
+      isLoading = false;
     });
+  }
+
+  String formatDate(DateTime date) {
+    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
+  }
+
+  DateTime? parseBirthDate(String text) {
+    try {
+      final parts = text.split('/');
+      return DateTime(
+        int.parse(parts[2]),
+        int.parse(parts[1]),
+        int.parse(parts[0]),
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> saveUserData() async {
+    if (user == null) return;
+
+    setState(() {
+      isSaving = true;
+    });
+
+    bool hasError = false;
+    String errorMessage = '';
+
+    if (usernameController.text != user!.username) {
+      final usernameSuccess = await widget.repository.updateAccountUsername(
+        UpdateAccountUsernameRequest(username: usernameController.text)
+      );
+      
+      if (!usernameSuccess) {
+        hasError = true;
+        errorMessage = 'Failed to update username';
+      }
+    }
+
+    // Update display name if changed
+    if (!hasError && fullNameController.text != user!.displayName) {
+      final displayNameSuccess = await widget.repository.updateAccountDisplayName(
+        UpdateAccountDisplayNameRequest(displayName: fullNameController.text)
+      );
+      
+      if (!displayNameSuccess) {
+        hasError = true;
+        errorMessage = 'Failed to update display name';
+      }
+    }
+
+    // Update birth date if changed
+    final parsedDate = parseBirthDate(birthDateController.text);
+    final existingDate = user?.birthDate;
+
+    if (!hasError &&
+        parsedDate != null &&
+        existingDate != null &&
+        parsedDate != existingDate) {
+      final birthDateSuccess = await widget.repository.updateAccountBirthDate(
+        UpdateAccountBirthDateRequest(birthDate: parsedDate),
+      );
+
+      if (!birthDateSuccess) {
+        hasError = true;
+        errorMessage = 'Failed to update birth date';
+      }
+    }
+
+    // Update avatar if a new image was selected
+    if (!hasError && selectedImageFile != null) {
+      final avatarSuccess = await widget.repository.customUpdateAccountAvatar(
+        CustomUpdateAccountAvatarRequest(avatar: selectedImageFile!)
+      );
+      
+      if (avatarSuccess == null) {
+        hasError = true;
+        errorMessage = 'Failed to update avatar';
+      }
+    }
+
+    if (mounted) {
+      setState(() {
+        isSaving = false;
+      });
+
+      if (hasError) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: Colors.red,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Profile updated successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        GoRouter.of(context).pop();
+        }
+    }
+  }
+
+  Future<void> _pickImage(ImageSource source) async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: source);
+
+    if (pickedFile != null && mounted) {
+      setState(() {
+        selectedImageFile = File(pickedFile.path);
+      });
+    }
   }
 
   @override
   void dispose() {
-    _usernameController.dispose();
-    _displayNameController.dispose();
+    usernameController.dispose();
+    fullNameController.dispose();
+    phoneController.dispose();
+    birthDateController.dispose();
     super.dispose();
-  }
-
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: _birthDate ?? DateTime.now(),
-      firstDate: DateTime(1900),
-      lastDate: DateTime.now(),
-    );
-    
-    if (picked != null && picked != _birthDate) {
-      setState(() {
-        _birthDate = picked;
-        _hasBirthDateChanged = true;
-      });
-    }
-  }
-
-  Future<void> _pickImage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    
-    if (pickedFile != null) {
-      setState(() {
-        _imageFile = File(pickedFile.path);
-        _hasAvatarChanged = true;
-      });
-    }
-  }
-
-  Future<void> _saveChanges() async {
-    if (_formKey.currentState!.validate()) {
-      setState(() {
-        isSaving = true;
-      });
-
-      bool allSuccess = true;
-      String errorMessage = '';
-
-      try {
-        // Update username if changed
-        if (_hasUsernameChanged) {
-          final usernameRequest = UpdateAccountUsernameRequest(
-            username: _usernameController.text,
-          );
-          final usernameResult = await widget.repository.updateAccountUsername(usernameRequest);
-          if (!usernameResult) {
-            allSuccess = false;
-            errorMessage += 'Failed to update username. ';
-          }
-        }
-
-        // Update display name if changed
-        if (_hasDisplayNameChanged) {
-          final displayNameRequest = UpdateAccountDisplayNameRequest(
-            displayName: _displayNameController.text,
-          );
-          final displayNameResult = await widget.repository.updateAccountDisplayName(displayNameRequest);
-          if (!displayNameResult) {
-            allSuccess = false;
-            errorMessage += 'Failed to update display name. ';
-          }
-        }
-
-        // Update birth date if changed
-        if (_hasBirthDateChanged && _birthDate != null) {
-          final birthDateRequest = UpdateAccountBirthDateRequest(
-            birthDate: _birthDate!,
-          );
-          final birthDateResult = await widget.repository.updateAccountBirthDate(birthDateRequest);
-          if (!birthDateResult) {
-            allSuccess = false;
-            errorMessage += 'Failed to update birth date. ';
-          }
-        }
-
-        // Update avatar if changed
-        if (_hasAvatarChanged && _imageFile != null) {
-          final avatarRequest = CustomUpdateAccountAvatarRequest(
-            avatar: _imageFile!,
-          );
-          final avatarResult = await widget.repository.customUpdateAccountAvatar(avatarRequest);
-          if (avatarResult == null) {
-            allSuccess = false;
-            errorMessage += 'Failed to update avatar. ';
-          }
-        }
-
-        if (mounted) {
-          if (allSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Profile updated successfully')),
-            );
-            GoRouter.of(context).pop();
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(errorMessage.isEmpty ? 'Failed to update profile' : errorMessage)),
-            );
-          }
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error: ${e.toString()}')),
-          );
-        }
-      } finally {
-        if (mounted) {
-          setState(() {
-            isSaving = false;
-          });
-        }
-      }
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit Profile'),
+        title: const Text('Update Profile'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => GoRouter.of(context).pop(),
         ),
         actions: [
-          TextButton(
-            onPressed: isSaving ? null : _saveChanges,
-            child: isSaving 
-              ? const SizedBox(
-                  width: 20, 
-                  height: 20, 
-                  child: CircularProgressIndicator(strokeWidth: 2)
-                )
-              : const Text('Save'),
-          ),
+          if (!isLoading && !isSaving)
+            IconButton(
+              icon: const Icon(Icons.check),
+              onPressed: saveUserData,
+            ),
         ],
       ),
       body: isLoading
-          ? const Center(child: DotLoader())
-          : user == null
-              ? const Center(child: Text('Failed to load user data'))
+          ? const DotLoader()
+          : isSaving
+              ? const Center(child: CircularProgressIndicator(color: Color(0xFFFF7043)))
               : SingleChildScrollView(
                   padding: const EdgeInsets.all(16.0),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Profile picture
-                        Center(
-                          child: Stack(
-                            children: [
-                              CircleAvatar(
-                                radius: 60,
-                                backgroundImage: _imageFile != null
-                                    ? FileImage(_imageFile!) as ImageProvider
-                                    : user!.avatar?.images.isNotEmpty == true
-                                        ? NetworkImage(user!.avatar!.images.first.fullPath)
-                                        : const AssetImage('assets/default_avatar.png') as ImageProvider,
-                              ),
-                              Positioned(
-                                right: 0,
-                                bottom: 0,
-                                child: CircleAvatar(
-                                  radius: 18,
-                                  backgroundColor: Theme.of(context).primaryColor,
-                                  child: IconButton(
-                                    icon: const Icon(Icons.camera_alt, size: 18, color: Colors.white),
-                                    onPressed: _pickImage,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 32),
-                        
-                        // Username
-                        _buildTextField(
-                          label: 'Username',
-                          controller: _usernameController,
-                          icon: Icons.alternate_email,
-                          onChanged: (value) {
-                            if (value != user!.username) {
-                              setState(() {
-                                _hasUsernameChanged = true;
-                              });
-                            } else {
-                              setState(() {
-                                _hasUsernameChanged = false;
-                              });
-                            }
-                          },
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Username is required';
-                            }
-                            if (value.length < 3) {
-                              return 'Username must be at least 3 characters';
-                            }
-                            return null;
-                          },
-                        ),
-                        
-                        // Display Name
-                        _buildTextField(
-                          label: 'Full Name',
-                          controller: _displayNameController,
-                          icon: Icons.person,
-                          onChanged: (value) {
-                            if (value != user!.displayName) {
-                              setState(() {
-                                _hasDisplayNameChanged = true;
-                              });
-                            } else {
-                              setState(() {
-                                _hasDisplayNameChanged = false;
-                              });
-                            }
-                          },
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Full name is required';
-                            }
-                            return null;
-                          },
-                        ),
-                        
-                        // Birth Date
-                        InkWell(
-                          onTap: () => _selectDate(context),
-                          child: InputDecorator(
-                            decoration: InputDecoration(
-                              labelText: 'Date of Birth',
-                              prefixIcon: const Icon(Icons.calendar_today),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                            child: Text(
-                              _birthDate == null 
-                                ? 'Select date' 
-                                : DateFormat('dd/MM/yyyy').format(_birthDate!),
-                            ),
-                          ),
-                        ),
-                        
-                        const SizedBox(height: 32),
-                        
-                        // Phone number (read-only)
-                        if (user!.phoneNumber != null)
-                          _buildReadOnlyField(
-                            label: 'Phone Number',
-                            value: user!.phoneNumber!,
-                            icon: Icons.phone,
-                          ),
-                      ],
-                    ),
+                  child: Column(
+                    children: [
+                      // Profile Avatar
+                      _buildProfileAvatar(),
+                      
+                      const SizedBox(height: 24),
+                      
+                      // Profile Fields
+                      ProfileFieldEditor(
+                        controller: usernameController,
+                        iconPath: 'assets/icons/username_icon.png', 
+                        label: 'Username',
+                        hintText: 'Enter username',
+                      ),
+                      
+                      const SizedBox(height: 16),
+                      
+                      ProfileFieldEditor(
+                        controller: fullNameController,
+                        iconPath: 'assets/icons/name_icon.png', 
+                        label: 'Full name',
+                        hintText: 'Enter full name',
+                      ),
+                      
+                      const SizedBox(height: 16),
+                      
+                      ProfileFieldEditor(
+                        controller: birthDateController,
+                        iconPath: 'assets/icons/birthday_icon.png', 
+                        label: 'Date of birth',
+                        hintText: 'DD/MM/YYYY',
+                        isDate: true,
+                        onDateSelected: (date) {
+                          // Format the selected date to your required format
+                          final day = date.day.toString().padLeft(2, '0');
+                          final month = date.month.toString().padLeft(2, '0');
+                          final year = date.year.toString();
+                          birthDateController.text = '$day/$month/$year';
+                        },
+                      ),
+                      
+                      const SizedBox(height: 16),
+                      
+                      ProfileFieldEditor(
+                        controller: phoneController,
+                        iconPath: 'assets/icons/phone_icon.png', 
+                        label: 'Phone number',
+                        hintText: 'Enter phone number',
+                        keyboardType: TextInputType.phone,
+                      ),
+                    ],
                   ),
                 ),
-      bottomNavigationBar: PhoneBottomMenu(sellectedType: MenuButtons.Profile),
+      bottomNavigationBar: const PhoneBottomMenu(sellectedType: MenuButtons.Home),
     );
   }
 
-  Widget _buildTextField({
-    required String label,
-    required TextEditingController controller,
-    required IconData icon,
-    TextInputType? keyboardType,
-    String? Function(String?)? validator,
-    void Function(String)? onChanged,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
-      child: TextFormField(
-        controller: controller,
-        decoration: InputDecoration(
-          labelText: label,
-          prefixIcon: Icon(icon),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
+  Widget _buildProfileAvatar() {
+    return Column(
+      children: [
+        Stack(
+          children: [
+            CircleAvatar(
+              radius: 60,
+              backgroundImage: selectedImageFile != null
+                ? FileImage(selectedImageFile!) as ImageProvider
+                : (user?.avatar?.images.isNotEmpty == true 
+                  ? NetworkImage(user!.avatar!.images.first.fullPath) 
+                  : const AssetImage('assets/default_avatar.png') as ImageProvider),
+            ),
+            Positioned(
+              right: 0,
+              bottom: 0,
+              child: Container(
+                padding: const EdgeInsets.all(4),
+                decoration: const BoxDecoration(
+                  color: Color(0xFFFF7043),
+                  shape: BoxShape.circle,
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.camera_alt, color: Colors.white, size: 20),
+                  onPressed: () {
+                    _showImagePickerOptions(context);
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Text(
+          user?.displayName ?? "",
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF375563),
           ),
         ),
-        keyboardType: keyboardType,
-        validator: validator,
-        onChanged: onChanged,
-      ),
+        Text(
+          '@${user?.username ?? ""}',
+          style: const TextStyle(
+            fontSize: 14,
+            color: Color(0xFF99A5AC),
+          ),
+        ),
+      ],
     );
   }
 
-  Widget _buildReadOnlyField({
-    required String label,
-    required String value,
-    required IconData icon,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
-      child: InputDecorator(
-        decoration: InputDecoration(
-          labelText: label,
-          prefixIcon: Icon(icon),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
+  void _showImagePickerOptions(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Wrap(
+            children: <Widget>[
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: const Text('Gallery'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImage(ImageSource.gallery);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_camera),
+                title: const Text('Camera'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImage(ImageSource.camera);
+                },
+              ),
+            ],
           ),
-        ),
-        child: Text(value),
-      ),
+        );
+      },
     );
   }
 }
