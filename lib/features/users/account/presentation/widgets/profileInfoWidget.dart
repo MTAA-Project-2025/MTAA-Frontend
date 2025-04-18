@@ -94,11 +94,10 @@ class ProfileInfoWidget extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               _buildButton('Change Profile', () {
-                GoRouter.of(context).go(updateUserScreenRoute);
+                GoRouter.of(context).push(updateUserScreenRoute);
               }),
               const SizedBox(width: 10),
               _buildButton('Notifications', () {
-                
               }),
             ],
           ),

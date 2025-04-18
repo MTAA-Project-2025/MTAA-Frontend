@@ -7,7 +7,7 @@ class PresetUpdateAccountAvatarRequest {
 
   Map<String, dynamic> toJson() {
     return {
-      'imageGroupId': imageGroupId,
+      'imageGroupId': imageGroupId.uuid,
     };
   }
 }

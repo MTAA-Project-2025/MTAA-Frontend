@@ -20,6 +20,7 @@ import 'package:mtaa_frontend/features/users/account/presentation/screens/firstU
 import 'package:mtaa_frontend/features/users/account/presentation/screens/firstUpdateBirthDateScreen.dart';
 import 'package:mtaa_frontend/features/users/account/presentation/screens/firstUpdateDisplayNameScreen.dart';
 import 'package:mtaa_frontend/features/users/account/presentation/screens/updateAccountScreen.dart';
+import 'package:mtaa_frontend/features/users/account/presentation/screens/updateAvatarScreen.dart';
 import 'package:mtaa_frontend/features/users/authentication/shared/data/network/identity_api.dart';
 import 'package:mtaa_frontend/features/users/authentication/sign-up/presentation/screens/createAccountScreen.dart';
 import 'package:mtaa_frontend/features/users/authentication/sign-up/presentation/screens/signUpVerificationByEmailScreen.dart';
@@ -60,7 +61,7 @@ class AppRouter {
         ),
         GoRoute(
           path: firstUpdateAvatarScreenRoute,
-          builder: (context, state) => FirstUpdateAvatarScreen(accountApi: getIt<AccountApi>()),
+          builder: (context, state) => FirstUpdateAvatarScreen(accountApi: getIt<AccountApi>(), toastService: getIt<MyToastService>()),
         ),
         GoRoute(
           path: userGroupListScreenRoute,
@@ -80,7 +81,11 @@ class AppRouter {
         ),
         GoRoute(
           path: updateUserScreenRoute,
-          builder: (context, state) => UpdateAccountScreen(repository: getIt<AccountRepository>()),
+          builder: (context, state) => UpdateAccountScreen(repository: getIt<AccountRepository>(), toastService: getIt<MyToastService>(),),
+        ),
+        GoRoute(
+          path: updateAccountAvatarRoute,
+          builder: (context, state) => UpdateAvatarScreen(repository: getIt<AccountRepository>(), toastService: getIt<MyToastService>()),
         ),
         GoRoute(
           path: addPostScreenRoute,

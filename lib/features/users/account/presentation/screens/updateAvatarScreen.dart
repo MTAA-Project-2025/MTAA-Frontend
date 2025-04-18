@@ -15,22 +15,22 @@ import 'package:mtaa_frontend/features/images/data/network/preset_avatar_images_
 import 'package:mtaa_frontend/features/images/presentation/widgets/preset-images-list.dart';
 import 'package:mtaa_frontend/features/users/account/data/models/requests/customUpdateAccountAvatarRequest.dart';
 import 'package:mtaa_frontend/features/users/account/data/models/requests/presetUpdateAccountAvatarRequest.dart';
-import 'package:mtaa_frontend/features/users/account/data/network/account_api.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/dotLoader.dart';
+import 'package:mtaa_frontend/features/users/account/data/repositories/account_repository.dart';
 import 'package:mtaa_frontend/themes/bloc/theme_bloc.dart';
 import 'package:mtaa_frontend/themes/bloc/theme_event.dart';
 
-class FirstUpdateAvatarScreen extends StatefulWidget {
-  final AccountApi accountApi;
+class UpdateAvatarScreen extends StatefulWidget {
+  final AccountRepository repository;
   final MyToastService toastService;
 
-  const FirstUpdateAvatarScreen({super.key, required this.accountApi, required this.toastService});
+  const UpdateAvatarScreen({super.key, required this.repository, required this.toastService});
 
   @override
-  State<FirstUpdateAvatarScreen> createState() => _FirstUpdateAvatarScreenState();
+  State<UpdateAvatarScreen> createState() => _UpdateAvatarScreenState();
 }
 
-class _FirstUpdateAvatarScreenState extends State<FirstUpdateAvatarScreen> {
+class _UpdateAvatarScreenState extends State<UpdateAvatarScreen> {
   final displayNameController = TextEditingController();
   bool isLoading = false;
   bool isError = false;
@@ -44,10 +44,10 @@ class _FirstUpdateAvatarScreenState extends State<FirstUpdateAvatarScreen> {
     super.dispose();
   }
 
-  void _navigateToGroupListScreen() {
+  void _navigateBackScreen() {
     Future.microtask(() {
       if (!mounted) return;
-      GoRouter.of(context).go(userGroupListScreenRoute);
+      GoRouter.of(context).pop();
     });
   }
 
@@ -72,7 +72,7 @@ class _FirstUpdateAvatarScreenState extends State<FirstUpdateAvatarScreen> {
         child: Column(
           children: [
             Text(
-              'Choose Profile Picture',
+              'Update Profile Picture',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.headlineLarge,
             ),
@@ -156,14 +156,14 @@ class _FirstUpdateAvatarScreenState extends State<FirstUpdateAvatarScreen> {
                     children: [
                       TextButton(
                         onPressed: () {
-                          GoRouter.of(context).goNamed(userGroupListScreenRoute);
+                          GoRouter.of(context).pop();
                         },
                         style: TextButton.styleFrom(
                           foregroundColor: Theme.of(context).colorScheme.secondary,
                           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                         ),
                         child: Text(
-                          'Skip',
+                          'Cancel',
                         ),
                       ),
                       const SizedBox(width: 5),
@@ -180,19 +180,19 @@ class _FirstUpdateAvatarScreenState extends State<FirstUpdateAvatarScreen> {
 
                             MyImageGroupResponse? res;
                             if (selectedPresetImage != null) {
-                              res = await widget.accountApi.presetUpdateAccountAvatar(PresetUpdateAccountAvatarRequest(imageGroupId: selectedPresetImage!.id));
+                              res = await widget.repository.presetUpdateAccountAvatar(PresetUpdateAccountAvatarRequest(imageGroupId: selectedPresetImage!.id));
                             } else if (selectedCustomImage != null) {
-                              res = await widget.accountApi.customUpdateAccountAvatar(CustomUpdateAccountAvatarRequest(avatar: selectedCustomImage!));
+                              res = await widget.repository.customUpdateAccountAvatar(CustomUpdateAccountAvatarRequest(avatar: selectedCustomImage!));
                             }
                             setState(() => isLoading = false);
                             if (res != null) {
-                              _navigateToGroupListScreen();
+                              _navigateBackScreen();
                             }
                           }
                         },
                         style: Theme.of(context).textButtonTheme.style,
                         child: Text(
-                          'Create',
+                          'Update',
                         ),
                       ),
                     ],
