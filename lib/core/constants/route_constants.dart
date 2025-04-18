@@ -22,3 +22,4 @@ const String globalSearchScreenRoute = "/globalSearchScreen";
 const String fullPostScreenRoute = "/fullPostScreen";
 const String addPostScreenRoute = "/addPostScreen";
 const String updatePostScreenRoute = "/updatePostScreen";
+const String locationClusterPointsScreenRoute = "/locationClusterPointsScreen";

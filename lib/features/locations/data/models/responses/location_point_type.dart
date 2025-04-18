@@ -1,0 +1,4 @@
+enum LocationPointType{
+  point,
+  cluster
+}

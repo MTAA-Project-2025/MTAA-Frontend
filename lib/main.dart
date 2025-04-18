@@ -89,7 +89,7 @@ class MyApp extends StatelessWidget {
           themeMode: state.themeMode,
           routerConfig: router.AppRouter.createRouter(initialRoute),
         );
-      },
+      }, 
     );
   }
 }

@@ -10,6 +10,8 @@ import 'package:mtaa_frontend/core/services/time_formating_service.dart';
 import 'package:mtaa_frontend/domain/entities/my_db_context.dart';
 import 'package:mtaa_frontend/features/images/data/network/preset_avatar_images_api.dart';
 import 'package:mtaa_frontend/features/images/data/storages/my_image_storage.dart';
+import 'package:mtaa_frontend/features/locations/data/network/locations_api.dart';
+import 'package:mtaa_frontend/features/locations/data/repositories/locations_repository.dart';
 import 'package:mtaa_frontend/features/posts/data/network/posts_api.dart';
 import 'package:mtaa_frontend/features/posts/data/repositories/posts_repository.dart';
 import 'package:mtaa_frontend/features/posts/data/storages/posts_storage.dart';
@@ -51,6 +53,13 @@ void setupDependencies() {
   );
   getIt.registerSingleton<IdentityApi>(
     IdentityImplApi(getIt<Dio>()),
+  );
+
+  getIt.registerSingleton<LocationsApi>(
+    LocationsApiImpl(getIt<Dio>(), getIt<ExceptionsService>()),
+  );
+    getIt.registerSingleton<LocationsRepository>(
+    LocationsRepositoryImpl(getIt<LocationsApi>()),
   );
 
   getIt.registerSingleton<PostsApi>(

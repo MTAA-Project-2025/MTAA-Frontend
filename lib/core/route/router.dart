@@ -5,6 +5,9 @@ import 'package:mtaa_frontend/core/utils/app_injections.dart';
 import 'package:mtaa_frontend/features/groups/presentation/screens/userGroupListScreen.dart';
 import 'package:mtaa_frontend/features/images/data/storages/my_image_storage.dart';
 import 'package:mtaa_frontend/features/images/presentation/widgets/test.dart';
+import 'package:mtaa_frontend/features/locations/data/repositories/locations_repository.dart';
+import 'package:mtaa_frontend/features/locations/presentation/screens/location_cluster_points_screen.dart';
+import 'package:mtaa_frontend/features/locations/presentation/screens/main_location_map_screen.dart';
 import 'package:mtaa_frontend/features/posts/data/models/responses/full_post_response.dart';
 import 'package:mtaa_frontend/features/posts/data/repositories/posts_repository.dart';
 import 'package:mtaa_frontend/features/posts/presentation/screens/add_post_screen.dart';
@@ -25,6 +28,7 @@ import 'package:mtaa_frontend/features/users/authentication/sign-up/presentation
 import 'package:mtaa_frontend/features/users/authentication/sign-up/presentation/screens/startScreen.dart';
 import 'package:mtaa_frontend/features/users/authentication/sign-up/presentation/screens/startSignUpScreen.dart';
 import 'package:mtaa_frontend/features/users/authentication/log-in/presentation/screens/logInScreen.dart';
+import 'package:uuid/uuid_value.dart';
 
 class AppRouter {
   static GoRouter createRouter(String initialRoute) {
@@ -98,6 +102,9 @@ class AppRouter {
           path: globalSearchScreenRoute,
           builder: (context, state) => PostsGlobalSearchScreen(repository: getIt<PostsRepository>())
         ),
+        GoRoute(path: userMapScreenRoute,
+          builder: (context, state) => MainLocationMapScreen(repository: getIt<LocationsRepository>(),)
+        ),
         GoRoute(
           path: '$fullPostScreenRoute/:id',	
           builder: (context, state) {
@@ -105,6 +112,13 @@ class AppRouter {
             if(state.extra!=null && state.extra is FullPostResponse) post = state.extra as FullPostResponse;
             String? postId = state.pathParameters['id']!;
             return FullPostScreen(repository: getIt<PostsRepository>(), postId: postId, post: post);
+          }
+        ),
+        GoRoute(
+          path: '$locationClusterPointsScreenRoute/:id',	
+          builder: (context, state) {
+            String? clusterId = state.pathParameters['id']!;
+            return LocationClusterPointsScreen(repository: getIt<LocationsRepository>(), clusterId: UuidValue.fromString(clusterId));
           }
         ),
         GoRoute(

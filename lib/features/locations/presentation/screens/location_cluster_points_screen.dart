@@ -6,9 +6,10 @@ import 'package:mtaa_frontend/core/constants/menu_buttons.dart';
 import 'package:mtaa_frontend/core/constants/route_constants.dart';
 import 'package:mtaa_frontend/core/services/time_formating_service.dart';
 import 'package:mtaa_frontend/core/utils/app_injections.dart';
-import 'package:mtaa_frontend/features/posts/data/models/responses/full_post_response.dart';
+import 'package:mtaa_frontend/features/locations/data/repositories/locations_repository.dart';
+import 'package:mtaa_frontend/features/posts/data/models/responses/location_post_response.dart';
 import 'package:mtaa_frontend/features/posts/data/repositories/posts_repository.dart';
-import 'package:mtaa_frontend/features/posts/presentation/widgets/full_post_widget.dart';
+import 'package:mtaa_frontend/features/posts/presentation/widgets/location_post_widget.dart';
 import 'package:mtaa_frontend/features/shared/bloc/exception_type.dart';
 import 'package:mtaa_frontend/features/shared/bloc/exceptions_bloc.dart';
 import 'package:mtaa_frontend/features/shared/bloc/exceptions_event.dart';
@@ -19,19 +20,21 @@ import 'package:mtaa_frontend/features/shared/presentation/widgets/dotLoader.dar
 import 'package:mtaa_frontend/features/shared/presentation/widgets/empty_data_notification_section.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/phone_bottom_menu.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/server_error_notification_section.dart';
+import 'package:uuid/uuid.dart';
 
-class PostRecommendationsScreen extends StatefulWidget {
-  final PostsRepository repository;
+class LocationClusterPointsScreen extends StatefulWidget {
+  final LocationsRepository repository;
+  final UuidValue clusterId;
 
-  const PostRecommendationsScreen({super.key, required this.repository});
+  const LocationClusterPointsScreen({super.key, required this.repository, required this.clusterId});
 
   @override
-  State<PostRecommendationsScreen> createState() => _PostRecommendationsScreenState();
+  State<LocationClusterPointsScreen> createState() => _LocationClusterPointsScreenState();
 }
 
-class _PostRecommendationsScreenState extends State<PostRecommendationsScreen> {
+class _LocationClusterPointsScreenState extends State<LocationClusterPointsScreen> {
   PaginationScrollController paginationScrollController = PaginationScrollController();
-  List<FullPostResponse> posts = [];
+  List<LocationPostResponse> points = [];
   late final AppLifecycleListener _listener;
 
   @override
@@ -48,7 +51,7 @@ class _PostRecommendationsScreenState extends State<PostRecommendationsScreen> {
 
     Future.microtask(() async {
       if(!mounted)return;
-      posts.addAll(await widget.repository.getPreviousRecommendedPosts());
+      points.addAll(await widget.repository.getClusterLocationPoints(widget.clusterId, paginationScrollController.pageParameters));
       if(!mounted)return;
       final status = await AirplaneModeChecker.instance.checkAirplaneMode();
       if (status == AirplaneModeStatus.on && mounted) {
@@ -76,7 +79,7 @@ class _PostRecommendationsScreenState extends State<PostRecommendationsScreen> {
 
   Future loadPosts() async {
     if(!mounted)return;
-    var res = await widget.repository.getRecommendedPosts(paginationScrollController.pageParameters);
+    var res = await widget.repository.getClusterLocationPoints(widget.clusterId, paginationScrollController.pageParameters);
     if(!mounted)return;
     paginationScrollController.pageParameters.pageNumber++;
     if (res.length < paginationScrollController.pageParameters.pageSize) {
@@ -85,7 +88,7 @@ class _PostRecommendationsScreenState extends State<PostRecommendationsScreen> {
     if (res.isNotEmpty) {
       if(!mounted)return;
       setState(() {
-        posts.addAll(res);
+        points.addAll(res);
       });
     }
   }
@@ -93,14 +96,13 @@ class _PostRecommendationsScreenState extends State<PostRecommendationsScreen> {
   @override
   void dispose() {
     paginationScrollController.dispose();
-    widget.repository.setPreviousRecommendedPosts(posts.reversed.take(paginationScrollController.pageParameters.pageSize).toList());
     _listener.dispose();
     
     super.dispose();
   }
 
   Future loadFirst() async {
-    posts.clear();
+    points.clear();
     paginationScrollController.dispose();
     paginationScrollController.init(loadAction: () => loadPosts());
     setState(() {
@@ -128,7 +130,7 @@ class _PostRecommendationsScreenState extends State<PostRecommendationsScreen> {
                   onPressed: () {
                     GoRouter.of(context).push(globalSearchScreenRoute).then(
                       (value) {
-                        if (posts.isEmpty && !paginationScrollController.isLoading) loadPosts();
+                        if (points.isEmpty && !paginationScrollController.isLoading) loadPosts();
                       },
                     );
                   },
@@ -140,15 +142,15 @@ class _PostRecommendationsScreenState extends State<PostRecommendationsScreen> {
             Expanded(
               child: ListView.builder(
                 cacheExtent: 9999,
-                itemCount: posts.length + 1,
+                itemCount: points.length + 1,
                 controller: paginationScrollController.scrollController,
                 itemBuilder: (context, index) {
-                  if (index < posts.length) {
-                    return FullPostWidget(
-                      post: posts[index],
+                  if (index < points.length) {
+                    return LocationPostWidget(
+                      post: points[index],
                       timeFormatingService: getIt<TimeFormatingService>(),
-                      isFull: false,
-                      repository: widget.repository,
+                      postsRepository: getIt<PostsRepository>(),
+                      locationsRepository: widget.repository,
                     );
                   }
                   if (paginationScrollController.isLoading) {
@@ -173,7 +175,7 @@ class _PostRecommendationsScreenState extends State<PostRecommendationsScreen> {
                       },
                     );
                   }
-                  if (posts.isEmpty) {
+                  if (points.isEmpty) {
                     return EmptyErrorNotificationSectionWidget(
                       onPressed: () {
                         loadFirst();
