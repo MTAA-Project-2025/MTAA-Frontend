@@ -140,7 +140,7 @@ Widget _buildButton(String text, VoidCallback onPressed) {
         height: 23,
         width: 140,
         decoration: BoxDecoration(
-          color: lightInversePrimarily12Color,
+          color: secondary1InvincibleColor,
           borderRadius: BorderRadius.circular(4),
         ),
         child: Center(
