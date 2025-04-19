@@ -9,6 +9,7 @@ import 'package:uuid/uuid.dart';
 abstract class LocationsApi {
   Future<List<SimpleLocationPointResponse>> getLocationPoints(GetLocationPointsRequest request);
   Future<List<LocationPostResponse>> getClusterLocationPoints(UuidValue clusterId, PageParameters pageParameters);
+  Future<LocationPostResponse?> getLocationPostById(UuidValue id);
 }
 
 class LocationsApiImpl extends LocationsApi {
@@ -42,6 +43,18 @@ class LocationsApiImpl extends LocationsApi {
     } on DioException catch (e) {
       exceptionsService.httpError(e);
       return [];
+    }
+  }
+
+  @override
+  Future<LocationPostResponse?> getLocationPostById(UuidValue id) async{
+    final fullUrl = '$controllerName/get-location-post/${id.uuid}';
+    try {
+      var res = await dio.get(fullUrl);
+      return LocationPostResponse.fromJson(res.data);
+    } on DioException catch (e) {
+      exceptionsService.httpError(e);
+      return null;
     }
   }
 }

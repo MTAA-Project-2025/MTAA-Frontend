@@ -1,9 +1,7 @@
 import 'package:airplane_mode_checker/airplane_mode_checker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:mtaa_frontend/core/constants/menu_buttons.dart';
-import 'package:mtaa_frontend/core/constants/route_constants.dart';
 import 'package:mtaa_frontend/core/services/time_formating_service.dart';
 import 'package:mtaa_frontend/core/utils/app_injections.dart';
 import 'package:mtaa_frontend/features/locations/data/repositories/locations_repository.dart';
@@ -50,8 +48,6 @@ class _LocationClusterPointsScreenState extends State<LocationClusterPointsScree
     context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: false, exceptionType: ExceptionTypes.none, message: ''));
 
     Future.microtask(() async {
-      if(!mounted)return;
-      points.addAll(await widget.repository.getClusterLocationPoints(widget.clusterId, paginationScrollController.pageParameters));
       if(!mounted)return;
       final status = await AirplaneModeChecker.instance.checkAirplaneMode();
       if (status == AirplaneModeStatus.on && mounted) {
@@ -120,23 +116,7 @@ class _LocationClusterPointsScreenState extends State<LocationClusterPointsScree
   @override
   Widget build(BuildContext contex) {
     return Scaffold(
-        appBar: AppBar(
-          actions: <Widget>[
-            Container(
-                margin: const EdgeInsets.fromLTRB(0, 0, 21, 0),
-                child: IconButton(
-                  icon: const Icon(Icons.search),
-                  tooltip: 'Search',
-                  onPressed: () {
-                    GoRouter.of(context).push(globalSearchScreenRoute).then(
-                      (value) {
-                        if (points.isEmpty && !paginationScrollController.isLoading) loadPosts();
-                      },
-                    );
-                  },
-                ))
-          ],
-        ),
+        appBar: AppBar(),
         body: BlocBuilder<ExceptionsBloc, ExceptionsState>(builder: (context, state) {
           return Column(children: [
             Expanded(

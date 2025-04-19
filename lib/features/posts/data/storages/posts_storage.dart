@@ -12,7 +12,10 @@ import 'package:mtaa_frontend/domain/hive_data/posts/full_post_hive.dart';
 import 'package:mtaa_frontend/features/images/data/models/responses/myImageResponse.dart';
 import 'package:mtaa_frontend/features/images/data/storages/my_image_storage.dart';
 import 'package:mtaa_frontend/features/locations/data/models/requests/add_location_request.dart';
+import 'package:mtaa_frontend/features/locations/data/models/responses/location_point_type.dart';
+import 'package:mtaa_frontend/features/locations/data/models/responses/simple_location_point_response.dart';
 import 'package:mtaa_frontend/features/posts/data/models/responses/full_post_response.dart';
+import 'package:mtaa_frontend/features/posts/data/models/responses/location_post_response.dart';
 import 'package:mtaa_frontend/features/posts/data/models/responses/simple_post_response.dart';
 import 'package:mtaa_frontend/features/posts/presentation/screens/add_post_screen.dart';
 import 'package:mtaa_frontend/features/posts/presentation/widgets/add_post_form.dart';
@@ -27,6 +30,12 @@ abstract class PostsStorage {
   Future<AddPostHive?> getTempPostAddForm();
   Future setTempPostAddForm(List<AddPostImageScreenDTO> images, List<ImageDTO> imageDTOs, String text, AddLocationRequest? addLocation);
   Future deleteTempPostAddForm();
+
+  Future saveLocationPost(LocationPostResponse post);
+  Future removeLocationPost(LocationPostResponse post);
+  Future<List<LocationPostResponse>> getSavedLocationPosts(PageParameters pageParameteres);
+  Future<LocationPostResponse?> getSavedLocationPostById(UuidValue id);
+  Future<bool> isLocationPostSaved(UuidValue postId);
 
   Future saveSimple(String ownerId, SimplePostResponse post);
   Future<List<SimplePostResponse>> getAccountPosts(String userId, PageParameters pageParameters);
@@ -63,7 +72,7 @@ class PostsStorageImpl extends PostsStorage {
   Future setRecommended(List<FullPostResponse> posts) async {
     List<FullPostResponse> postsToAddImg = [];
     var postsHive = posts.map((e) => FullPostHive.fromResponse(e)).toList();
-    
+
     var oldPosts = await getRecommended();
     for (var post in oldPosts) {
       if (!posts.any((e) => e.id == post.id && e.isLocal)) {
@@ -102,8 +111,8 @@ class PostsStorageImpl extends PostsStorage {
   @override
   Future deleteTempPostAddForm() async {
     var oldPostForm = await getTempPostAddForm();
-    if(oldPostForm!=null){
-      for(var img in oldPostForm.images){
+    if (oldPostForm != null) {
+      for (var img in oldPostForm.images) {
         await imageStorage.deleteImage(img.imagePath);
         await imageStorage.deleteImage(img.origImagePath);
       }
@@ -116,32 +125,28 @@ class PostsStorageImpl extends PostsStorage {
   Future setTempPostAddForm(List<AddPostImageScreenDTO> images, List<ImageDTO> imageDTOs, String text, AddLocationRequest? addLocation) async {
     List<AddImageHive> imagesHive = [];
 
-    for(int i = 0;i<images.length;i++){
+    for (int i = 0; i < images.length; i++) {
       AddImageHive newImageHive = AddImageHive();
-      if(images[i].imagePath !=null){
+      if (images[i].imagePath != null) {
         newImageHive.imagePath = images[i].imagePath!;
-      }
-      else if(images[i].image!=null){
+      } else if (images[i].image != null) {
         newImageHive.imagePath = await imageStorage.saveTempImage(images[i].image!.readAsBytesSync(), 'add_pos_img_$i');
       }
 
-      if(images[i].originalImageLocalPath !=null){
+      if (images[i].originalImageLocalPath != null) {
         newImageHive.origImagePath = images[i].originalImageLocalPath!;
-      }
-      else if(images[i].originalImage!=null){
+      } else if (images[i].originalImage != null) {
         newImageHive.origImagePath = await imageStorage.saveTempImage(await images[i].originalImage!.readAsBytes(), 'add_pos_img_orig_$i');
       }
-      newImageHive.aspectRatioPreset=CropAspectRatioPresetCustomHive.fromRequest(imageDTOs[i].aspectRatioPreset);
-      newImageHive.isAspectRatioError=imageDTOs[i].isAspectRatioError;
+      newImageHive.aspectRatioPreset = CropAspectRatioPresetCustomHive.fromRequest(imageDTOs[i].aspectRatioPreset);
+      newImageHive.isAspectRatioError = imageDTOs[i].isAspectRatioError;
       newImageHive.position = images[i].position;
 
       imagesHive.add(newImageHive);
     }
-    
-    var hivePost = AddPostHive(images: imagesHive,
-    location: addLocation!=null?AddLocationHive.fromRequest(addLocation):null,
-    description: text);
-    
+
+    var hivePost = AddPostHive(images: imagesHive, location: addLocation != null ? AddLocationHive.fromRequest(addLocation) : null, description: text);
+
     var box = await Hive.openBox<AddPostHive>(tempAddPostDataBox);
     await box.put(tempAddPost, hivePost);
   }
@@ -187,6 +192,216 @@ class PostsStorageImpl extends PostsStorage {
     }
 
     return posts;
+  }
+
+  @override
+  Future saveLocationPost(LocationPostResponse post) async {
+    final query = dbContext.selectOnly(dbContext.locationPosts)
+      ..addColumns([dbContext.locationPosts.id])
+      ..where(dbContext.locationPosts.id.equals(post.id.uuid));
+
+    final isPostExist = await query.getSingleOrNull() != null;
+    if (isPostExist) {
+      return;
+    }
+
+    if (post.smallFirstImage.localPath == '') {
+      var uint8List = await imageStorage.urlToUint8List(post.smallFirstImage.fullPath);
+      if (uint8List != null) {
+        var path = await imageStorage.saveTempImage(uint8List, 'postLocationImg_${post.smallFirstImage.type.index}_${post.smallFirstImage.id}');
+        post.smallFirstImage.localPath = path;
+      }
+    }
+
+    await dbContext.transaction(() async {
+      var userId = await TokenStorage.getUserId();
+
+      await dbContext.into(dbContext.locationPosts).insert(LocationPostsCompanion(
+            id: Value(post.id.uuid),
+            locationId: Value(post.locationId?.uuid),
+            eventTime: Value(post.eventTime),
+            description: Value(post.description),
+            ownerDisplayName: Value(post.ownerDisplayName),
+            pointId: Value(post.point.id.uuid),
+            dataCreationTime: Value(post.dataCreationTime),
+            currentUser: Value(userId ?? ''),
+            smallFirstImageId: Value(post.smallFirstImage.id),
+          ));
+
+      await dbContext.into(dbContext.simpleLocationPoints).insert(SimpleLocationPointsCompanion(
+            id: Value(post.point.id.uuid),
+            postId: Value(post.id.uuid),
+            longitude: Value(post.point.longitude),
+            latitude: Value(post.point.latitude),
+            type: Value(post.point.type.index),
+            zoomLevel: Value(post.point.zoomLevel),
+            childCount: Value(post.point.childCount),
+            currentUser: Value(userId ?? ''),
+          ));
+
+      await dbContext.into(dbContext.myImages).insert(MyImagesCompanion(
+            id: Value(post.smallFirstImage.id),
+            myImageGroupId: Value(post.smallFirstImage.id),
+            shortPath: Value(post.smallFirstImage.shortPath),
+            fullPath: Value(post.smallFirstImage.fullPath),
+            fileType: Value(post.smallFirstImage.fileType),
+            height: Value(post.smallFirstImage.height),
+            width: Value(post.smallFirstImage.width),
+            aspectRatio: Value(post.smallFirstImage.aspectRatio),
+            type: Value(post.smallFirstImage.type.index),
+            localFullPath: Value(post.smallFirstImage.localPath),
+            locationPostId: Value(post.id.uuid),
+          ));
+    });
+  }
+
+  @override
+  Future removeLocationPost(LocationPostResponse post) async {
+    final query = dbContext.selectOnly(dbContext.locationPosts)
+      ..addColumns([dbContext.locationPosts.id])
+      ..where(dbContext.locationPosts.id.equals(post.id.uuid));
+    final isPostExist = await query.getSingleOrNull() != null;
+    if (!isPostExist) {
+      return;
+    }
+
+    await imageStorage.deleteImage(post.smallFirstImage.localPath);
+
+    await dbContext.transaction(() async {
+      await dbContext.delete(dbContext.locationPosts).delete(LocationPostsCompanion(id: Value(post.id.uuid)));
+      await dbContext.delete(dbContext.simpleLocationPoints).delete(SimpleLocationPointsCompanion(id: Value(post.point.id.uuid)));
+      await dbContext.delete(dbContext.myImages).delete(MyImagesCompanion(id: Value(post.smallFirstImage.id)));
+    });
+  }
+
+  @override
+  Future<List<LocationPostResponse>> getSavedLocationPosts(PageParameters pageParameteres) async {
+    final postsSubquery = Subquery(
+        dbContext.select(dbContext.locationPosts)
+          ..orderBy([(row) => OrderingTerm.desc(row.dataCreationTime)])
+          ..limit(pageParameteres.pageSize, offset: pageParameteres.pageSize * pageParameteres.pageNumber),
+        's');
+
+    final query = dbContext.select(postsSubquery).join([
+      leftOuterJoin(
+        dbContext.simpleLocationPoints,
+        dbContext.simpleLocationPoints.postId.equalsExp(dbContext.locationPosts.id),
+      ),
+      leftOuterJoin(
+        dbContext.myImages,
+        dbContext.myImages.locationPostId.equalsExp(dbContext.locationPosts.id),
+      ),
+    ]);
+
+    final rows = await query.get();
+
+    final List<LocationPostResponse> posts = [];
+
+    for (final row in rows) {
+      var postTable = row.readTable(dbContext.locationPosts);
+      var pointTable = row.readTable(dbContext.simpleLocationPoints);
+      var imageTable = row.readTable(dbContext.myImages);
+
+      var image = MyImageResponse(
+          aspectRatio: imageTable.aspectRatio,
+          fileType: imageTable.fileType,
+          fullPath: imageTable.fullPath,
+          height: imageTable.height,
+          id: imageTable.id,
+          localPath: imageTable.localFullPath,
+          shortPath: imageTable.shortPath,
+          type: ImageSizeType.values[imageTable.type],
+          width: imageTable.width);
+
+      var point = SimpleLocationPointResponse(
+        id: UuidValue.fromString(pointTable.id),
+        longitude: pointTable.longitude,
+        latitude: pointTable.latitude,
+        type: LocationPointType.values[pointTable.type],
+        zoomLevel: pointTable.zoomLevel,
+        childCount: pointTable.childCount,
+      );
+
+      var post = LocationPostResponse(
+        id: UuidValue.fromString(postTable.id),
+        smallFirstImage: image,
+        dataCreationTime: postTable.dataCreationTime,
+        locationId: UuidValue.fromString(postTable.locationId ?? ''),
+        eventTime: postTable.eventTime,
+        point: point,
+        description: postTable.description,
+        ownerDisplayName: postTable.ownerDisplayName,
+      );
+
+      posts.add(post);
+    }
+
+    return posts;
+  }
+
+  @override
+  Future<LocationPostResponse?> getSavedLocationPostById(UuidValue id) async {
+    final query = dbContext.select(dbContext.locationPosts).join([
+      leftOuterJoin(
+        dbContext.simpleLocationPoints,
+        dbContext.simpleLocationPoints.postId.equalsExp(dbContext.locationPosts.id),
+      ),
+      leftOuterJoin(
+        dbContext.myImages,
+        dbContext.myImages.locationPostId.equalsExp(dbContext.locationPosts.id),
+      ),
+    ])
+      ..where(dbContext.locationPosts.id.equals(id.uuid));
+
+    final rows = await query.getSingleOrNull();
+
+    if (rows == null) {
+     return null;
+    }
+
+    var postTable = rows.readTable(dbContext.locationPosts);
+    var pointTable = rows.readTable(dbContext.simpleLocationPoints);
+    var imageTable = rows.readTable(dbContext.myImages);
+
+    var image = MyImageResponse(
+        aspectRatio: imageTable.aspectRatio,
+        fileType: imageTable.fileType,
+        fullPath: imageTable.fullPath,
+        height: imageTable.height,
+        id: imageTable.id,
+        localPath: imageTable.localFullPath,
+        shortPath: imageTable.shortPath,
+        type: ImageSizeType.values[imageTable.type],
+        width: imageTable.width);
+
+    var point = SimpleLocationPointResponse(
+      id: UuidValue.fromString(pointTable.id),
+      longitude: pointTable.longitude,
+      latitude: pointTable.latitude,
+      type: LocationPointType.values[pointTable.type],
+      zoomLevel: pointTable.zoomLevel,
+      childCount: pointTable.childCount,
+    );
+
+    return LocationPostResponse(
+      id: UuidValue.fromString(postTable.id),
+      smallFirstImage: image,
+      dataCreationTime: postTable.dataCreationTime,
+      locationId: UuidValue.fromString(postTable.locationId ?? ''),
+      eventTime: postTable.eventTime,
+      point: point,
+      description: postTable.description,
+      ownerDisplayName: postTable.ownerDisplayName,
+    );
+  }
+
+  @override
+  Future<bool> isLocationPostSaved(UuidValue postId) async {
+    final query = dbContext.selectOnly(dbContext.locationPosts)
+      ..addColumns([dbContext.locationPosts.id])
+      ..where(dbContext.locationPosts.id.equals(postId.uuid));
+
+    return await query.getSingleOrNull() != null;
   }
 
   @override

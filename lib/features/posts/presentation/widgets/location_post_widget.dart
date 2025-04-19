@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:mtaa_frontend/core/services/time_formating_service.dart';
 import 'package:mtaa_frontend/features/images/data/models/responses/myImageResponse.dart';
 import 'package:mtaa_frontend/features/locations/data/repositories/locations_repository.dart';
+import 'package:mtaa_frontend/features/locations/presentation/widgets/post_location_save_section.dart';
 import 'package:mtaa_frontend/features/posts/data/models/responses/location_post_response.dart';
 import 'package:mtaa_frontend/features/posts/data/repositories/posts_repository.dart';
 
@@ -75,15 +76,10 @@ class _LocationPostWidgetState extends State<LocationPostWidget> {
                     Text("${widget.post.point.latitude} ${widget.post.point.longitude}", style: Theme.of(context).textTheme.labelSmall),
                   ],
                 )),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Icon(
-                      Icons.location_on_outlined,
-                      size: 24,
-                    ),
-                    Icon(Icons.bookmark_add_outlined, size: 24),
-                  ],
+                PostLocationSaveSection(
+                  locationPost: widget.post,
+                  locationsRepository: widget.locationsRepository,
+                  repository: widget.postsRepository,
                 ),
               ],
             ),

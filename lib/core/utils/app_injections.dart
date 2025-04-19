@@ -58,9 +58,6 @@ void setupDependencies() {
   getIt.registerSingleton<LocationsApi>(
     LocationsApiImpl(getIt<Dio>(), getIt<ExceptionsService>()),
   );
-    getIt.registerSingleton<LocationsRepository>(
-    LocationsRepositoryImpl(getIt<LocationsApi>()),
-  );
 
   getIt.registerSingleton<PostsApi>(
     PostsApiImpl(getIt<Dio>(), getIt<ExceptionsService>()),
@@ -70,6 +67,10 @@ void setupDependencies() {
   );
   getIt.registerSingleton<PostsRepository>(
     PostsRepositoryImpl(getIt<PostsApi>(), getIt<PostsStorage>()),
+  );
+
+  getIt.registerSingleton<LocationsRepository>(
+    LocationsRepositoryImpl(getIt<LocationsApi>(), getIt<PostsStorage>()),
   );
 
   getIt.registerSingleton<AccountApi>(

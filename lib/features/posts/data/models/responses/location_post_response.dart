@@ -10,6 +10,8 @@ class LocationPostResponse extends SimplePostResponse{
   final String description;
   final String ownerDisplayName;
 
+  bool isSaved=false;
+
   LocationPostResponse({
     required super.id,
     required super.smallFirstImage,
@@ -18,7 +20,7 @@ class LocationPostResponse extends SimplePostResponse{
     required this.eventTime,
     required this.point,
     required this.description,
-    required this.ownerDisplayName,
+    required this.ownerDisplayName
   });
 
   factory LocationPostResponse.fromJson(Map<String, dynamic> json) {
