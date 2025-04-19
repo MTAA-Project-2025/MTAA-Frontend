@@ -22,7 +22,7 @@ import 'package:mtaa_frontend/features/users/account/presentation/widgets/search
 class FollowersScreen extends StatefulWidget {
   final AccountRepository repository;
 
-  const FollowersScreen({Key? key, required this.repository}) : super(key: key);
+  const FollowersScreen({super.key, required this.repository});
 
   @override
   State<FollowersScreen> createState() => _FollowersScreenState();

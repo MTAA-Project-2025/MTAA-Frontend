@@ -7,10 +7,10 @@ class FollowersList extends StatelessWidget {
   final String searchQuery;
 
   const FollowersList({
-    Key? key,
+    super.key,
     required this.followers,
     this.searchQuery = "",
-  }) : super(key: key);
+  });
 
   List<PublicBaseAccountResponse> get filteredFollowers {
     if (searchQuery.trim().isEmpty) {

@@ -13,12 +13,17 @@ import 'package:mtaa_frontend/features/posts/presentation/screens/post_recommend
 import 'package:mtaa_frontend/features/posts/presentation/screens/posts_global_search_screen.dart';
 import 'package:mtaa_frontend/features/posts/presentation/screens/update_post_screen.dart';
 import 'package:mtaa_frontend/features/settings/presentation/screens/user_settings_screen.dart';
+import 'package:mtaa_frontend/features/users/account/data/models/responses/publicBaseAccountResponse.dart';
+import 'package:mtaa_frontend/features/users/account/data/models/responses/publicFullAccountResponse.dart';
 import 'package:mtaa_frontend/features/users/account/data/network/account_api.dart';
 import 'package:mtaa_frontend/features/users/account/data/repositories/account_repository.dart';
 import 'package:mtaa_frontend/features/users/account/presentation/screens/accountInformationScreen.dart';
 import 'package:mtaa_frontend/features/users/account/presentation/screens/firstUpdateAvatarScreen.dart';
 import 'package:mtaa_frontend/features/users/account/presentation/screens/firstUpdateBirthDateScreen.dart';
 import 'package:mtaa_frontend/features/users/account/presentation/screens/firstUpdateDisplayNameScreen.dart';
+import 'package:mtaa_frontend/features/users/account/presentation/screens/followersScreen.dart';
+import 'package:mtaa_frontend/features/users/account/presentation/screens/friendsScreen.dart';
+import 'package:mtaa_frontend/features/users/account/presentation/screens/publicAccountInformationScreen.dart';
 import 'package:mtaa_frontend/features/users/account/presentation/screens/updateAccountScreen.dart';
 import 'package:mtaa_frontend/features/users/account/presentation/screens/updateAvatarScreen.dart';
 import 'package:mtaa_frontend/features/users/authentication/shared/data/network/identity_api.dart';
@@ -80,6 +85,15 @@ class AppRouter {
           builder: (context, state) => AccountInformationScreen(repository: getIt<AccountRepository>()),
         ),
         GoRoute(
+          path: publicAccountInformationScreenRoute,
+          builder: (context, state) {
+            PublicFullAccountResponse? user;
+            if(state.extra!=null && state.extra is PublicFullAccountResponse) user = state.extra as PublicFullAccountResponse;
+            
+            return PublicAccountInformationScreen(repository: getIt<AccountRepository>(), user:user!);
+          }  
+        ),
+        GoRoute(
           path: updateUserScreenRoute,
           builder: (context, state) => UpdateAccountScreen(repository: getIt<AccountRepository>(), toastService: getIt<MyToastService>(),),
         ),
@@ -126,6 +140,13 @@ class AppRouter {
           builder: (context, state) => LogInScreen(
             identityApi: getIt<IdentityApi>(),
           ),
+        ),
+        GoRoute(
+          path: followersScreenRoute,
+          builder: (context, state) => FollowersScreen(repository: getIt<AccountRepository>())
+        ),GoRoute(
+          path: friendsScreenRoute,
+          builder: (context, state) => FriendsScreen(repository: getIt<AccountRepository>())
         ),
       ],
     );

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mtaa_frontend/core/constants/colors.dart';
 import 'package:mtaa_frontend/core/constants/route_constants.dart';
 
 class ProfileInfoWidget extends StatelessWidget {
@@ -23,12 +22,12 @@ class ProfileInfoWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ImageProvider<Object> avatarImage;
-    if (avatarUrl.startsWith('http')) {
-      avatarImage = NetworkImage(avatarUrl);
-    } else {
-      avatarImage = AssetImage(avatarUrl);
-    }
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+
+    final ImageProvider<Object> avatarImage = avatarUrl.startsWith('http')
+        ? NetworkImage(avatarUrl)
+        : AssetImage(avatarUrl) as ImageProvider;
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -47,58 +46,67 @@ class ProfileInfoWidget extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 10),
-          
+
           // Name
           Text(
             name,
-            style: const TextStyle(
-              color: lightPrimarily2Color,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              height: 1,
-              letterSpacing: -0.01,
-            ),
+            style: textTheme.headlineMedium,
           ),
           const SizedBox(height: 10),
-          
+
           // Username
           Text(
             username,
-            style: const TextStyle(
-              color: primarily0InvincibleColor,
-              fontSize: 13,
-              height: 1,
-              letterSpacing: -0.01,
-            ),
+            style: textTheme.labelMedium,
           ),
           const SizedBox(height: 10),
-          
+
           // Stats
           Padding(
             padding: const EdgeInsets.all(10.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _buildStatItem(friends.toString(), 'Friends'),
+                _buildStatItem(
+                  context,
+                  friends.toString(),
+                  'Friends',
+                  () => context.push(friendsScreenRoute),
+                ),
                 const SizedBox(width: 10),
-                _buildStatItem(followers.toString(), 'Followers'),
+                _buildStatItem(
+                  context,
+                  followers.toString(),
+                  'Followers',
+                  () => context.push(followersScreenRoute),
+                ),
                 const SizedBox(width: 10),
-                _buildStatItem(likes.toString(), 'Likes'),
+                _buildStatItem(
+                  context,
+                  likes.toString(),
+                  'Likes',
+                  null,
+                ),
               ],
             ),
           ),
           const SizedBox(height: 10),
-          
+
           // Buttons
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildButton('Change Profile', () {
-                GoRouter.of(context).push(updateUserScreenRoute);
-              }),
+              _buildButton(
+                context,
+                'Change Profile',
+                () => GoRouter.of(context).push(updateUserScreenRoute),
+              ),
               const SizedBox(width: 10),
-              _buildButton('Notifications', () {
-              }),
+              _buildButton(
+                context,
+                'Notifications',
+                () {},
+              ),
             ],
           ),
         ],
@@ -106,49 +114,40 @@ class ProfileInfoWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildStatItem(String value, String label) {
-    return Column(
-      children: [
-        Text(
-          value,
-          style: const TextStyle(
-            color: lightPrimarily2Color,
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            height: 1,
-            letterSpacing: -0.01,
-          ),
-        ),
-        Text(
-          label,
-          style: const TextStyle(
-            color: primarily0InvincibleColor,
-            fontSize: 13,
-            height: 1,
-            letterSpacing: -0.01,
-          ),
-        ),
-      ],
-    );
-  }
+  Widget _buildStatItem(BuildContext context, String value, String label, VoidCallback? onTap) {
+  final textTheme = Theme.of(context).textTheme;
 
-Widget _buildButton(String text, VoidCallback onPressed) {
+  return GestureDetector(
+    onTap: onTap,
+    child: Column(
+      children: [
+        Text(value, style: textTheme.headlineMedium),
+        Text(label, style: textTheme.labelMedium),
+      ],
+    ),
+  );
+}
+
+
+  Widget _buildButton(BuildContext context, String text, VoidCallback onPressed) {
+    final textTheme = Theme.of(context).textTheme;
+
     return GestureDetector(
       onTap: onPressed,
       child: Container(
-        height: 23,
+        height: 40,
         width: 140,
         decoration: BoxDecoration(
-          color: secondary1InvincibleColor,
+          color: Theme.of(context).textTheme.titleMedium?.color,
           borderRadius: BorderRadius.circular(4),
         ),
         child: Center(
           child: Text(
             text,
-            style: const TextStyle(
-              color: whiteColor,
-              fontSize: 16,
+            style: textTheme.bodyMedium?.copyWith(
+              color: Colors.white,
               fontWeight: FontWeight.bold,
+              fontSize: 16,
               height: 1.2,
               letterSpacing: -0.3,
             ),

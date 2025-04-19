@@ -15,6 +15,7 @@ const String userRecommendationsScreenRoute = "/userRecommendationsScreen";
 const String userMapScreenRoute = "/userMapScreen";
 const String userFriendsScreenRoute = "/userFriendsScreen";
 const String accountProfileScreenRoute = "/accountProfileScreen";
+const String publicAccountInformationScreenRoute = "/publicAccountInformationScreen";
 const String userSettingsScreenRoute = "/userSettingsScreen";
 const String updateUserScreenRoute = "/updateAccountScreen";
 
@@ -24,3 +25,6 @@ const String fullPostScreenRoute = "/fullPostScreen";
 const String addPostScreenRoute = "/addPostScreen";
 const String updatePostScreenRoute = "/updatePostScreen";
 const String updateAccountAvatarRoute = "/updateAccountAvatarScreen";
+
+const String followersScreenRoute = "/followersScreen";
+const String friendsScreenRoute = "/friendsScreen";

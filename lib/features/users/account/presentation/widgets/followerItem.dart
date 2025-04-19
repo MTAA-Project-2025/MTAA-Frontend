@@ -7,10 +7,10 @@ class FollowerItem extends StatelessWidget {
   final VoidCallback? onMoreClick;
 
   const FollowerItem({
-    Key? key,
+    super.key,
     required this.follower,
     this.onMoreClick,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

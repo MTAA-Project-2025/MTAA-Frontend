@@ -1,11 +1,16 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:form_field_validator/form_field_validator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mtaa_frontend/core/constants/colors.dart';
 import 'package:mtaa_frontend/core/constants/menu_buttons.dart';
 import 'package:mtaa_frontend/core/constants/route_constants.dart';
 import 'package:mtaa_frontend/core/services/my_toast_service.dart';
 import 'package:mtaa_frontend/core/utils/app_injections.dart';
+import 'package:mtaa_frontend/features/images/data/models/responses/myImageResponse.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/customTextInput.dart';
+import 'package:mtaa_frontend/features/shared/presentation/widgets/dataTimeInput.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/dotLoader.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/phone_bottom_menu.dart';
 import 'package:mtaa_frontend/features/users/account/data/models/requests/updateAccountUsernameRequest.dart';
@@ -16,7 +21,7 @@ class UpdateAccountScreen extends StatefulWidget {
   final AccountRepository repository;
   final MyToastService toastService;
 
-  const UpdateAccountScreen({Key? key, required this.repository, required this.toastService}) : super(key: key);
+  const UpdateAccountScreen({super.key, required this.repository, required this.toastService});
 
   @override
   State<UpdateAccountScreen> createState() => _UpdateAccountScreenState();
@@ -59,6 +64,20 @@ class _UpdateAccountScreenState extends State<UpdateAccountScreen> {
 
   void _editField(String fieldName, String currentValue, {bool isDateField = false}) {
     TextEditingController controller = TextEditingController(text: currentValue);
+    final formKey = GlobalKey<FormState>();
+
+    final requiredValidator = RequiredValidator(errorText: 'This field is required');
+    final minLengthValidator = MinLengthValidator(3, errorText: 'Minimum 3 characters required');
+
+    final Map<String, MultiValidator> _validators = {
+      'username': MultiValidator([
+        requiredValidator,
+        minLengthValidator,
+      ]),
+      'full name': MultiValidator([
+        requiredValidator,
+      ]),
+    };
 
     showDialog(
       context: context,
@@ -67,7 +86,16 @@ class _UpdateAccountScreenState extends State<UpdateAccountScreen> {
           'Edit $fieldName',
           style: Theme.of(context).textTheme.headlineMedium,
         ),
-        content: isDateField ? _buildDatePicker(currentValue, fieldName) : CustomTextInput(placeholder: fieldName, controller: controller),
+        content: isDateField 
+          ? _buildDatePicker(currentValue, fieldName) 
+          : Form(
+              key: formKey,
+              child: CustomTextInput(
+                placeholder: fieldName, 
+                controller: controller,
+                validator: _validators[fieldName.toLowerCase()],
+              ),
+            ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -75,10 +103,16 @@ class _UpdateAccountScreenState extends State<UpdateAccountScreen> {
           ),
           TextButton(
             onPressed: () async {
+              if (!isDateField && !(formKey.currentState?.validate() ?? false)) {
+                return;
+              }
+
               switch (fieldName.toLowerCase()) {
                 case 'username':
                   if (user != null) {
-                    var res = await widget.repository.updateAccountUsername(UpdateAccountUsernameRequest(username: controller.text));
+                    var res = await widget.repository.updateAccountUsername(
+                      UpdateAccountUsernameRequest(username: controller.text)
+                    );
 
                     if (res) {
                       setState(() {
@@ -124,20 +158,12 @@ class _UpdateAccountScreenState extends State<UpdateAccountScreen> {
         children: [
           Text('Current $fieldName: $currentDate'),
           const SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () async {
-              final DateTime? picked = await showDatePicker(
-                context: context,
-                initialDate: initialDate,
-                firstDate: DateTime(1900),
-                lastDate: DateTime.now(),
-              );
-              if (picked != null) {
-                selectedDate = picked;
-              }
+          DateTimeInput(
+            placeholder: 'Select Date',
+            onChanged: (pickedDate) {
+              selectedDate = pickedDate;
             },
-            child: const Text('Select Date'),
-          ),
+          )
         ],
       ),
     );
@@ -146,47 +172,51 @@ class _UpdateAccountScreenState extends State<UpdateAccountScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(),
-        body: Container(
-          color: Colors.white,
-          width: double.infinity,
-          child: isLoading
-              ? const Center(child: DotLoader())
-              : SingleChildScrollView(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 480),
-                    child: Column(
-                      children: [
-                        _buildProfileContent(),
-                        const SizedBox(height: 50),
-                      ],
-                    ),
-                  ),
-                ),
-        ),
-        bottomNavigationBar: PhoneBottomMenu(sellectedType: MenuButtons.Profile));
+      appBar: AppBar(),
+      body: isLoading
+          ? const Center(child: DotLoader())
+          : SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 480),
+                child: _buildProfileContent(context),
+              ),
+            ),
+      bottomNavigationBar: const PhoneBottomMenu(sellectedType: MenuButtons.Profile),
+    );
   }
 
-  Widget _buildProfileContent() {
-    String username = user?.username ?? "@username";
-    String fullName = user?.displayName ?? "User";
-    String birthDate = "";
-    String phoneNumber = "";
-    String avatarUrl = user?.avatar?.images.first.fullPath ?? 'assets/default_avatar.png';
+  ImageProvider<Object> getImage(MyImageResponse? img) {
+  if (img == null) {
+    return const AssetImage('assets/images/kistune_server_error.png');
+  }
 
-    ImageProvider<Object> avatarImage;
-    if (avatarUrl.startsWith('http')) {
-      avatarImage = NetworkImage(avatarUrl);
-    } else {
-      avatarImage = AssetImage(avatarUrl);
-    }
+  if (img.fullPath.startsWith('http')) {
+    return NetworkImage(img.fullPath);
+  }
+
+  final file = File(img.localPath);
+  if (file.existsSync()) {
+    return FileImage(file);
+  }
+
+  return const AssetImage('assets/images/kistune_server_error.png');
+}
+
+  Widget _buildProfileContent(BuildContext context) {
+    final theme = Theme.of(context);
+    final username = user?.username ?? "@username";
+    final fullName = user?.displayName ?? "User";
+    final birthDate = "";
+    final phoneNumber = "";
+
+    final avatarImage = getImage(user?.avatar?.images.first);
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(40, 30, 40, 30),
+      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 30),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Profile Image and Name
+          // Avatar
           Center(
             child: SizedBox(
               width: 200,
@@ -196,16 +226,7 @@ class _UpdateAccountScreenState extends State<UpdateAccountScreen> {
                   Positioned.fill(
                     child: ClipOval(
                       child: Image(
-                        image: user!.avatar != null
-                            ? NetworkImage(
-                                user!.avatar!.images
-                                    .firstWhere(
-                                      (item) => item.width == 300,
-                                      orElse: () => user!.avatar!.images.first,
-                                    )
-                                    .fullPath,
-                              )
-                            : const AssetImage('assets/images/kitsune_server_error.png'),
+                        image: avatarImage,
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -214,102 +235,46 @@ class _UpdateAccountScreenState extends State<UpdateAccountScreen> {
                     top: 10,
                     right: 10,
                     child: IconButton(
-                      icon: Icon(Icons.add, color: whiteColor),
-                      style: Theme.of(context).textButtonTheme.style!.copyWith(
-                            padding: WidgetStateProperty.all<EdgeInsetsGeometry>(const EdgeInsets.all(8)),
-                            minimumSize: WidgetStateProperty.all(Size(0, 0)),
-                            shape: WidgetStateProperty.all<OutlinedBorder>(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(1000),
-                              ),
-                            ),
-                          ),
-                      onPressed: () {
-                        GoRouter.of(context).push(updateAccountAvatarRoute);
-                      },
+                      icon: const Icon(Icons.add),
+                      color: theme.colorScheme.primary,
+                      onPressed: () => GoRouter.of(context).push(updateAccountAvatarRoute),
+                      style: IconButton.styleFrom(
+                        backgroundColor: theme.colorScheme.secondary,
+                        shape: const CircleBorder(),
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
           ),
+          const SizedBox(height: 20),
+          const Divider(),
 
-          // Divider
-          const Padding(
-            padding: EdgeInsets.only(top: 20),
-            child: Divider(
-              color: Color(0xFFE0E0E0),
-              thickness: 1,
-            ),
-          ),
+          // Fields
+          _buildEditableField(Icons.person, "Username", username,
+              () => _editField("Username", username.replaceFirst('@', ''))),
+          _buildEditableField(Icons.badge, "Full name", fullName, () => _editField("Full Name", fullName)),
+          _buildEditableField(Icons.calendar_today, "Date of birth", birthDate,
+              () => _editField("Date of Birth", birthDate, isDateField: true)),
+          _buildEditableField(Icons.phone, "Phone number", phoneNumber,
+              () => _editField("Phone Number", phoneNumber)),
 
-          // Username Section
-          _buildEditableField(
-            icon: Icons.person,
-            label: "Username",
-            value: username,
-            onEdit: () => _editField("Username", username.startsWith('@') ? username.substring(1) : username),
-          ),
+          const Divider(),
 
-          // Full Name Section
-          _buildEditableField(
-            icon: Icons.badge,
-            label: "Full name",
-            value: fullName,
-            onEdit: () => _editField("Full Name", fullName),
-          ),
-
-          // Date of Birth Section
-          _buildEditableField(
-            icon: Icons.calendar_today,
-            label: "Date of birth",
-            value: birthDate,
-            onEdit: () => _editField("Date of Birth", birthDate, isDateField: true),
-          ),
-
-          // Phone Number Section
-          _buildEditableField(
-            icon: Icons.phone,
-            label: "Phone number",
-            value: phoneNumber,
-            onEdit: () => _editField("Phone Number", phoneNumber),
-          ),
-
-          // Second Divider
-          const Padding(
-            padding: EdgeInsets.only(top: 20),
-            child: Divider(
-              color: Color(0xFFE0E0E0),
-              thickness: 1,
-            ),
-          ),
-
-          // Share Button
+          // Share button
           Padding(
             padding: const EdgeInsets.only(top: 20),
             child: Center(
-              child: Container(
-                constraints: const BoxConstraints(maxWidth: 326),
-                child: TextButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.share, color: Color(0xFF375563)),
-                  label: const Text(
-                    "Share",
-                    style: TextStyle(
-                      color: Color(0xFF375563),
-                      fontSize: 14,
-                      fontFamily: "Almarai",
-                      fontWeight: FontWeight.w400,
-                      letterSpacing: -0.3,
-                    ),
-                  ),
-                  style: TextButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      side: const BorderSide(color: Color(0xFFE0E0E0)),
-                    ),
+              child: TextButton.icon(
+                onPressed: () {},
+                icon: Icon(Icons.share, color: theme.colorScheme.primary),
+                label: Text("Share", style: theme.textTheme.labelSmall),
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    side: BorderSide(color: theme.dividerColor),
                   ),
                 ),
               ),
@@ -320,12 +285,9 @@ class _UpdateAccountScreenState extends State<UpdateAccountScreen> {
     );
   }
 
-  Widget _buildEditableField({
-    required IconData icon,
-    required String label,
-    required String value,
-    required VoidCallback onEdit,
-  }) {
+  Widget _buildEditableField(IconData icon, String label, String value, VoidCallback onEdit) {
+    final theme = Theme.of(context);
+
     return Padding(
       padding: const EdgeInsets.only(top: 20),
       child: Row(
@@ -337,52 +299,24 @@ class _UpdateAccountScreenState extends State<UpdateAccountScreen> {
                 width: 38,
                 height: 38,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF5F5F5),
+                  color: theme.colorScheme.surfaceVariant,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(
-                  icon,
-                  color: const Color(0xFF375563),
-                  size: 20,
-                ),
+                child: Icon(icon, color: theme.colorScheme.primary, size: 20),
               ),
               const SizedBox(width: 10),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    label,
-                    style: const TextStyle(
-                      color: Color(0xFF99A5AC),
-                      fontSize: 10,
-                      fontFamily: "Almarai",
-                      fontWeight: FontWeight.w400,
-                      letterSpacing: -0.3,
-                      height: 1.9,
-                    ),
-                  ),
+                  Text(label, style: theme.textTheme.bodySmall),
                   const SizedBox(height: 8),
-                  Text(
-                    value,
-                    style: const TextStyle(
-                      color: Color(0xFF375563),
-                      fontSize: 14,
-                      fontFamily: "Almarai",
-                      fontWeight: FontWeight.w400,
-                      letterSpacing: -0.3,
-                      height: 1,
-                    ),
-                  ),
+                  Text(value, style: theme.textTheme.bodyMedium),
                 ],
               ),
             ],
           ),
           IconButton(
-            icon: const Icon(
-              Icons.edit,
-              color: Color(0xFF375563),
-              size: 20,
-            ),
+            icon: Icon(Icons.edit, color: theme.colorScheme.primary, size: 20),
             onPressed: onEdit,
           ),
         ],

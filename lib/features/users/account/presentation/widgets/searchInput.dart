@@ -5,10 +5,10 @@ class SearchInput extends StatefulWidget {
   final String placeholder;
 
   const SearchInput({
-    Key? key,
+    super.key,
     required this.onSearch,
     this.placeholder = 'Search',
-  }) : super(key: key);
+  });
 
   @override
   State<SearchInput> createState() => _SearchInputState();
