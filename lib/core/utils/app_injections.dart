@@ -12,6 +12,7 @@ import 'package:mtaa_frontend/features/images/data/network/preset_avatar_images_
 import 'package:mtaa_frontend/features/images/data/storages/my_image_storage.dart';
 import 'package:mtaa_frontend/features/locations/data/network/locations_api.dart';
 import 'package:mtaa_frontend/features/locations/data/repositories/locations_repository.dart';
+import 'package:mtaa_frontend/features/locations/data/storages/locations_storage.dart';
 import 'package:mtaa_frontend/features/posts/data/network/posts_api.dart';
 import 'package:mtaa_frontend/features/posts/data/repositories/posts_repository.dart';
 import 'package:mtaa_frontend/features/posts/data/storages/posts_storage.dart';
@@ -69,8 +70,11 @@ void setupDependencies() {
     PostsRepositoryImpl(getIt<PostsApi>(), getIt<PostsStorage>()),
   );
 
+  getIt.registerSingleton<LocationsStorage>(
+    LocationsStorageImpl(),
+  );
   getIt.registerSingleton<LocationsRepository>(
-    LocationsRepositoryImpl(getIt<LocationsApi>(), getIt<PostsStorage>()),
+    LocationsRepositoryImpl(getIt<LocationsApi>(), getIt<PostsStorage>(),getIt<LocationsStorage>()),
   );
 
   getIt.registerSingleton<AccountApi>(

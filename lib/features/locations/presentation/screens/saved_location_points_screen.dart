@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:airplane_mode_checker/airplane_mode_checker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -155,10 +157,8 @@ class _SavedLocationsPointsScreenState extends State<SavedLocationsPointsScreen>
                   }
                   if (points.isEmpty) {
                     return EmptyErrorNotificationSectionWidget(
-                      onPressed: () {
-                        loadFirst();
-                      },
-                      title: 'No posts found',
+                      onPressed:null,
+                      title: 'No saved locations found',
                     );
                   }
                   return null;

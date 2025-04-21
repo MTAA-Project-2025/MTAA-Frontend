@@ -2,29 +2,39 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mtaa_frontend/core/constants/colors.dart';
 
-class DateTimeInput extends StatefulWidget {
+class FullDateTimeInput extends StatefulWidget {
   final void Function(DateTime) onChanged;
   final String placeholder;
   final DateTime minDate;
   final DateTime maxDate;
   final DateTime maxDisplayedDate;
 
-  DateTimeInput({super.key,
+  final DateTime initialDate;
+  final bool initialIsFirstTime;
+
+  FullDateTimeInput({super.key,
   required this.onChanged,
   required this.placeholder,
   required this.minDate,
   required this.maxDate,
-  required this.maxDisplayedDate});
+  required this.maxDisplayedDate,
+  required this.initialDate,
+  this.initialIsFirstTime = true});
 
   @override
-  _DateTimeInputState createState() => _DateTimeInputState();
+  _FullDateTimeInputState createState() => _FullDateTimeInputState();
 }
 
 //Created partly with GPT
-class _DateTimeInputState extends State<DateTimeInput> {
-  bool isFirstTime = true;
+class _FullDateTimeInputState extends State<FullDateTimeInput> {
   DateTime date = DateTime.now();
-  
+  bool isFirstTime = true;
+  @override
+  void initState() {
+    super.initState();
+    date = widget.initialDate;
+    isFirstTime = widget.initialIsFirstTime;
+  }
 
   bool _decideWhichDayToEnable(DateTime day) {
     if ((day.isAfter(widget.minDate) && day.isBefore(widget.maxDate))) {
@@ -88,7 +98,7 @@ class _DateTimeInputState extends State<DateTimeInput> {
                               backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                               padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
                             ),
-                            child: Text('${date.year}-${date.month}-${date.day}',
+                            child: Text('${date.year}-${date.month}-${date.day}-${date.hour}:${date.minute}',
                                 style: TextStyle(
                                   fontSize: Theme.of(context).textTheme.labelMedium?.fontSize,
                                   fontWeight: FontWeight.w500,
@@ -152,11 +162,25 @@ class _DateTimeInputState extends State<DateTimeInput> {
       },
     );
     if (picked != null && picked != date) {
-      setState(() {
-        date = picked;
-        isFirstTime = false;
-      });
-      widget.onChanged(date);
+      if (!mounted || !context.mounted) return;
+      final TimeOfDay? time = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.fromDateTime(DateTime.now()),
+        builder: (BuildContext context, Widget? child) {
+      return Theme(
+        data: ThemeData.light(),
+        child: child!,
+      );
+    },
+      );
+
+      if (time != null) {
+        setState(() {
+          date = DateTime(picked.year, picked.month, picked.day, time.hour, time.minute);
+          isFirstTime = false;
+        });
+        widget.onChanged(date);
+      }
     }
   }
 }

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:airplane_mode_checker/airplane_mode_checker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,16 +10,18 @@ import 'package:latlong2/latlong.dart';
 import 'package:mtaa_frontend/core/constants/colors.dart';
 import 'package:mtaa_frontend/core/constants/menu_buttons.dart';
 import 'package:mtaa_frontend/core/constants/route_constants.dart';
+import 'package:mtaa_frontend/core/services/internet_checker.dart';
 import 'package:mtaa_frontend/core/services/my_toast_service.dart';
 import 'package:mtaa_frontend/core/utils/app_injections.dart';
+import 'package:mtaa_frontend/domain/hive_data/locations/user_position_hive.dart';
 import 'package:mtaa_frontend/features/locations/data/models/requests/get_location_points_request.dart';
 import 'package:mtaa_frontend/features/locations/data/models/responses/simple_location_point_response.dart';
 import 'package:mtaa_frontend/features/locations/data/repositories/locations_repository.dart';
+import 'package:mtaa_frontend/features/locations/presentation/widgets/map_widget.dart';
 import 'package:mtaa_frontend/features/shared/bloc/exception_type.dart';
 import 'package:mtaa_frontend/features/shared/bloc/exceptions_bloc.dart';
 import 'package:mtaa_frontend/features/shared/bloc/exceptions_event.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/phone_bottom_menu.dart';
-import 'package:open_settings_plus/core/open_settings_plus.dart';
 
 class MainLocationMapScreen extends StatefulWidget {
   final LocationsRepository repository;
@@ -33,20 +34,27 @@ class MainLocationMapScreen extends StatefulWidget {
 
 class _MainLocationMapScreenState extends State<MainLocationMapScreen> {
   late AppLifecycleListener listener;
-
-  final locationController = StreamController<LocationMarkerPosition>.broadcast();
-  Stream<LocationMarkerPosition> userLocationStream = Stream.empty();
-  Position? userPos;
-
-  bool isGPSEnabled = false;
-  final MapController mapController = MapController();
   List<SimpleLocationPointResponse> locationPoints = [];
   bool isLoading = false;
   Timer? debounceTimer;
 
+  final mapController = MapController();
+
+  late StreamSubscription<bool> internetSubscription;
+  bool isConnected = false;
+
   @override
   void initState() {
     super.initState();
+    initialize();
+
+    internetSubscription = InternetChecker.connectionStream.listen((connected) {
+      if (connected) {
+        isConnected = true;
+      } else {
+        isConnected = false;
+      }
+    });
 
     if (getIt.isRegistered<BuildContext>()) {
       getIt.unregister<BuildContext>();
@@ -66,20 +74,47 @@ class _MainLocationMapScreenState extends State<MainLocationMapScreen> {
         });
       },
     );
-
-    initLocation();
   }
 
   @override
   void dispose() {
     listener.dispose();
     debounceTimer?.cancel();
-    locationController.close();
+    internetSubscription.cancel();
     super.dispose();
   }
 
+  Position? userInitPos;
+  Future initialize() async {
+    if (!mounted) return;
+    isConnected = await InternetChecker.isInternetEnabled();
+    if (!mounted) return;
+    UserPositionHive? userPos = await widget.repository.getPreviousUserPosition();
+    if (!mounted) return;
+    if (userPos != null) {
+      mapController.move(LatLng(userPos.latitude, userPos.longitude), userPos.floor + 0.0);
+      userInitPos = Position(
+          latitude: userPos.latitude,
+          longitude: userPos.longitude,
+          timestamp: DateTime.now(),
+          accuracy: userPos.accuracy,
+          altitude: 0,
+          altitudeAccuracy: 0,
+          heading: 0,
+          headingAccuracy: 0,
+          speed: 0,
+          speedAccuracy: 0,
+          isMocked: true,
+          floor: userPos.floor);
+    }
+    List<SimpleLocationPointResponse> points = await widget.repository.getPreviousLocationPoints();
+    setState(() {
+      locationPoints = points;
+    });
+  }
+
   Future<void> loadPoints() async {
-    if (isLoading) return;
+    if (isLoading || !isConnected) return;
     if (!mounted) return;
     setState(() {
       isLoading = true;
@@ -106,48 +141,6 @@ class _MainLocationMapScreenState extends State<MainLocationMapScreen> {
     });
   }
 
-  Future initLocation() async {
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
-        await loadLastPosition();
-        await moveToCurrentUserPosition();
-        return;
-      }
-    }
-
-    var isGpsEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!isGpsEnabled) {
-      await loadLastPosition();
-      await moveToCurrentUserPosition();
-      listenForGPS();
-    } else {
-      startPositionStream();
-    }
-  }
-
-  Future loadLastPosition() async {
-    if (!mounted) return;
-    setState(() {
-      userPos = Position(
-          accuracy: 100,
-          altitude: 0,
-          heading: 0,
-          latitude: 30.0,
-          longitude: 38.0,
-          speed: 0,
-          speedAccuracy: 0,
-          timestamp: DateTime.now(),
-          altitudeAccuracy: 100,
-          isMocked: false,
-          headingAccuracy: 100,
-          floor: 0);
-      locationController.add(LocationMarkerPosition(latitude: userPos!.latitude, longitude: userPos!.longitude, accuracy: userPos!.accuracy));
-      userLocationStream = locationController.stream;
-    });
-  }
-
   void debouncedLoadPoints() {
     debounceTimer?.cancel();
 
@@ -156,80 +149,14 @@ class _MainLocationMapScreenState extends State<MainLocationMapScreen> {
     });
   }
 
-  Future moveToCurrentUserPosition() async {
-    if (userPos == null) return;
-
-    mapController.move(LatLng(userPos!.latitude, userPos!.longitude), mapController.camera.zoom);
-  }
-
-  void startPositionStream() {
-    isGPSEnabled = true;
-    userLocationStream = Geolocator.getPositionStream().map((Position position) {
-      final locationMarker = LocationMarkerPosition(latitude: position.latitude, longitude: position.longitude, accuracy: position.accuracy);
-      userPos = position;
-
-      return locationMarker;
-    });
-
-    setState(() {});
-  }
-
-  Future setCurrentPosition() async {
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return;
-    }
-
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission != LocationPermission.whileInUse && permission != LocationPermission.always) {
-        return;
-      }
-    }
-
-    if (!mounted) return;
-    setState(() {
-      userPos = Position(
-          accuracy: 100,
-          altitude: 0,
-          heading: 0,
-          latitude: 30.0,
-          longitude: 38.0,
-          speed: 0,
-          speedAccuracy: 0,
-          timestamp: DateTime.now(),
-          altitudeAccuracy: 100,
-          isMocked: false,
-          headingAccuracy: 100,
-          floor: 0);
-      locationController.add(LocationMarkerPosition(latitude: userPos!.latitude, longitude: userPos!.longitude, accuracy: userPos!.accuracy));
-      userLocationStream = locationController.stream;
-    });
-  }
-
-  void listenForGPS() {
-    Geolocator.getServiceStatusStream().listen((status) {
-      if (status == ServiceStatus.enabled) {
-        isGPSEnabled = true;
-        setCurrentPosition();
-      } else {
-        isGPSEnabled = false;
-      }
-    });
-
-    Geolocator.checkPermission().then((permission) {
-      if (permission != LocationPermission.denied && permission != LocationPermission.deniedForever) {
-        Geolocator.isLocationServiceEnabled().then((enabled) {
-          if (enabled) {
-            isGPSEnabled = true;
-            setCurrentPosition();
-          } else {
-            isGPSEnabled = false;
-          }
-        });
-      }
-    });
+  Future saveLocation(Position userPos) async {
+    await widget.repository.setPreviousLocationPoints(locationPoints);
+    await widget.repository.setPreviousUserPosition(UserPositionHive(
+      latitude: userPos.latitude,
+      longitude: userPos.longitude,
+      accuracy: userPos.accuracy,
+      floor: mapController.camera.zoom.round(),
+    ));
   }
 
   @override
@@ -249,91 +176,26 @@ class _MainLocationMapScreenState extends State<MainLocationMapScreen> {
           ]),
           actions: <Widget>[],
         ),
-        body: Stack(
-          children: [
-            FlutterMap(
-              mapController: mapController,
-              options: MapOptions(
-                initialZoom: 10,
-                onMapReady: () {
-                  loadPoints();
-                },
-                onMapEvent: (event) {
-                  if (event is MapEventDoubleTapZoom) {
-                    loadPoints();
-                  } else if (event is MapEventMove || event is MapEventRotate) {
-                    debouncedLoadPoints();
-                  }
-                },
-              ),
-              children: [
-                TileLayer(urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', userAgentPackageName: 'com.example.app'),
-                MarkerLayer(
-                  markers: locationPoints
-                      .map((point) => Marker(
-                            point: LatLng(point.latitude, point.longitude),
-                            width: 40.0,
-                            height: 40.0,
-                            child: buildPoint(point),
-                          ))
-                      .toList(),
-                ),
-                CurrentLocationLayer(
-                  alignPositionOnUpdate: AlignOnUpdate.once,
-                  positionStream: userLocationStream,
-                ),
-              ],
-            ),
-            if (isLoading)
-              const Center(
-                child: CircularProgressIndicator(),
-              ),
-            Positioned(
-                top: 13,
-                child: TextButton(
-                  style: Theme.of(context).textButtonTheme.style?.copyWith(
-                        padding: WidgetStateProperty.all<EdgeInsetsGeometry>(const EdgeInsets.all(10)),
-                        minimumSize: WidgetStateProperty.all(Size.zero),
-                        shape: WidgetStateProperty.all(
-                          RoundedRectangleBorder(
-                            borderRadius: BorderRadius.only(topRight: Radius.circular(8), bottomRight: Radius.circular(8)),
-                          ),
-                        ),
-                      ),
-                  onPressed: () {
-                    GoRouter.of(context).push(locationClusterPointsScreenRoute);
-                  },
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.collections_bookmark_outlined, color: whiteColor, size: 36),
-                      Text('Saved',
-                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                color: whiteColor,
-                              )),
-                    ],
-                  ),
-                )),
-          ],
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () async {
-            if (!isGPSEnabled) {
-              switch (OpenSettingsPlus.shared) {
-                case OpenSettingsPlusAndroid settings:
-                  settings.locationSource();
-                  break;
-                case OpenSettingsPlusIOS settings:
-                  settings.locationServices();
-                  break;
-                default:
-                  throw Exception('Platform not supported');
-              }
-            }
-
-            moveToCurrentUserPosition();
+        body: MapWidget(
+          repository: widget.repository,
+          toastService: widget.toastService,
+          onMapReady: () {
+            loadPoints();
           },
-          child: Icon(Icons.my_location),
+          onMapEvent: (event) {
+            if (event is MapEventDoubleTapZoom) {
+              loadPoints();
+            } else if (event is MapEventMove || event is MapEventRotate) {
+              debouncedLoadPoints();
+            }
+          },
+          locationPoints: locationPoints,
+          mapController: mapController,
+          isLoading: isLoading,
+          onDispose: (Position userPos) {
+            saveLocation(userPos);
+          },
+          initialUserPos: userInitPos,
         ),
         bottomNavigationBar: PhoneBottomMenu(sellectedType: MenuButtons.Map));
   }

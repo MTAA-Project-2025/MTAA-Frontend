@@ -5,12 +5,14 @@ import 'package:mtaa_frontend/core/utils/app_injections.dart';
 import 'package:mtaa_frontend/features/groups/presentation/screens/userGroupListScreen.dart';
 import 'package:mtaa_frontend/features/images/data/storages/my_image_storage.dart';
 import 'package:mtaa_frontend/features/images/presentation/widgets/test.dart';
+import 'package:mtaa_frontend/features/locations/data/models/requests/add_location_request.dart';
 import 'package:mtaa_frontend/features/locations/data/repositories/locations_repository.dart';
 import 'package:mtaa_frontend/features/locations/presentation/screens/location_cluster_points_screen.dart';
 import 'package:mtaa_frontend/features/locations/presentation/screens/main_location_map_screen.dart';
 import 'package:mtaa_frontend/features/locations/presentation/screens/saved_location_points_screen.dart';
 import 'package:mtaa_frontend/features/posts/data/models/responses/full_post_response.dart';
 import 'package:mtaa_frontend/features/posts/data/repositories/posts_repository.dart';
+import 'package:mtaa_frontend/features/posts/presentation/screens/add_post_location_screen.dart';
 import 'package:mtaa_frontend/features/posts/presentation/screens/add_post_screen.dart';
 import 'package:mtaa_frontend/features/posts/presentation/screens/full_post_screen.dart';
 import 'package:mtaa_frontend/features/posts/presentation/screens/post_recommendations_screen.dart';
@@ -113,6 +115,14 @@ class AppRouter {
             if(state.extra!=null && state.extra is FullPostResponse) post = state.extra as FullPostResponse;
             String? postId = state.pathParameters['id']!;
             return FullPostScreen(repository: getIt<PostsRepository>(), postId: postId, post: post);
+          }
+        ),
+        GoRoute(
+          path: addPostLocationScreenRoute,	
+          builder: (context, state) {
+            AddLocationRequest? request;
+            if(state.extra!=null && state.extra is AddLocationRequest) request = state.extra as AddLocationRequest;
+            return AddPostLocationScreen(toastService: getIt<MyToastService>(), addLocationRequest: request!);
           }
         ),
         GoRoute(

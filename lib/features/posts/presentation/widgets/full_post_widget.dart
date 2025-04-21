@@ -82,10 +82,12 @@ class _FullPostWidgetState extends State<FullPostWidget> {
                 Row(
                   children: [
                     if (widget.post.owner.avatar != null)
-                      Image(
-                        image: getImage(widget.post.owner.avatar!.images.firstWhere((element) => element.type == ImageSizeType.small)),
-                        width: 31,
-                        height: 31,
+                      ClipOval(
+                        child: Image(
+                          image: getImage(widget.post.owner.avatar!.images.firstWhere((element) => element.type == ImageSizeType.small)),
+                          width: 31,
+                          height: 31,
+                        ),
                       ),
                     const SizedBox(width: 5),
                     Column(

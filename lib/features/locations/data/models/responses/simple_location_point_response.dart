@@ -1,3 +1,4 @@
+import 'package:mtaa_frontend/domain/hive_data/locations/simple_point_hive.dart';
 import 'package:mtaa_frontend/features/images/data/models/responses/myImageResponse.dart';
 import 'package:mtaa_frontend/features/locations/data/models/responses/location_point_type.dart';
 import 'package:uuid/uuid.dart';
@@ -31,6 +32,19 @@ class SimpleLocationPointResponse {
       zoomLevel: json['zoomLevel'],
       childCount: json['childCount'],
       image: json['image'] == null ? null : MyImageResponse.fromJson(json['image']),
+    );
+  }
+
+  factory SimpleLocationPointResponse.fromHive(SimplePointHive hive) {
+    return SimpleLocationPointResponse(
+      id: UuidValue.fromString(hive.id),
+      postId: hive.postId==null?null:UuidValue.fromString(hive.postId!),
+      longitude: hive.longitude,
+      latitude: hive.latitude,
+      type: LocationPointType.values[hive.type],
+      zoomLevel: hive.zoomLevel,
+      childCount: hive.childCount,
+      image: hive.image == null ? null : MyImageResponse.fromHive(hive.image!),
     );
   }
 }
