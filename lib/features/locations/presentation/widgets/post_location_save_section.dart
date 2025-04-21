@@ -90,13 +90,25 @@ class _PostLocationSaveSectionState extends State<PostLocationSaveSection> {
                 if (isSaved) {
                   if (widget.locationPost != null) {
                     await widget.repository.saveLocationPost(widget.locationPost!);
-                    res=true;
+                    res = true;
                   } else if (widget.post != null) {
                     LocationPostResponse? post = await widget.locationsRepository.getLocationPostById(widget.post!.id);
 
                     if (post != null) {
                       await widget.repository.saveLocationPost(post);
-                      res=true;
+                      res = true;
+                    }
+                  }
+                } else {
+                  if (widget.locationPost != null) {
+                    await widget.repository.removeLocationPost(widget.locationPost!);
+                    res = true;
+                  } else if (widget.post != null) {
+                    LocationPostResponse? post = await widget.locationsRepository.getLocationPostById(widget.post!.id);
+
+                    if (post != null) {
+                      await widget.repository.removeLocationPost(post);
+                      res = true;
                     }
                   }
                 }

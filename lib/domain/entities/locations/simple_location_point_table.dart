@@ -12,4 +12,7 @@ class SimpleLocationPoints extends Table{
   TextColumn get imageId => text().nullable().references(MyImages, #id)();
 
   TextColumn get currentUser => text()();
+
+  @override
+  Set<Column> get primaryKey => {id};
 }

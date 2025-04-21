@@ -160,7 +160,7 @@ class _LocationClusterPointsScreenState extends State<LocationClusterPointsScree
                       onPressed: () {
                         loadFirst();
                       },
-                      title: 'No posts found',
+                      title: 'No locations found',
                     );
                   }
                   return null;

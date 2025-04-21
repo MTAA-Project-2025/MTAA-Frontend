@@ -89,5 +89,3 @@ class _LocationPostWidgetState extends State<LocationPostWidget> {
     );
   }
 }
-
-enum PostMenuElements { delete, edit, share }

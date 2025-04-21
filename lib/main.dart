@@ -83,7 +83,7 @@ class MyApp extends StatelessWidget {
     return BlocBuilder<ThemeBloc, ThemeState>(
       builder: (context, state) {
         return MaterialApp.router(
-          title: 'Flutter Demo',
+          title: 'Likely',
           theme: AppTheme.lightTheme(context),
           darkTheme: AppTheme.darkTheme(context),
           themeMode: state.themeMode,

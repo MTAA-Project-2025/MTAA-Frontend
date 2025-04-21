@@ -110,7 +110,7 @@ class _AccountInformationScreenState extends State<AccountInformationScreen> {
                       onPressed: () {},
                       child: Text('Notifications'),
                     ),
-                    if (user != null) Expanded(child: AccountPostListWidget(repository: getIt<PostsRepository>(), userId: user!.id))
+                    if (user != null) Expanded(child: AccountPostListWidget(repository: getIt<PostsRepository>(), userId: user!.id, isOwner: true))
                   ],
                 ),
         ),

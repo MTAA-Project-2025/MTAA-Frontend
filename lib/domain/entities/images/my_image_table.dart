@@ -19,4 +19,7 @@ class MyImages extends Table{
   TextColumn? get postId => text().nullable().references(Posts, #id)();
   TextColumn? get locationPostId => text().nullable().references(LocationPosts, #id)();
   TextColumn? get simpleLocationPointId => text().nullable().references(SimpleLocationPoints, #id)();
+
+  @override
+  Set<Column> get primaryKey => {id};
 }

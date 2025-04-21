@@ -276,13 +276,14 @@ class PostsStorageImpl extends PostsStorage {
 
   @override
   Future<List<LocationPostResponse>> getSavedLocationPosts(PageParameters pageParameteres) async {
-    final postsSubquery = Subquery(
-        dbContext.select(dbContext.locationPosts)
-          ..orderBy([(row) => OrderingTerm.desc(row.dataCreationTime)])
-          ..limit(pageParameteres.pageSize, offset: pageParameteres.pageSize * pageParameteres.pageNumber),
-        's');
+    final postsSubquery = dbContext.selectOnly(dbContext.locationPosts)
+          ..addColumns([dbContext.locationPosts.id])
+          ..orderBy([OrderingTerm.desc(dbContext.locationPosts.dataCreationTime)])
+          ..limit(pageParameteres.pageSize, offset: pageParameteres.pageSize * pageParameteres.pageNumber);
 
-    final query = dbContext.select(postsSubquery).join([
+    final postIds = await postsSubquery.map((row) => row.read(dbContext.locationPosts.id)).get();
+
+    final query = dbContext.select(dbContext.locationPosts).join([
       leftOuterJoin(
         dbContext.simpleLocationPoints,
         dbContext.simpleLocationPoints.postId.equalsExp(dbContext.locationPosts.id),
@@ -291,7 +292,7 @@ class PostsStorageImpl extends PostsStorage {
         dbContext.myImages,
         dbContext.myImages.locationPostId.equalsExp(dbContext.locationPosts.id),
       ),
-    ]);
+    ])..where(dbContext.locationPosts.id.isIn(postIds.cast<String>()));
 
     final rows = await query.get();
 

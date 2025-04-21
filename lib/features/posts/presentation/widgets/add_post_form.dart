@@ -42,6 +42,7 @@ class _AddPostFormState extends State<AddPostForm> {
   int currentPos = 0;
   XFile? pickedFile;
   List<String> imagesForDelete = [];
+  final int maxImages = 10;
 
   @override
   void dispose() {
@@ -65,7 +66,7 @@ class _AddPostFormState extends State<AddPostForm> {
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 scrollDirection: Axis.horizontal,
                 cacheExtent: 9999,
-                itemCount: widget.images.length < 10 ? widget.images.length + 1 : 10,
+                itemCount: widget.images.length < maxImages ? widget.images.length + 1 : maxImages,
                 separatorBuilder: (BuildContext context, int index) {
                   return SizedBox(width: 10);
                 },
@@ -202,6 +203,8 @@ class _AddPostFormState extends State<AddPostForm> {
           }
         }
       }
+
+      if(!mounted)return;
 
       final croppedFile = await ImageCropper().cropImage(
         sourcePath: originalPath,

@@ -7,4 +7,7 @@ class Posts extends Table{
   DateTimeColumn get dataCreationTime => dateTime()();
 
   TextColumn get currentUser => text()();
+
+  @override
+  Set<Column> get primaryKey => {id};
 }
