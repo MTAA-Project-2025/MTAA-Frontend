@@ -7,6 +7,8 @@ import 'package:mtaa_frontend/features/posts/data/repositories/posts_repository.
 import 'package:mtaa_frontend/features/posts/presentation/widgets/account_post_list.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/dotLoader.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/phone_bottom_menu.dart';
+import 'package:mtaa_frontend/features/users/account/data/models/requests/follow.dart';
+import 'package:mtaa_frontend/features/users/account/data/models/requests/unfollow.dart';
 import 'package:mtaa_frontend/features/users/account/data/models/responses/publicFullAccountResponse.dart';
 import 'package:mtaa_frontend/features/users/account/data/repositories/account_repository.dart';
 import 'package:mtaa_frontend/features/users/account/presentation/widgets/publicProfileInfoWidget.dart';
@@ -59,9 +61,9 @@ class _PublicAccountInformationScreenState extends State<PublicAccountInformatio
 
     try {
       if (wasFollowing) {
-        //await widget.repository.unfollow(user!.id);
+        await widget.repository.unfollow(Unfollow(userId: user!.id));
       } else {
-        //await widget.repository.follow(user!.id);
+        await widget.repository.follow(Follow(userId: user!.id));
       }
     } catch (e) {
       setState(() {

@@ -3,7 +3,9 @@ import 'package:mtaa_frontend/core/services/exceptions_service.dart';
 import 'package:mtaa_frontend/features/images/data/models/responses/myImageGroupResponse.dart';
 import 'package:mtaa_frontend/features/shared/data/models/global_search.dart';
 import 'package:mtaa_frontend/features/users/account/data/models/requests/customUpdateAccountAvatarRequest.dart';
+import 'package:mtaa_frontend/features/users/account/data/models/requests/follow.dart';
 import 'package:mtaa_frontend/features/users/account/data/models/requests/presetUpdateAccountAvatarRequest.dart';
+import 'package:mtaa_frontend/features/users/account/data/models/requests/unfollow.dart';
 import 'package:mtaa_frontend/features/users/account/data/models/requests/updateAccountBirthDateRequest.dart';
 import 'package:mtaa_frontend/features/users/account/data/models/requests/updateAccountDisplayNameRequest.dart';
 import 'package:mtaa_frontend/features/users/account/data/models/requests/updateAccountUsernameRequest.dart';
@@ -15,6 +17,8 @@ abstract class AccountApi {
 
   Future<List<PublicBaseAccountResponse>> getFollowers(GlobalSearch request);
   Future<List<PublicBaseAccountResponse>> getFriends(GlobalSearch request);
+  Future<void> follow(Follow request);
+  Future<void> unfollow(Unfollow request);
   //get all versions
 
   Future<MyImageGroupResponse?> customUpdateAccountAvatar(CustomUpdateAccountAvatarRequest request);
@@ -49,7 +53,8 @@ class AccountApiImpl extends AccountApi {
     final fullUrl = '$controllerName/get-followers';
     try {
       var res = await dio.post(fullUrl, data: request.toJson());
-      return res.data.map((item) => PublicBaseAccountResponse.fromJson(item)).toList();
+      List<dynamic> data = res.data;
+      return data.map((item) => PublicBaseAccountResponse.fromJson(item)).toList();
     } on DioException catch (e) {
       exceptionsService.httpError(e);
       return [];
@@ -61,10 +66,31 @@ class AccountApiImpl extends AccountApi {
     final fullUrl = '$controllerName/get-friends';
     try {
       var res = await dio.post(fullUrl, data: request.toJson());
-      return res.data.map((item) => PublicBaseAccountResponse.fromJson(item)).toList();
+      List<dynamic> data = res.data;
+      return data.map((item) => PublicBaseAccountResponse.fromJson(item)).toList();
     } on DioException catch (e) {
       exceptionsService.httpError(e);
       return [];
+    }
+  }
+
+  @override
+  Future<void> follow(Follow request) async {
+    final fullUrl = '$controllerName/follow';
+    try {
+      await dio.post(fullUrl, data: request.toJson());
+    } on DioException catch (e) {
+      exceptionsService.httpError(e);
+    }
+  }
+
+  @override
+  Future<void> unfollow(Unfollow request) async {
+    final fullUrl = '$controllerName/unfollow';
+    try {
+      await dio.post(fullUrl, data: request.toJson());
+    } on DioException catch (e) {
+      exceptionsService.httpError(e);
     }
   }
 

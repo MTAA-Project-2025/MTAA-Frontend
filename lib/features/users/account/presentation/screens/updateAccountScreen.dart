@@ -3,9 +3,12 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:form_field_validator/form_field_validator.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:mtaa_frontend/core/constants/colors.dart';
 import 'package:mtaa_frontend/core/constants/menu_buttons.dart';
 import 'package:mtaa_frontend/core/constants/route_constants.dart';
+import 'package:mtaa_frontend/core/constants/validators.dart';
 import 'package:mtaa_frontend/core/services/my_toast_service.dart';
 import 'package:mtaa_frontend/core/utils/app_injections.dart';
 import 'package:mtaa_frontend/features/images/data/models/responses/myImageResponse.dart';
@@ -16,6 +19,8 @@ import 'package:mtaa_frontend/features/shared/presentation/widgets/phone_bottom_
 import 'package:mtaa_frontend/features/users/account/data/models/requests/updateAccountUsernameRequest.dart';
 import 'package:mtaa_frontend/features/users/account/data/models/responses/publicFullAccountResponse.dart';
 import 'package:mtaa_frontend/features/users/account/data/repositories/account_repository.dart';
+import 'package:mtaa_frontend/features/users/account/presentation/widgets/birthDateForm.dart';
+import 'package:mtaa_frontend/themes/button_theme.dart';
 
 class UpdateAccountScreen extends StatefulWidget {
   final AccountRepository repository;
@@ -31,6 +36,10 @@ class _UpdateAccountScreenState extends State<UpdateAccountScreen> {
   bool isLoading = false;
   PublicFullAccountResponse? user;
   final AccountRepository repository = getIt<AccountRepository>();
+  XFile? _pickedFile;
+  File? selectedCustomImage;
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  DateTime? selectedDate;
 
   @override
   void initState() {
@@ -87,7 +96,14 @@ class _UpdateAccountScreenState extends State<UpdateAccountScreen> {
           style: Theme.of(context).textTheme.headlineMedium,
         ),
         content: isDateField 
-          ? _buildDatePicker(currentValue, fieldName) 
+          ? BirthDateForm(
+              formKey: _formKey,
+              onChanged: (date) async {
+                setState(() {
+                  selectedDate = date;
+                });
+              },
+            )
           : Form(
               key: formKey,
               child: CustomTextInput(
@@ -97,9 +113,12 @@ class _UpdateAccountScreenState extends State<UpdateAccountScreen> {
               ),
             ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+          TextButtonTheme(
+            data: specialTextButtonThemeData,
+            child: TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
           ),
           TextButton(
             onPressed: () async {
@@ -137,33 +156,6 @@ class _UpdateAccountScreenState extends State<UpdateAccountScreen> {
             },
             child: const Text('Save'),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDatePicker(String currentDate, String fieldName) {
-    List<String> dateParts = currentDate.split('/');
-    DateTime initialDate = DateTime(
-      int.parse(dateParts[2]),
-      int.parse(dateParts[1]),
-      int.parse(dateParts[0]),
-    );
-
-    DateTime selectedDate = initialDate;
-
-    return SizedBox(
-      height: 200,
-      child: Column(
-        children: [
-          Text('Current $fieldName: $currentDate'),
-          const SizedBox(height: 20),
-          DateTimeInput(
-            placeholder: 'Select Date',
-            onChanged: (pickedDate) {
-              selectedDate = pickedDate;
-            },
-          )
         ],
       ),
     );
@@ -219,34 +211,40 @@ class _UpdateAccountScreenState extends State<UpdateAccountScreen> {
           // Avatar
           Center(
             child: SizedBox(
-              width: 200,
-              height: 200,
-              child: Stack(
-                children: [
-                  Positioned.fill(
-                    child: ClipOval(
-                      child: Image(
-                        image: avatarImage,
-                        fit: BoxFit.cover,
+                width: 200,
+                height: 200,
+                child: Stack(
+                  children: [
+                    Positioned.fill(
+                      child: ClipOval(
+                        child: Image(
+                          image: FileImage(selectedCustomImage!) as ImageProvider,
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
-                  ),
-                  Positioned(
-                    top: 10,
-                    right: 10,
-                    child: IconButton(
-                      icon: const Icon(Icons.add),
-                      color: theme.colorScheme.primary,
-                      onPressed: () => GoRouter.of(context).push(updateAccountAvatarRoute),
-                      style: IconButton.styleFrom(
-                        backgroundColor: theme.colorScheme.secondary,
-                        shape: const CircleBorder(),
+                    Positioned(
+                      top: 10,
+                      right: 10,
+                      child: IconButton(
+                        icon: Icon(Icons.add, color: whiteColor),
+                        style: Theme.of(context).textButtonTheme.style!.copyWith(
+                              padding: WidgetStateProperty.all<EdgeInsetsGeometry>(const EdgeInsets.all(8)),
+                              minimumSize: WidgetStateProperty.all(Size(0, 0)),
+                              shape: WidgetStateProperty.all<OutlinedBorder>(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(1000),
+                                ),
+                              ),
+                            ),
+                        onPressed: () {
+                          _uploadImage(context);
+                        },
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
           ),
           const SizedBox(height: 20),
           const Divider(),
@@ -283,6 +281,68 @@ class _UpdateAccountScreenState extends State<UpdateAccountScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _uploadImage(BuildContext context) async {
+    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      if (!isImage(pickedFile)) {
+        if (context.mounted && mounted) {
+          await widget.toastService.showErrorWithContext('Image is not valid', context);
+        }
+        return;
+      }
+
+      setState(() {
+        _pickedFile = pickedFile;
+        _cropImage(context);
+      });
+    }
+  }
+
+  Future<void> _cropImage(BuildContext context) async {
+    if (_pickedFile != null) {
+      final croppedFile = await ImageCropper().cropImage(
+        sourcePath: _pickedFile!.path,
+        compressFormat: ImageCompressFormat.jpg,
+        compressQuality: 100,
+        uiSettings: [
+          AndroidUiSettings(
+            toolbarTitle: 'Cropper',
+            toolbarColor: Theme.of(context).appBarTheme.backgroundColor,
+            toolbarWidgetColor: Theme.of(context).appBarTheme.foregroundColor,
+            initAspectRatio: CropAspectRatioPreset.square,
+            lockAspectRatio: true,
+            aspectRatioPresets: [
+              CropAspectRatioPreset.square,
+            ],
+          ),
+          IOSUiSettings(
+            title: 'Cropper',
+            aspectRatioLockEnabled: true,
+            aspectRatioPresets: [
+              CropAspectRatioPreset.original,
+              CropAspectRatioPreset.square,
+            ],
+          ),
+          WebUiSettings(
+            context: context,
+            presentStyle: WebPresentStyle.dialog,
+            initialAspectRatio: 1,
+            size: const CropperSize(
+              width: 300,
+              height: 300,
+            ),
+          ),
+        ],
+      );
+      if (croppedFile != null) {
+        setState(() {
+          selectedCustomImage = File(croppedFile.path);
+          _pickedFile = null;
+        });
+      }
+    }
   }
 
   Widget _buildEditableField(IconData icon, String label, String value, VoidCallback onEdit) {

@@ -14,9 +14,7 @@ class PublicProfileInfoWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final avatarImage = user.avatar?.images.first.fullPath != null
-        ? NetworkImage(user.avatar!.images.first.fullPath)
-        : const AssetImage('assets/default_avatar.png') as ImageProvider;
+    final avatarImage = NetworkImage(user.avatar!.images.first.fullPath);
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -57,7 +55,7 @@ class PublicProfileInfoWidget extends StatelessWidget {
           ),
           const SizedBox(height: 10),
 
-          // Stats (no Likes)
+          // Stats
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

@@ -8,7 +8,9 @@ import 'package:mtaa_frontend/features/shared/bloc/exceptions_bloc.dart';
 import 'package:mtaa_frontend/features/shared/bloc/exceptions_event.dart';
 import 'package:mtaa_frontend/features/shared/data/models/global_search.dart';
 import 'package:mtaa_frontend/features/users/account/data/models/requests/customUpdateAccountAvatarRequest.dart';
+import 'package:mtaa_frontend/features/users/account/data/models/requests/follow.dart';
 import 'package:mtaa_frontend/features/users/account/data/models/requests/presetUpdateAccountAvatarRequest.dart';
+import 'package:mtaa_frontend/features/users/account/data/models/requests/unfollow.dart';
 import 'package:mtaa_frontend/features/users/account/data/models/requests/updateAccountBirthDateRequest.dart';
 import 'package:mtaa_frontend/features/users/account/data/models/requests/updateAccountDisplayNameRequest.dart';
 import 'package:mtaa_frontend/features/users/account/data/models/requests/updateAccountUsernameRequest.dart';
@@ -21,6 +23,8 @@ abstract class AccountRepository {
 
   Future<List<PublicBaseAccountResponse>> getFollowers(GlobalSearch request);
   Future<List<PublicBaseAccountResponse>> getFriends(GlobalSearch request);
+  Future<void> follow(Follow request);
+  Future<void> unfollow(Unfollow request);
   
   Future<MyImageGroupResponse?> customUpdateAccountAvatar(CustomUpdateAccountAvatarRequest request);
   Future<MyImageGroupResponse?> presetUpdateAccountAvatar(PresetUpdateAccountAvatarRequest request);
@@ -77,6 +81,44 @@ class AccountRepositoryImpl extends AccountRepository {
       }
     }
     return await accountApi.getFriends(request);
+  }
+
+  @override
+  Future<void> follow(Follow request) async {
+    final status = await AirplaneModeChecker.instance.checkAirplaneMode();
+    if (status == AirplaneModeStatus.on) {
+      if (getIt.isRegistered<BuildContext>()) {
+        var context = getIt.get<BuildContext>();
+        if (context.mounted) {
+          context.read<ExceptionsBloc>().add(SetExceptionsEvent(
+            isException: true,
+            exceptionType: ExceptionTypes.flightMode,
+            message: 'Flight mode is enabled',
+          ));
+        }
+        return;
+      }
+    }
+    await accountApi.follow(request);
+  }
+
+  @override
+  Future<void> unfollow(Unfollow request) async {
+    final status = await AirplaneModeChecker.instance.checkAirplaneMode();
+    if (status == AirplaneModeStatus.on) {
+      if (getIt.isRegistered<BuildContext>()) {
+        var context = getIt.get<BuildContext>();
+        if (context.mounted) {
+          context.read<ExceptionsBloc>().add(SetExceptionsEvent(
+            isException: true,
+            exceptionType: ExceptionTypes.flightMode,
+            message: 'Flight mode is enabled',
+          ));
+        }
+        return;
+      }
+    }
+    await accountApi.unfollow(request);
   }
 
   @override

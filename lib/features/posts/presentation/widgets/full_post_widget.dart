@@ -79,23 +79,34 @@ class _FullPostWidgetState extends State<FullPostWidget> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    if (widget.post.owner.avatar != null)
-                      Image(
-                        image: getImage(widget.post.owner.avatar!.images.firstWhere((element) => element.type == ImageSizeType.small)),
-                        width: 31,
-                        height: 31,
+                InkWell(
+                  onTap: () {
+                    GoRouter.of(context).go(publicAccountInformationScreenRoute);
+                  },
+                  child: Row(
+                    children: [
+                      if (widget.post.owner.avatar != null)
+                        Image(
+                          image: getImage(widget.post.owner.avatar!.images.firstWhere((element) => element.type == ImageSizeType.small)),
+                          width: 31,
+                          height: 31,
+                        ),
+                      const SizedBox(width: 5),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.post.owner.displayName,
+                            style: Theme.of(context).textTheme.bodySmall!.copyWith(fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            widget.timeFormatingService.formatTimeAgo(widget.post.dataCreationTime),
+                            style: Theme.of(context).textTheme.displaySmall,
+                          ),
+                        ],
                       ),
-                    const SizedBox(width: 5),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(widget.post.owner.displayName, style: Theme.of(context).textTheme.bodySmall!.copyWith(fontWeight: FontWeight.bold)),
-                        Text(widget.timeFormatingService.formatTimeAgo(widget.post.dataCreationTime), style: Theme.of(context).textTheme.displaySmall)
-                      ],
-                    )
-                  ],
+                    ],
+                  ),
                 ),
                 PopupMenuButton<PostMenuElements>(
                   initialValue: null,

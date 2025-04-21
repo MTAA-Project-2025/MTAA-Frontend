@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mtaa_frontend/core/constants/route_constants.dart';
+import 'package:mtaa_frontend/features/users/account/presentation/widgets/tabNavigation.dart';
 
 class ProfileInfoWidget extends StatelessWidget {
   final String avatarUrl;
@@ -121,8 +122,8 @@ class ProfileInfoWidget extends StatelessWidget {
     onTap: onTap,
     child: Column(
       children: [
-        Text(value, style: textTheme.headlineMedium),
-        Text(label, style: textTheme.labelMedium),
+        Text(value, style: textTheme.headlineMedium!.copyWith(fontSize: 16)),
+        Text(label, style: textTheme.labelMedium!.copyWith(fontSize: 13)),
       ],
     ),
   );
