@@ -18,15 +18,15 @@ class TabNavigation extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _buildTab('photos'),
-          _buildTab('bookmarks'),
-          _buildTab('likes'),
+          _buildTab('photos', context),
+          _buildTab('bookmarks', context),
+          _buildTab('likes', context),
         ],
       ),
     );
   }
 
-  Widget _buildTab(String tabId) {
+  Widget _buildTab(String tabId, BuildContext context) {
     return GestureDetector(
       onTap: () => onTabChange(tabId),
       child: Column(
@@ -34,15 +34,14 @@ class TabNavigation extends StatelessWidget {
           Container(
             width: 24,
             height: 24,
-            color: activeTab == tabId ? secondary1InvincibleColor : lightPrimarily11Color,
             child: Icon(
               tabId == 'photos' 
                 ? Icons.photo_library 
                 : tabId == 'bookmarks' 
                   ? Icons.bookmark 
                   : Icons.favorite,
-              color: Colors.white,
-              size: 20,
+              color: activeTab == tabId ? secondary1InvincibleColor : Theme.of(context).textTheme.bodySmall!.color,
+              size: 24,
             ),
           ),
           const SizedBox(height: 5),

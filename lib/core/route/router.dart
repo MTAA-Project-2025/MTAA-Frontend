@@ -87,10 +87,10 @@ class AppRouter {
         GoRoute(
           path: publicAccountInformationScreenRoute,
           builder: (context, state) {
-            PublicFullAccountResponse? user;
-            if(state.extra!=null && state.extra is PublicFullAccountResponse) user = state.extra as PublicFullAccountResponse;
+            String? userId;
+            if(state.extra!=null && state.extra is String) userId = state.extra as String;
             
-            return PublicAccountInformationScreen(repository: getIt<AccountRepository>(), user:user!);
+            return PublicAccountInformationScreen(repository: getIt<AccountRepository>(), userId:userId!);
           }  
         ),
         GoRoute(

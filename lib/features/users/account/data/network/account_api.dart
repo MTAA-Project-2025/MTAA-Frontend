@@ -10,10 +10,12 @@ import 'package:mtaa_frontend/features/users/account/data/models/requests/update
 import 'package:mtaa_frontend/features/users/account/data/models/requests/updateAccountDisplayNameRequest.dart';
 import 'package:mtaa_frontend/features/users/account/data/models/requests/updateAccountUsernameRequest.dart';
 import 'package:mtaa_frontend/features/users/account/data/models/responses/publicBaseAccountResponse.dart';
+import 'package:mtaa_frontend/features/users/account/data/models/responses/publicFullAccountResponse.dart';
 import 'package:mtaa_frontend/features/users/account/data/models/responses/userFullAccountResponse.dart';
 
 abstract class AccountApi {
   Future<UserFullAccountResponse?> getFullAccount();
+  Future<PublicFullAccountResponse?> getPublicFullAccount(String userId);
 
   Future<List<PublicBaseAccountResponse>> getFollowers(GlobalSearch request);
   Future<List<PublicBaseAccountResponse>> getFriends(GlobalSearch request);
@@ -31,6 +33,7 @@ abstract class AccountApi {
 class AccountApiImpl extends AccountApi {
   final Dio dio;
   final String controllerName = 'Account';
+  final String userControllerName = 'Users';
   CancelToken cancelToken = CancelToken();
   final ExceptionsService exceptionsService;
 
@@ -42,6 +45,18 @@ class AccountApiImpl extends AccountApi {
     try {
       var res = await dio.get(fullUrl);
       return UserFullAccountResponse.fromJson(res.data);
+    } on DioException catch (e) {
+      exceptionsService.httpError(e);
+      return null;
+    }
+  }
+
+  @override
+  Future<PublicFullAccountResponse?> getPublicFullAccount(String userId) async {
+    final fullUrl = '$userControllerName/public-full-account/$userId';
+    try {
+      var res = await dio.get(fullUrl);
+      return PublicFullAccountResponse.fromJson(res.data);
     } on DioException catch (e) {
       exceptionsService.httpError(e);
       return null;
@@ -76,7 +91,7 @@ class AccountApiImpl extends AccountApi {
 
   @override
   Future<void> follow(Follow request) async {
-    final fullUrl = '$controllerName/follow';
+    final fullUrl = '$userControllerName/follow';
     try {
       await dio.post(fullUrl, data: request.toJson());
     } on DioException catch (e) {
@@ -86,7 +101,7 @@ class AccountApiImpl extends AccountApi {
 
   @override
   Future<void> unfollow(Unfollow request) async {
-    final fullUrl = '$controllerName/unfollow';
+    final fullUrl = '$userControllerName/unfollow';
     try {
       await dio.post(fullUrl, data: request.toJson());
     } on DioException catch (e) {

@@ -3,6 +3,6 @@ class Follow {
   Follow({required this.userId});
 
   Map<String, dynamic> toJson() => {
-    'userId': userId,
+    'targetUserId': userId,
   };
 }

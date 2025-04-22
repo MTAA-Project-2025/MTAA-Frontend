@@ -3,6 +3,6 @@ class Unfollow {
   Unfollow({required this.userId});
 
   Map<String, dynamic> toJson() => {
-    'userId': userId,
+    'targetUserId': userId,
   };
 }

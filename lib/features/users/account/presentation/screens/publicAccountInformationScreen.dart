@@ -15,12 +15,12 @@ import 'package:mtaa_frontend/features/users/account/presentation/widgets/public
 
 class PublicAccountInformationScreen extends StatefulWidget {
   final AccountRepository repository;
-  final PublicFullAccountResponse user;
+  final String userId;
 
   const PublicAccountInformationScreen({
     super.key,
     required this.repository,
-    required this.user,
+    required this.userId,
   });
 
   @override
@@ -40,7 +40,7 @@ class _PublicAccountInformationScreenState extends State<PublicAccountInformatio
   Future<void> _loadUser() async {
     setState(() => isLoading = true);
 
-    final res = await widget.repository.getFullAccount();
+    final res = await widget.repository.getPublicFullAccount(widget.userId);
 
     if (!mounted) return;
 

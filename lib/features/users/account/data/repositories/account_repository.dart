@@ -15,11 +15,13 @@ import 'package:mtaa_frontend/features/users/account/data/models/requests/update
 import 'package:mtaa_frontend/features/users/account/data/models/requests/updateAccountDisplayNameRequest.dart';
 import 'package:mtaa_frontend/features/users/account/data/models/requests/updateAccountUsernameRequest.dart';
 import 'package:mtaa_frontend/features/users/account/data/models/responses/publicBaseAccountResponse.dart';
+import 'package:mtaa_frontend/features/users/account/data/models/responses/publicFullAccountResponse.dart';
 import 'package:mtaa_frontend/features/users/account/data/models/responses/userFullAccountResponse.dart';
 import 'package:mtaa_frontend/features/users/account/data/network/account_api.dart';
 
 abstract class AccountRepository {
   Future<UserFullAccountResponse?> getFullAccount();
+  Future<PublicFullAccountResponse?> getPublicFullAccount(String userId);
 
   Future<List<PublicBaseAccountResponse>> getFollowers(GlobalSearch request);
   Future<List<PublicBaseAccountResponse>> getFriends(GlobalSearch request);
@@ -51,6 +53,21 @@ class AccountRepositoryImpl extends AccountRepository {
       }
     }
     return await accountApi.getFullAccount();
+  }
+
+  @override
+  Future<PublicFullAccountResponse?> getPublicFullAccount(String userId) async {
+    final status = await AirplaneModeChecker.instance.checkAirplaneMode();
+    if (status == AirplaneModeStatus.on) {
+      if (getIt.isRegistered<BuildContext>()) {
+        var context = getIt.get<BuildContext>();
+        if(context.mounted){
+          context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: true, exceptionType: ExceptionTypes.flightMode, message: 'Flight mode is enabled'));
+        }
+        return null;
+      }
+    }
+    return await accountApi.getPublicFullAccount(userId);
   }
 
   @override

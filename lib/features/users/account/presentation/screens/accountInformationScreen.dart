@@ -89,6 +89,7 @@ class _AccountInformationScreenState extends State<AccountInformationScreen> {
                       followers: user!.followersCount,
                       likes: user!.likesCount,
                     ),
+                    const SizedBox(height: 10),
                     TabNavigation(
                       activeTab: activeTab,
                       onTabChange: handleTabChange,
