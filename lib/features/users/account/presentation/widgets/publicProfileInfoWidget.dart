@@ -14,6 +14,8 @@ class PublicProfileInfoWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
     final avatarImage = NetworkImage(user.avatar!.images.first.fullPath);
 
     return Padding(
@@ -37,21 +39,13 @@ class PublicProfileInfoWidget extends StatelessWidget {
           // Name
           Text(
             user.displayName,
-            style: const TextStyle(
-              color: lightPrimarily2Color,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
+            style: textTheme.headlineMedium,
           ),
-          const SizedBox(height: 10),
 
           // Username
           Text(
             '@${user.username}',
-            style: const TextStyle(
-              color: primarily0InvincibleColor,
-              fontSize: 13,
-            ),
+            style: textTheme.labelMedium!.copyWith(fontSize: 13),
           ),
           const SizedBox(height: 10),
 
@@ -59,9 +53,9 @@ class PublicProfileInfoWidget extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildStatItem('${user.friendsCount}', 'Friends'),
+              _buildStatItem(context, '${user.friendsCount}', 'Friends'),
               const SizedBox(width: 10),
-              _buildStatItem('${user.followersCount}', 'Followers'),
+              _buildStatItem(context, '${user.followersCount}', 'Followers'),
             ],
           ),
           const SizedBox(height: 10),
@@ -92,22 +86,24 @@ class PublicProfileInfoWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildStatItem(String value, String label) {
+  Widget _buildStatItem(BuildContext context, String value, String label) {
+    final textTheme = Theme.of(context).textTheme;
+
     return Column(
       children: [
         Text(
           value,
-          style: const TextStyle(
-            color: lightPrimarily2Color,
+          style: textTheme.headlineMedium?.copyWith(
             fontSize: 16,
             fontWeight: FontWeight.bold,
+            color: lightPrimarily2Color,
           ),
         ),
         Text(
           label,
-          style: const TextStyle(
-            color: primarily0InvincibleColor,
+          style: textTheme.labelMedium?.copyWith(
             fontSize: 13,
+            color: primarily0InvincibleColor,
           ),
         ),
       ],

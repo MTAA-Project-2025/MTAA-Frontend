@@ -23,18 +23,21 @@ class FriendsList extends StatelessWidget {
           username.contains(searchQuery.toLowerCase());
     }).toList();
 
-    return ListView.builder(
-      itemCount: filteredFriends.length,
-      itemBuilder: (context, index) {
-        return FriendItem(
-          friend: filteredFriends[index],
-          onUnfollow: () {
-            if (onUnfollow != null) {
-              onUnfollow!(index);
-            }
-          },
-        );
-      },
+    return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+        child: ListView.builder(
+        itemCount: filteredFriends.length,
+        itemBuilder: (context, index) {
+          return FriendItem(
+            friend: filteredFriends[index],
+            onUnfollow: () {
+              if (onUnfollow != null) {
+                onUnfollow!(index);
+              }
+            },
+          );
+        },
+      )
     );
   }
 }

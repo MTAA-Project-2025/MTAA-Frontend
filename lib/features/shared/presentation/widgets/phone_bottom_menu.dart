@@ -35,7 +35,7 @@ class PhoneBottomMenu extends StatelessWidget {
             ],
           ),
           onPressed: () {
-            GoRouter.of(context).go(userFriendsScreenRoute);
+            GoRouter.of(context).go(friendsScreenRoute);
           },
         ),
         IconButton(

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:mtaa_frontend/core/constants/colors.dart';
+import 'package:mtaa_frontend/core/constants/route_constants.dart';
 import 'package:mtaa_frontend/features/users/account/data/models/responses/publicBaseAccountResponse.dart';
 
 class FriendItem extends StatelessWidget {
@@ -13,6 +16,7 @@ class FriendItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final avatarUrl = friend.avatar?.images.first.fullPath;
 
     return Container(
@@ -21,56 +25,55 @@ class FriendItem extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 40,
-                backgroundImage: avatarUrl != null
-                    ? NetworkImage(avatarUrl)
-                    : const AssetImage('assets/images/avatar_placeholder.png') as ImageProvider,
-              ),
-              const SizedBox(width: 12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    friend.displayName,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF263238),
+          GestureDetector(
+            onTap: () {
+              GoRouter.of(context).push(
+                publicAccountInformationScreenRoute,
+                extra: friend.id,
+              );
+            },
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 40,
+                  backgroundImage: avatarUrl as ImageProvider,
+                ),
+                const SizedBox(width: 12),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      friend.displayName,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  Text(
-                    "@${friend.username}",
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: Color(0xFF99A5AC),
+                    Text(
+                      "@${friend.username}",
+                      style: theme.textTheme.bodySmall,
                     ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
           if (friend.isFollowing)
-            ElevatedButton(
+            TextButton(
               onPressed: onUnfollow,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFFF7043),
-                foregroundColor: Colors.white,
+              style: TextButton.styleFrom(
+                backgroundColor: theme.colorScheme.primary,
+                foregroundColor: whiteColor,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(4),
+                  borderRadius: BorderRadius.circular(6),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 1),
-              ),
-              child: const Text(
-                "unfollow",
-                style: TextStyle(
+                textStyle: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
               ),
+              child: const Text("Unfollow"),
             ),
         ],
       ),

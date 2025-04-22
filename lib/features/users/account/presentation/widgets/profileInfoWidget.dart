@@ -53,12 +53,11 @@ class ProfileInfoWidget extends StatelessWidget {
             name,
             style: textTheme.headlineMedium,
           ),
-          const SizedBox(height: 10),
 
           // Username
           Text(
             username,
-            style: textTheme.labelMedium,
+            style: textTheme.labelMedium!.copyWith(fontSize: 13),
           ),
           const SizedBox(height: 10),
 

@@ -40,7 +40,7 @@ class TabNavigation extends StatelessWidget {
                 : tabId == 'bookmarks' 
                   ? Icons.bookmark 
                   : Icons.favorite,
-              color: activeTab == tabId ? secondary1InvincibleColor : Theme.of(context).textTheme.bodySmall!.color,
+              color: activeTab == tabId ? secondary1InvincibleColor : Theme.of(context).textTheme.bodyMedium!.color,
               size: 24,
             ),
           ),
@@ -49,7 +49,7 @@ class TabNavigation extends StatelessWidget {
             width: 38,
             height: 3,
             decoration: BoxDecoration(
-              color: activeTab == tabId ? secondary1InvincibleColor : lightPrimarily11Color,
+              color: activeTab == tabId ? secondary1InvincibleColor : Theme.of(context).textTheme.bodyMedium!.color,
               borderRadius: BorderRadius.circular(3),
             ),
           ),

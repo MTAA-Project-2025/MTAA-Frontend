@@ -19,8 +19,8 @@ abstract class AccountApi {
 
   Future<List<PublicBaseAccountResponse>> getFollowers(GlobalSearch request);
   Future<List<PublicBaseAccountResponse>> getFriends(GlobalSearch request);
-  Future<void> follow(Follow request);
-  Future<void> unfollow(Unfollow request);
+  Future<bool> follow(Follow request);
+  Future<bool> unfollow(Unfollow request);
   //get all versions
 
   Future<MyImageGroupResponse?> customUpdateAccountAvatar(CustomUpdateAccountAvatarRequest request);
@@ -90,22 +90,26 @@ class AccountApiImpl extends AccountApi {
   }
 
   @override
-  Future<void> follow(Follow request) async {
+  Future<bool> follow(Follow request) async {
     final fullUrl = '$userControllerName/follow';
     try {
       await dio.post(fullUrl, data: request.toJson());
+      return true;
     } on DioException catch (e) {
       exceptionsService.httpError(e);
+      return false;
     }
   }
 
   @override
-  Future<void> unfollow(Unfollow request) async {
+  Future<bool> unfollow(Unfollow request) async {
     final fullUrl = '$userControllerName/unfollow';
     try {
       await dio.post(fullUrl, data: request.toJson());
+      return true;
     } on DioException catch (e) {
       exceptionsService.httpError(e);
+      return false;
     }
   }
 

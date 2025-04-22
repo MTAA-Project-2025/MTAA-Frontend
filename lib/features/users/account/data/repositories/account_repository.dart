@@ -25,8 +25,8 @@ abstract class AccountRepository {
 
   Future<List<PublicBaseAccountResponse>> getFollowers(GlobalSearch request);
   Future<List<PublicBaseAccountResponse>> getFriends(GlobalSearch request);
-  Future<void> follow(Follow request);
-  Future<void> unfollow(Unfollow request);
+  Future<bool> follow(Follow request);
+  Future<bool> unfollow(Unfollow request);
   
   Future<MyImageGroupResponse?> customUpdateAccountAvatar(CustomUpdateAccountAvatarRequest request);
   Future<MyImageGroupResponse?> presetUpdateAccountAvatar(PresetUpdateAccountAvatarRequest request);
@@ -101,7 +101,7 @@ class AccountRepositoryImpl extends AccountRepository {
   }
 
   @override
-  Future<void> follow(Follow request) async {
+  Future<bool> follow(Follow request) async {
     final status = await AirplaneModeChecker.instance.checkAirplaneMode();
     if (status == AirplaneModeStatus.on) {
       if (getIt.isRegistered<BuildContext>()) {
@@ -113,14 +113,15 @@ class AccountRepositoryImpl extends AccountRepository {
             message: 'Flight mode is enabled',
           ));
         }
-        return;
+        return false;
       }
     }
     await accountApi.follow(request);
+    return true;
   }
 
   @override
-  Future<void> unfollow(Unfollow request) async {
+  Future<bool> unfollow(Unfollow request) async {
     final status = await AirplaneModeChecker.instance.checkAirplaneMode();
     if (status == AirplaneModeStatus.on) {
       if (getIt.isRegistered<BuildContext>()) {
@@ -132,10 +133,11 @@ class AccountRepositoryImpl extends AccountRepository {
             message: 'Flight mode is enabled',
           ));
         }
-        return;
+        return false;
       }
     }
     await accountApi.unfollow(request);
+    return true;
   }
 
   @override

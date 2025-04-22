@@ -10,6 +10,7 @@ import 'package:mtaa_frontend/features/shared/bloc/exceptions_state.dart';
 import 'package:mtaa_frontend/features/shared/data/models/global_search.dart';
 import 'package:mtaa_frontend/features/shared/data/models/page_parameters.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/airmode_error_notification_section.dart';
+import 'package:mtaa_frontend/features/shared/presentation/widgets/customSearchInput.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/dotLoader.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/empty_data_notification_section.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/phone_bottom_menu.dart';
@@ -17,7 +18,6 @@ import 'package:mtaa_frontend/features/shared/presentation/widgets/server_error_
 import 'package:mtaa_frontend/features/users/account/data/models/responses/publicBaseAccountResponse.dart';
 import 'package:mtaa_frontend/features/users/account/data/repositories/account_repository.dart';
 import 'package:mtaa_frontend/features/users/account/presentation/widgets/followersList.dart';
-import 'package:mtaa_frontend/features/users/account/presentation/widgets/searchInput.dart';
 
 class FollowersScreen extends StatefulWidget {
   final AccountRepository repository;
@@ -29,9 +29,10 @@ class FollowersScreen extends StatefulWidget {
 }
 
 class _FollowersScreenState extends State<FollowersScreen> {
-  String searchQuery = "";
+  String filterStr = "";
   List<PublicBaseAccountResponse> followers = [];
   bool isLoading = false;
+  final searchController = TextEditingController();
   late final AppLifecycleListener _listener;
 
   @override
@@ -63,7 +64,7 @@ class _FollowersScreenState extends State<FollowersScreen> {
               message: ''
             )
           );
-          loadFollowers();
+          await loadFollowers();
         }
       },
     );
@@ -74,6 +75,7 @@ class _FollowersScreenState extends State<FollowersScreen> {
   @override
   void dispose() {
     _listener.dispose();
+    searchController.dispose();
     super.dispose();
   }
 
@@ -83,7 +85,7 @@ class _FollowersScreenState extends State<FollowersScreen> {
     });
 
     final response = await widget.repository.getFollowers(GlobalSearch(
-    filterStr: "",
+    filterStr: filterStr,
     pageParameters: PageParameters()));
     
     if (mounted) {
@@ -99,10 +101,9 @@ class _FollowersScreenState extends State<FollowersScreen> {
     }
   }
 
-  void handleSearch(String query) {
-    setState(() {
-      searchQuery = query;
-    });
+  void handleSearch() {
+    filterStr = searchController.text;
+    loadFollowers();
   }
 
   @override
@@ -123,9 +124,10 @@ class _FollowersScreenState extends State<FollowersScreen> {
             children: [
               Padding(
                 padding: const EdgeInsets.all(20.0),
-                child: SearchInput(
+                child: CustomSearchInput(
+                  controller: searchController,
+                  textInputType: TextInputType.text,
                   onSearch: handleSearch,
-                  placeholder: 'Search followers',
                 ),
               ),
               Expanded(
@@ -156,7 +158,8 @@ class _FollowersScreenState extends State<FollowersScreen> {
 
                           return FollowersList(
                             followers: followers,
-                            searchQuery: searchQuery,
+                            searchQuery: filterStr,
+                            repository: widget.repository,
                           );
                         },
                       ),
