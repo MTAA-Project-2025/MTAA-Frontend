@@ -181,6 +181,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
                           return FriendsList(
                             friends: friends,
                             searchQuery: filterStr,
+                            repository: widget.repository,
                           );
                         },
                       ),

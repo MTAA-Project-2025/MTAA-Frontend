@@ -1,23 +1,27 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mtaa_frontend/core/constants/colors.dart';
 import 'package:mtaa_frontend/core/constants/route_constants.dart';
 import 'package:mtaa_frontend/features/users/account/data/models/responses/publicBaseAccountResponse.dart';
 
-class FriendItem extends StatelessWidget {
+class FriendItem extends StatefulWidget {
   final PublicBaseAccountResponse friend;
-  final VoidCallback? onUnfollow;
+  final void Function()? onUnfollow;
 
   const FriendItem({
     super.key,
     required this.friend,
     this.onUnfollow,
   });
+  
+  @override
+  State<FriendItem> createState() => _FriendItemState();
+}
 
+class _FriendItemState extends State<FriendItem> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final avatarUrl = friend.avatar?.images.first.fullPath;
 
     return Container(
       height: 80,
@@ -29,14 +33,32 @@ class FriendItem extends StatelessWidget {
             onTap: () {
               GoRouter.of(context).push(
                 publicAccountInformationScreenRoute,
-                extra: friend.id,
+                extra: widget.friend.id,
               );
             },
             child: Row(
               children: [
-                CircleAvatar(
-                  radius: 40,
-                  backgroundImage: avatarUrl as ImageProvider,
+                ClipOval(
+                  child: CachedNetworkImage(
+                          imageUrl: widget.friend.avatar!.images.first.fullPath,
+                          width: 70,
+                          height: 70,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => Container(
+                            width: 70,
+                            height: 70,
+                            color: theme.secondaryHeaderColor,
+                            child: const Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                          ),
+                          errorWidget: (context, url, error) => Container(
+                            width: 70,
+                            height: 70,
+                            color: theme.secondaryHeaderColor,
+                            child: const Icon(Icons.error),
+                          ),
+                        ),
                 ),
                 const SizedBox(width: 12),
                 Column(
@@ -44,13 +66,13 @@ class FriendItem extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      friend.displayName,
+                      widget.friend.displayName,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     Text(
-                      "@${friend.username}",
+                      "@${widget.friend.username}",
                       style: theme.textTheme.bodySmall,
                     ),
                   ],
@@ -58,22 +80,24 @@ class FriendItem extends StatelessWidget {
               ],
             ),
           ),
-          if (friend.isFollowing)
+          if (widget.friend.isFollowing)
             TextButton(
-              onPressed: onUnfollow,
-              style: TextButton.styleFrom(
-                backgroundColor: theme.colorScheme.primary,
-                foregroundColor: whiteColor,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                textStyle: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
+              onPressed: widget.onUnfollow,
+              style: Theme.of(context).textButtonTheme.style!.copyWith(
+                padding: WidgetStatePropertyAll(const EdgeInsets.symmetric(vertical: 5, horizontal: 8)),
+                minimumSize: WidgetStatePropertyAll(Size(0,0)), 
               ),
               child: const Text("Unfollow"),
+            ),
+          if (!widget.friend.isFollowing)
+            TextButton(
+              onPressed: widget.onUnfollow,
+              style: Theme.of(context).textButtonTheme.style!.copyWith(
+                backgroundColor: WidgetStatePropertyAll(Theme.of(context).colorScheme.secondary),
+                padding: WidgetStatePropertyAll(const EdgeInsets.symmetric(vertical: 5, horizontal: 8)),
+                minimumSize: WidgetStatePropertyAll(Size(0,0)), 
+              ),
+              child: const Text("Follow"),
             ),
         ],
       ),

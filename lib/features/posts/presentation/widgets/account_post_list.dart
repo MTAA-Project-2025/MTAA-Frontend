@@ -98,10 +98,12 @@ class _AccountPostListWidgetState extends State<AccountPostListWidget> {
     paginationScrollController.dispose();
     paginationScrollController.init(loadAction: () => loadPosts());
 
+    if(!mounted)return;
     setState(() {
       paginationScrollController.isLoading = true;
     });
     await loadPosts();
+    if(!mounted)return;
     setState(() {
       paginationScrollController.isLoading = false;
     });
