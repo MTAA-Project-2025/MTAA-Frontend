@@ -56,31 +56,32 @@ class PublicProfileInfoWidget extends StatelessWidget {
               _buildStatItem(context, '${user.friendsCount}', 'Friends'),
               const SizedBox(width: 10),
               _buildStatItem(context, '${user.followersCount}', 'Followers'),
+              const SizedBox(width: 10),
+              GestureDetector(
+                onTap: onFollowToggle,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      user.isFollowing ? Icons.favorite : Icons.favorite_border,
+                      color: user.isFollowing ? Colors.red : primarily0InvincibleColor,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      user.isFollowing ? "Following" : "Follow",
+                      style: const TextStyle(
+                        color: primarily0InvincibleColor,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 10),
-
-          GestureDetector(
-            onTap: onFollowToggle,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  user.isFollowing ? Icons.favorite : Icons.favorite_border,
-                  color: user.isFollowing ? Colors.red : primarily0InvincibleColor,
-                  size: 20,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  user.isFollowing ? "Following" : "Follow",
-                  style: const TextStyle(
-                    color: primarily0InvincibleColor,
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
-          ),
+          
         ],
       ),
     );
@@ -96,7 +97,6 @@ class PublicProfileInfoWidget extends StatelessWidget {
           style: textTheme.headlineMedium?.copyWith(
             fontSize: 16,
             fontWeight: FontWeight.bold,
-            color: lightPrimarily2Color,
           ),
         ),
         Text(

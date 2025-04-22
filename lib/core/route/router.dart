@@ -23,6 +23,7 @@ import 'package:mtaa_frontend/features/users/account/presentation/screens/firstU
 import 'package:mtaa_frontend/features/users/account/presentation/screens/firstUpdateDisplayNameScreen.dart';
 import 'package:mtaa_frontend/features/users/account/presentation/screens/followersScreen.dart';
 import 'package:mtaa_frontend/features/users/account/presentation/screens/friendsScreen.dart';
+import 'package:mtaa_frontend/features/users/account/presentation/screens/globalSearchScreen.dart';
 import 'package:mtaa_frontend/features/users/account/presentation/screens/publicAccountInformationScreen.dart';
 import 'package:mtaa_frontend/features/users/account/presentation/screens/updateAccountScreen.dart';
 import 'package:mtaa_frontend/features/users/account/presentation/screens/updateAvatarScreen.dart';
@@ -120,8 +121,9 @@ class AppRouter {
         ),
         GoRoute(
           path: globalSearchScreenRoute,
-          builder: (context, state) => PostsGlobalSearchScreen(repository: getIt<PostsRepository>())
+          builder: (context, state) => GlobalSearchScreen(postsRepository: getIt<PostsRepository>(), usersRepository: getIt<AccountRepository>(),)
         ),
+        
         GoRoute(
           path: '$fullPostScreenRoute/:id',	
           builder: (context, state) {

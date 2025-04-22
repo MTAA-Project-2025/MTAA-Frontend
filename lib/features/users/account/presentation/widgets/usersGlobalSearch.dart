@@ -1,44 +1,40 @@
 import 'package:airplane_mode_checker/airplane_mode_checker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mtaa_frontend/core/constants/menu_buttons.dart';
-import 'package:mtaa_frontend/core/services/time_formating_service.dart';
-import 'package:mtaa_frontend/core/utils/app_injections.dart';
-import 'package:mtaa_frontend/features/posts/data/models/requests/get_global_posts_request.dart';
-import 'package:mtaa_frontend/features/posts/data/models/responses/full_post_response.dart';
-import 'package:mtaa_frontend/features/posts/data/repositories/posts_repository.dart';
-import 'package:mtaa_frontend/features/posts/presentation/widgets/full_post_widget.dart';
 import 'package:mtaa_frontend/features/shared/bloc/exception_type.dart';
 import 'package:mtaa_frontend/features/shared/bloc/exceptions_bloc.dart';
 import 'package:mtaa_frontend/features/shared/bloc/exceptions_event.dart';
 import 'package:mtaa_frontend/features/shared/bloc/exceptions_state.dart';
 import 'package:mtaa_frontend/features/shared/data/controllers/pagination_scroll_controller.dart';
+import 'package:mtaa_frontend/features/shared/data/models/global_search.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/airmode_error_notification_section.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/customSearchInput.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/dotLoader.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/empty_data_notification_section.dart';
-import 'package:mtaa_frontend/features/shared/presentation/widgets/phone_bottom_menu.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/server_error_notification_section.dart';
+import 'package:mtaa_frontend/features/users/account/data/models/responses/publicBaseAccountResponse.dart';
+import 'package:mtaa_frontend/features/users/account/data/repositories/account_repository.dart';
+import 'package:mtaa_frontend/features/users/account/presentation/widgets/friendItem.dart';
 
-class PostsGlobalSearchScreen extends StatefulWidget {
-  final PostsRepository repository;
+class UsersGlobalSearch extends StatefulWidget {
+  final AccountRepository repository;
 
-  const PostsGlobalSearchScreen({super.key, required this.repository});
+  const UsersGlobalSearch({super.key, required this.repository});
 
   @override
-  State<PostsGlobalSearchScreen> createState() => _PostsGlobalSearchScreenState();
+  State<UsersGlobalSearch> createState() => _UsersGlobalSearchState();
 }
 
-class _PostsGlobalSearchScreenState extends State<PostsGlobalSearchScreen> {
+class _UsersGlobalSearchState extends State<UsersGlobalSearch> {
   PaginationScrollController paginationScrollController = PaginationScrollController();
-  List<FullPostResponse> posts = [];
+  List<PublicBaseAccountResponse> users = [];
   bool isLoading = false;
   final searchController = TextEditingController();
   String filterStr = '';
 
   @override
   void initState() {
-    paginationScrollController.init(loadAction: () => loadPosts());
+    paginationScrollController.init(loadAction: () => loadUsers());
     super.initState();
 
     context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: false, exceptionType: ExceptionTypes.none, message: ''));
@@ -70,15 +66,15 @@ class _PostsGlobalSearchScreenState extends State<PostsGlobalSearchScreen> {
     loadFirst();
   }
 
-  Future<bool> loadPosts() async {
-    var res = await widget.repository.getGlobalPosts(GetGLobalPostsRequest(filterStr: filterStr, pageParameters: paginationScrollController.pageParameters));
+  Future<bool> loadUsers() async {
+    var res = await widget.repository.getGlobalUsers(GlobalSearch(filterStr: filterStr, pageParameters: paginationScrollController.pageParameters));
     paginationScrollController.pageParameters.pageNumber++;
     if (res.length < paginationScrollController.pageParameters.pageSize) {
       paginationScrollController.stopLoading = true;
     }
     if (res.isNotEmpty) {
       setState(() {
-        posts.addAll(res);
+        users.addAll(res);
       });
       return true;
     }
@@ -93,14 +89,14 @@ class _PostsGlobalSearchScreenState extends State<PostsGlobalSearchScreen> {
   }
 
   Future loadFirst() async {
-    posts.clear();
+    users.clear();
     paginationScrollController.dispose();
-    paginationScrollController.init(loadAction: () => loadPosts());
+    paginationScrollController.init(loadAction: () => loadUsers());
 
     setState(() {
       paginationScrollController.isLoading = true;
     });
-    await loadPosts();
+    await loadUsers();
     setState(() {
       paginationScrollController.isLoading = false;
     });
@@ -112,8 +108,9 @@ class _PostsGlobalSearchScreenState extends State<PostsGlobalSearchScreen> {
           return Column(children: [
             Expanded(
               child: ListView.builder(
+                padding: EdgeInsets.symmetric(horizontal: 10),
                 cacheExtent: 9999,
-                itemCount: posts.length + 2,
+                itemCount: users.length + 2,
                 controller: paginationScrollController.scrollController,
                 itemBuilder: (context, index) {
                   if (index == 0) {
@@ -129,12 +126,10 @@ class _PostsGlobalSearchScreenState extends State<PostsGlobalSearchScreen> {
                       ),
                     );
                   }
-                  if (index - 1 < posts.length) {
-                    return FullPostWidget(
-                      post: posts[index - 1],
-                      timeFormatingService: getIt<TimeFormatingService>(),
-                      isFull: false,
-                      repository: widget.repository,
+                  if (index - 1 < users.length) {
+                    return FriendItem(
+                      friend: users[index - 1],
+                      onUnfollow: (){},
                     );
                   }
                   if (paginationScrollController.isLoading) {
@@ -159,12 +154,12 @@ class _PostsGlobalSearchScreenState extends State<PostsGlobalSearchScreen> {
                       },
                     );
                   }
-                  if (posts.isEmpty) {
+                  if (users.isEmpty) {
                     return EmptyErrorNotificationSectionWidget(
                       onPressed: () {
                         loadFirst();
                       },
-                      title: 'No posts found',
+                      title: 'No users found',
                     );
                   }
                   return null;

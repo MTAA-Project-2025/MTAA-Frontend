@@ -25,6 +25,7 @@ abstract class AccountRepository {
 
   Future<List<PublicBaseAccountResponse>> getFollowers(GlobalSearch request);
   Future<List<PublicBaseAccountResponse>> getFriends(GlobalSearch request);
+  Future<List<PublicBaseAccountResponse>> getGlobalUsers(GlobalSearch request);
   Future<bool> follow(Follow request);
   Future<bool> unfollow(Unfollow request);
   
@@ -98,6 +99,21 @@ class AccountRepositoryImpl extends AccountRepository {
       }
     }
     return await accountApi.getFriends(request);
+  }
+
+  @override
+  Future<List<PublicBaseAccountResponse>> getGlobalUsers(GlobalSearch request) async {
+    final status = await AirplaneModeChecker.instance.checkAirplaneMode();
+    if (status == AirplaneModeStatus.on) {
+      if (getIt.isRegistered<BuildContext>()) {
+        var context = getIt.get<BuildContext>();
+        if(context.mounted){
+          context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: true, exceptionType: ExceptionTypes.flightMode, message: 'Flight mode is enabled'));
+        }
+        return [];
+      }
+    }
+    return await accountApi.getGlobalUsers(request);
   }
 
   @override

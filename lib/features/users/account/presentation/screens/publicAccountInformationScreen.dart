@@ -12,6 +12,7 @@ import 'package:mtaa_frontend/features/users/account/data/models/requests/unfoll
 import 'package:mtaa_frontend/features/users/account/data/models/responses/publicFullAccountResponse.dart';
 import 'package:mtaa_frontend/features/users/account/data/repositories/account_repository.dart';
 import 'package:mtaa_frontend/features/users/account/presentation/widgets/publicProfileInfoWidget.dart';
+import 'package:mtaa_frontend/features/users/account/presentation/widgets/publicTabNavigation.dart';
 
 class PublicAccountInformationScreen extends StatefulWidget {
   final AccountRepository repository;
@@ -100,7 +101,8 @@ class _PublicAccountInformationScreenState extends State<PublicAccountInformatio
                       user: user!,
                       onFollowToggle: _toggleFollow,
                     ),
-                  const SizedBox(height: 10),
+                    PublicTabNavigation(),
+                    const SizedBox(height: 10),
                   if (user != null)
                     Expanded(
                       child: AccountPostListWidget(

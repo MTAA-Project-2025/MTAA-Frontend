@@ -76,7 +76,9 @@ class _FollowerItemState extends State<FollowerItem> {
                   children: [
                     Text(
                       widget.follower.displayName,
-                      style: textTheme.labelSmall?.copyWith(fontWeight: FontWeight.bold),
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     Text(
                       widget.follower.username,

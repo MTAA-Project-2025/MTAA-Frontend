@@ -19,6 +19,7 @@ abstract class AccountApi {
 
   Future<List<PublicBaseAccountResponse>> getFollowers(GlobalSearch request);
   Future<List<PublicBaseAccountResponse>> getFriends(GlobalSearch request);
+  Future<List<PublicBaseAccountResponse>> getGlobalUsers(GlobalSearch request);
   Future<bool> follow(Follow request);
   Future<bool> unfollow(Unfollow request);
   //get all versions
@@ -79,6 +80,19 @@ class AccountApiImpl extends AccountApi {
   @override
   Future<List<PublicBaseAccountResponse>> getFriends(GlobalSearch request) async {
     final fullUrl = '$controllerName/get-friends';
+    try {
+      var res = await dio.post(fullUrl, data: request.toJson());
+      List<dynamic> data = res.data;
+      return data.map((item) => PublicBaseAccountResponse.fromJson(item)).toList();
+    } on DioException catch (e) {
+      exceptionsService.httpError(e);
+      return [];
+    }
+  }
+
+  @override
+  Future<List<PublicBaseAccountResponse>> getGlobalUsers(GlobalSearch request) async {
+    final fullUrl = '$userControllerName/get-global';
     try {
       var res = await dio.post(fullUrl, data: request.toJson());
       List<dynamic> data = res.data;
