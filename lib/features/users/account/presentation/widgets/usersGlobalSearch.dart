@@ -1,70 +1,61 @@
 import 'package:airplane_mode_checker/airplane_mode_checker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
-import 'package:mtaa_frontend/core/constants/menu_buttons.dart';
-import 'package:mtaa_frontend/core/constants/route_constants.dart';
-import 'package:mtaa_frontend/core/services/time_formating_service.dart';
-import 'package:mtaa_frontend/core/utils/app_injections.dart';
-import 'package:mtaa_frontend/features/locations/data/repositories/locations_repository.dart';
-import 'package:mtaa_frontend/features/posts/data/models/responses/full_post_response.dart';
-import 'package:mtaa_frontend/features/posts/data/repositories/posts_repository.dart';
-import 'package:mtaa_frontend/features/posts/presentation/widgets/full_post_widget.dart';
 import 'package:mtaa_frontend/features/shared/bloc/exception_type.dart';
 import 'package:mtaa_frontend/features/shared/bloc/exceptions_bloc.dart';
 import 'package:mtaa_frontend/features/shared/bloc/exceptions_event.dart';
 import 'package:mtaa_frontend/features/shared/bloc/exceptions_state.dart';
 import 'package:mtaa_frontend/features/shared/data/controllers/pagination_scroll_controller.dart';
+import 'package:mtaa_frontend/features/shared/data/models/global_search.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/airmode_error_notification_section.dart';
+import 'package:mtaa_frontend/features/shared/presentation/widgets/customSearchInput.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/dotLoader.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/empty_data_notification_section.dart';
-import 'package:mtaa_frontend/features/shared/presentation/widgets/phone_bottom_menu.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/server_error_notification_section.dart';
+import 'package:mtaa_frontend/features/users/account/data/models/responses/publicBaseAccountResponse.dart';
+import 'package:mtaa_frontend/features/users/account/data/repositories/account_repository.dart';
+import 'package:mtaa_frontend/features/users/account/presentation/widgets/friendItem.dart';
 
-class PostRecommendationsScreen extends StatefulWidget {
-  final PostsRepository repository;
+class UsersGlobalSearch extends StatefulWidget {
+  final AccountRepository repository;
 
-  const PostRecommendationsScreen({super.key, required this.repository});
+  const UsersGlobalSearch({super.key, required this.repository});
 
   @override
-  State<PostRecommendationsScreen> createState() => _PostRecommendationsScreenState();
+  State<UsersGlobalSearch> createState() => _UsersGlobalSearchState();
 }
 
-class _PostRecommendationsScreenState extends State<PostRecommendationsScreen> {
+class _UsersGlobalSearchState extends State<UsersGlobalSearch> {
   PaginationScrollController paginationScrollController = PaginationScrollController();
-  List<FullPostResponse> posts = [];
-  late final AppLifecycleListener _listener;
+  List<PublicBaseAccountResponse> users = [];
+  bool isLoading = false;
+  final searchController = TextEditingController();
+  String filterStr = '';
 
   @override
   void initState() {
-    if (getIt.isRegistered<BuildContext>()) {
-      getIt.unregister<BuildContext>();
-    }
-    getIt.registerSingleton<BuildContext>(context);
-
-    paginationScrollController.init(loadAction: () => loadPosts());
+    paginationScrollController.init(loadAction: () => loadUsers());
     super.initState();
 
     context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: false, exceptionType: ExceptionTypes.none, message: ''));
 
     Future.microtask(() async {
-      if(!mounted)return;
-      posts.addAll(await widget.repository.getPreviousRecommendedPosts());
-      if(!mounted)return;
+      if (!context.mounted || !mounted) return;
       final status = await AirplaneModeChecker.instance.checkAirplaneMode();
-      if (status == AirplaneModeStatus.on && mounted) {
+      if (status == AirplaneModeStatus.on) {
         context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: true, exceptionType: ExceptionTypes.flightMode, message: 'Flight mode is enabled'));
       }
     });
 
-    _listener = AppLifecycleListener(
+    AppLifecycleListener(
       onResume: () async {
-        if(!mounted)return;
         Future.microtask(() async {
-          if (context.mounted && mounted) {
+          if (mounted && context.mounted) {
             final status = await AirplaneModeChecker.instance.checkAirplaneMode();
-            if (status == AirplaneModeStatus.off && mounted) {
-              context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: false, exceptionType: ExceptionTypes.none, message: ''));
+            if (status == AirplaneModeStatus.off) {
+              if(mounted && context.mounted){
+                context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: false, exceptionType: ExceptionTypes.none, message: ''));
+              }
               loadFirst();
             }
           }
@@ -75,82 +66,70 @@ class _PostRecommendationsScreenState extends State<PostRecommendationsScreen> {
     loadFirst();
   }
 
-  Future loadPosts() async {
-    if(!mounted)return;
-    var res = await widget.repository.getRecommendedPosts(paginationScrollController.pageParameters);
-    if(!mounted)return;
+  Future<bool> loadUsers() async {
+    var res = await widget.repository.getGlobalUsers(GlobalSearch(filterStr: filterStr, pageParameters: paginationScrollController.pageParameters));
     paginationScrollController.pageParameters.pageNumber++;
     if (res.length < paginationScrollController.pageParameters.pageSize) {
       paginationScrollController.stopLoading = true;
     }
     if (res.isNotEmpty) {
-      if(!mounted)return;
       setState(() {
-        posts.addAll(res);
+        users.addAll(res);
       });
+      return true;
     }
+    return false;
   }
 
   @override
   void dispose() {
     paginationScrollController.dispose();
-    widget.repository.setPreviousRecommendedPosts(posts.reversed.take(paginationScrollController.pageParameters.pageSize).toList());
-    _listener.dispose();
-    
+    searchController.dispose();
     super.dispose();
   }
 
   Future loadFirst() async {
-    posts.clear();
+    users.clear();
     paginationScrollController.dispose();
-    paginationScrollController.init(loadAction: () => loadPosts());
+    paginationScrollController.init(loadAction: () => loadUsers());
 
-    if(!mounted)return;
     setState(() {
       paginationScrollController.isLoading = true;
     });
-    if(!mounted)return;
-    await loadPosts();
+    await loadUsers();
     setState(() {
       paginationScrollController.isLoading = false;
     });
   }
 
   @override
-  Widget build(BuildContext contex) {
-    return Scaffold(
-        appBar: AppBar(
-          actions: <Widget>[
-            Container(
-                margin: const EdgeInsets.fromLTRB(0, 0, 21, 0),
-                child: IconButton(
-                  icon: const Icon(Icons.search),
-                  tooltip: 'Search',
-                  onPressed: () {
-                    GoRouter.of(context).push(globalSearchScreenRoute).then(
-                      (value) {
-                        if (posts.isEmpty && !paginationScrollController.isLoading) loadPosts();
-                      },
-                    );
-                  },
-                ))
-          ],
-        ),
-        body: BlocBuilder<ExceptionsBloc, ExceptionsState>(builder: (context, state) {
+  Widget build(BuildContext context) {
+    return BlocBuilder<ExceptionsBloc, ExceptionsState>(builder: (context, state) {
           return Column(children: [
             Expanded(
               child: ListView.builder(
+                padding: EdgeInsets.symmetric(horizontal: 10),
                 cacheExtent: 9999,
-                itemCount: posts.length + 1,
+                itemCount: users.length + 2,
                 controller: paginationScrollController.scrollController,
                 itemBuilder: (context, index) {
-                  if (index < posts.length) {
-                    return FullPostWidget(
-                      post: posts[index],
-                      timeFormatingService: getIt<TimeFormatingService>(),
-                      isFull: false,
-                      repository: widget.repository,
-                      locationsRepository: getIt<LocationsRepository>(),
+                  if (index == 0) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                      child: CustomSearchInput(
+                        controller: searchController,
+                        textInputType: TextInputType.text,
+                        onSearch: () {
+                          filterStr = searchController.text;
+                          loadFirst();
+                        },
+                      ),
+                    );
+                  }
+                  if (index - 1 < users.length) {
+                    return FriendItem(
+                      friend: users[index - 1],
+                      onUnfollow: (){},
                     );
                   }
                   if (paginationScrollController.isLoading) {
@@ -175,12 +154,12 @@ class _PostRecommendationsScreenState extends State<PostRecommendationsScreen> {
                       },
                     );
                   }
-                  if (posts.isEmpty) {
+                  if (users.isEmpty) {
                     return EmptyErrorNotificationSectionWidget(
                       onPressed: () {
                         loadFirst();
                       },
-                      title: 'No posts found',
+                      title: 'No users found',
                     );
                   }
                   return null;
@@ -188,7 +167,6 @@ class _PostRecommendationsScreenState extends State<PostRecommendationsScreen> {
               ),
             ),
           ]);
-        }),
-        bottomNavigationBar: PhoneBottomMenu(sellectedType: MenuButtons.Home));
+        });
   }
 }

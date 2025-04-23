@@ -30,10 +30,8 @@ class AirModeErrorNotificationSectionWidget extends StatelessWidget {
                 switch (OpenSettingsPlus.shared) {
                   case OpenSettingsPlusAndroid settings:
                     settings.airplaneMode();
-                    break;
                   case OpenSettingsPlusIOS settings:
                     settings.wifi();
-                    break;
                   default:
                     throw Exception('Platform not supported');
                 }

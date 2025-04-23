@@ -22,7 +22,7 @@ class UpdateImageRequest {
     }
 
     return {
-      'image': base64Image??null,
+      'image': base64Image,
       'oldImageId': oldImageId,
       'position': position,
     };

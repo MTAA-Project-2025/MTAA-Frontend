@@ -39,11 +39,6 @@ class _PostsGlobalSearchScreenState extends State<PostsGlobalSearchScreen> {
 
   @override
   void initState() {
-    if (getIt.isRegistered<BuildContext>()) {
-      getIt.unregister<BuildContext>();
-    }
-    getIt.registerSingleton<BuildContext>(context);
-
     paginationScrollController.init(loadAction: () => loadPosts());
     super.initState();
 
@@ -77,7 +72,7 @@ class _PostsGlobalSearchScreenState extends State<PostsGlobalSearchScreen> {
   }
 
   Future<bool> loadPosts() async {
-    var res = await widget.repository.getGlobalPosts(new GetGLobalPostsRequest(filterStr: filterStr, pageParameters: paginationScrollController.pageParameters));
+    var res = await widget.repository.getGlobalPosts(GetGLobalPostsRequest(filterStr: filterStr, pageParameters: paginationScrollController.pageParameters));
     paginationScrollController.pageParameters.pageNumber++;
     if (res.length < paginationScrollController.pageParameters.pageSize) {
       paginationScrollController.stopLoading = true;
@@ -117,9 +112,7 @@ class _PostsGlobalSearchScreenState extends State<PostsGlobalSearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(),
-        body: BlocBuilder<ExceptionsBloc, ExceptionsState>(builder: (context, state) {
+    return BlocBuilder<ExceptionsBloc, ExceptionsState>(builder: (context, state) {
           return Column(children: [
             Expanded(
               child: ListView.builder(
@@ -184,7 +177,6 @@ class _PostsGlobalSearchScreenState extends State<PostsGlobalSearchScreen> {
               ),
             ),
           ]);
-        }),
-        bottomNavigationBar: PhoneBottomMenu(sellectedType: MenuButtons.Home));
+        });
   }
 }

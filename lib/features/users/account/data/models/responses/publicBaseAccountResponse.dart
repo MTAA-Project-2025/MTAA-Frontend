@@ -3,9 +3,9 @@ import 'package:mtaa_frontend/features/images/data/models/responses/myImageGroup
 
 class PublicBaseAccountResponse {
   final String id;
-  final MyImageGroupResponse? avatar;
-  final String username;
-  final String displayName;
+  MyImageGroupResponse? avatar;
+  String username;
+  String displayName;
   bool isFollowing;
   
 

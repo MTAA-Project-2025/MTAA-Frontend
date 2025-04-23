@@ -9,6 +9,8 @@ import 'package:mtaa_frontend/features/shared/presentation/widgets/dotLoader.dar
 import 'package:mtaa_frontend/features/shared/presentation/widgets/phone_bottom_menu.dart';
 import 'package:mtaa_frontend/features/users/account/data/models/responses/userFullAccountResponse.dart';
 import 'package:mtaa_frontend/features/users/account/data/repositories/account_repository.dart';
+import 'package:mtaa_frontend/features/users/account/presentation/widgets/profileInfoWidget.dart';
+import 'package:mtaa_frontend/features/users/account/presentation/widgets/tabNavigation.dart';
 
 class AccountInformationScreen extends StatefulWidget {
   final AccountRepository repository;
@@ -22,6 +24,14 @@ class AccountInformationScreen extends StatefulWidget {
 class _AccountInformationScreenState extends State<AccountInformationScreen> {
   bool isLoading = false;
   UserFullAccountResponse? user;
+  String activeTab = 'photos';
+
+  void handleTabChange(String tabId) {
+    setState(() {
+      activeTab = tabId;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -74,46 +84,20 @@ class _AccountInformationScreenState extends State<AccountInformationScreen> {
               ? DotLoader()
               : Column(
                   children: [
-                    Row(
-                      children: [
-                        if (user != null)
-                          CircleAvatar(
-                            radius: 40,
-                            backgroundImage: user?.avatar != null ? NetworkImage(user!.avatar!.images.first.fullPath) : AssetImage('assets/default_avatar.png') as ImageProvider,
-                          ),
-                        SizedBox(width: 16),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              user == null ? '' : user!.displayName,
-                              style: Theme.of(context).textTheme.headlineLarge,
-                            ),
-                            Text(
-                              user == null ? '' : '@${user!.username}',
-                              style: Theme.of(context).textTheme.titleMedium,
-                            ),
-                            Row(
-                              children: [
-                                if (user != null) Text('${user!.friendsCount} Friends'),
-                                SizedBox(width: 8),
-                                if (user != null) Text('${user!.followersCount} Followers'),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
+                    ProfileInfoWidget(
+                      avatarUrl: user!.avatar!.images.first.fullPath,
+                      name: user!.displayName,
+                      username: '@${user!.username}',
+                      friends: user!.friendsCount,
+                      followers: user!.followersCount,
+                      likes: user!.likesCount,
                     ),
-                    SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () {},
-                      child: Text('Change Profile'),
+                    TabNavigation(
+                      activeTab: activeTab,
+                      onTabChange: handleTabChange,
                     ),
-                    ElevatedButton(
-                      onPressed: () {},
-                      child: Text('Notifications'),
-                    ),
-                    if (user != null) Expanded(child: AccountPostListWidget(repository: getIt<PostsRepository>(), userId: user!.id, isOwner: true))
+                    const SizedBox(height: 10),
+                    if (user != null) Expanded(child: AccountPostListWidget(repository: getIt<PostsRepository>(), userId: user!.id))
                   ],
                 ),
         ),
