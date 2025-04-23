@@ -82,8 +82,10 @@ class _CreateAccountState extends State<CreateAccountScreen> {
                           return TextButton(
                     onPressed: () async {
                       if (_emailformKey.currentState!.validate()) {
+                        if(!mounted)return;
                         setState(() => isLoading = true);
                         Token? res = await widget.identityApi.signUpByEmail(SignUpByEmailRequest(email:state.str, username: usernameController.text, password: passwordController.text));
+                        if(!mounted)return;
                         setState(() => isLoading = false);
                         if(res != null)
                         {

@@ -4,7 +4,6 @@ import 'package:mtaa_frontend/themes/app_bar_theme.dart';
 import 'package:mtaa_frontend/themes/buttom_bar_theme.dart';
 import 'package:mtaa_frontend/themes/button_theme.dart';
 
-
 class AppTheme {
   static ThemeData lightTheme(BuildContext context) {
     return ThemeData(
@@ -19,7 +18,7 @@ class AppTheme {
         secondary: lightThird2Color,
         tertiary: lightThird1Color,
       ),
-      textTheme: const TextTheme( 
+      textTheme: const TextTheme(
         bodyMedium: TextStyle(color: lightPrimarily1Color, fontSize: 16),
         bodySmall: TextStyle(color: lightPrimarily2Color, fontSize: 10),
         displaySmall: TextStyle(color: primarily0InvincibleColor, fontSize: 8),
@@ -33,11 +32,20 @@ class AppTheme {
       textButtonTheme: lightTextButtonThemeData,
       iconButtonTheme: lightIconButtonThemeData,
       appBarTheme: lightAppBarThemeData,
-      bottomAppBarTheme: lightBottomBarThemeData
+      bottomAppBarTheme: lightBottomBarThemeData,
+      floatingActionButtonTheme: lightfloatingActionButtonThemeData,
+      timePickerTheme: TimePickerThemeData(
+        backgroundColor: whiteColor,
+        hourMinuteTextColor: secondary1InvincibleColor,
+        dialHandColor: lightThird11Color,
+        entryModeIconColor: secondary1InvincibleColor,
+        dayPeriodTextColor: lightThird11Color,
+        dayPeriodBorderSide: BorderSide(color: whiteColor),
+      ),
     );
   }
 
-    static ThemeData darkTheme(BuildContext context) {
+  static ThemeData darkTheme(BuildContext context) {
     return ThemeData(
       brightness: Brightness.dark,
       fontFamily: "Almarai",
@@ -65,6 +73,15 @@ class AppTheme {
       iconButtonTheme: darkIconButtonThemeData,
       appBarTheme: darkAppBarThemeData,
       bottomAppBarTheme: darkBottomBarThemeData,
+      floatingActionButtonTheme: darkfloatingActionButtonThemeData,
+      timePickerTheme: TimePickerThemeData(
+        backgroundColor: whiteColor,
+        hourMinuteTextColor: secondary1InvincibleColor,
+        dialHandColor: Colors.lightGreenAccent,
+        entryModeIconColor: secondary1InvincibleColor,
+        dayPeriodTextColor: lightThird11Color,
+        dayPeriodBorderSide: BorderSide(color: whiteColor)
+      ),
     );
   }
 }

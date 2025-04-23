@@ -5,22 +5,29 @@ import 'package:mtaa_frontend/core/constants/colors.dart';
 class DateTimeInput extends StatefulWidget {
   final void Function(DateTime) onChanged;
   final String placeholder;
+  final DateTime minDate;
+  final DateTime maxDate;
+  final DateTime maxDisplayedDate;
 
-  DateTimeInput({super.key, required this.onChanged, required this.placeholder});
+  DateTimeInput({super.key,
+  required this.onChanged,
+  required this.placeholder,
+  required this.minDate,
+  required this.maxDate,
+  required this.maxDisplayedDate});
 
   @override
   _DateTimeInputState createState() => _DateTimeInputState();
 }
 
+//Created partly with GPT
 class _DateTimeInputState extends State<DateTimeInput> {
   bool isFirstTime = true;
   DateTime date = DateTime.now();
-  DateTime minDate = DateTime(1900);
-  DateTime maxDisplayedDate = DateTime.now().add(Duration(days: 10));
-  DateTime maxDate = DateTime.now();
+  
 
   bool _decideWhichDayToEnable(DateTime day) {
-    if ((day.isAfter(minDate) && day.isBefore(maxDate))) {
+    if ((day.isAfter(widget.minDate) && day.isBefore(widget.maxDate))) {
       return true;
     }
     return false;
@@ -69,7 +76,6 @@ class _DateTimeInputState extends State<DateTimeInput> {
                                   fontSize: Theme.of(context).textTheme.labelMedium?.fontSize,
                                   fontWeight: FontWeight.w500,
                                   color: !isFirstTime ? Theme.of(context).textTheme.labelMedium?.decorationColor : Theme.of(context).textTheme.labelMedium?.color,
-                                  fontFamily: 'Almarai',
                                 )))
                         : OutlinedButton(
                             onPressed: () => _selectDate(context),
@@ -87,7 +93,6 @@ class _DateTimeInputState extends State<DateTimeInput> {
                                   fontSize: Theme.of(context).textTheme.labelMedium?.fontSize,
                                   fontWeight: FontWeight.w500,
                                   color: !isFirstTime ? Theme.of(context).textTheme.labelMedium?.decorationColor : Theme.of(context).textTheme.labelMedium?.color,
-                                  fontFamily: 'Almarai',
                                 ))),
                   ),
                 ))
@@ -98,16 +103,18 @@ class _DateTimeInputState extends State<DateTimeInput> {
   }
 
   buildCupertinoDatePicker(BuildContext context) {
+    if(!context.mounted)return;
     showModalBottomSheet(
         context: context,
         builder: (BuildContext builder) {
           return Container(
             height: MediaQuery.of(context).copyWith().size.height / 3,
-            color: Colors.white,
+            color: whiteColor,
             child: CupertinoDatePicker(
               mode: CupertinoDatePickerMode.date,
               onDateTimeChanged: (picked) {
                 if (picked != date) {
+                  if(!mounted)return;
                   setState(() {
                     date = picked;
                     isFirstTime = false;
@@ -116,19 +123,20 @@ class _DateTimeInputState extends State<DateTimeInput> {
                 }
               },
               initialDateTime: date,
-              minimumYear: minDate.year,
-              maximumYear: maxDisplayedDate.year + 1,
+              minimumYear: widget.minDate.year,
+              maximumYear: widget.maxDisplayedDate.year + 1,
             ),
           );
         });
   }
 
   buildMaterialDatePicker(BuildContext context) async {
+    if(!context.mounted)return;
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: date,
-      firstDate: minDate,
-      lastDate: maxDisplayedDate,
+      firstDate: widget.minDate,
+      lastDate: widget.maxDisplayedDate,
       initialEntryMode: DatePickerEntryMode.calendar,
       initialDatePickerMode: DatePickerMode.day,
       selectableDayPredicate: _decideWhichDayToEnable,
@@ -147,6 +155,7 @@ class _DateTimeInputState extends State<DateTimeInput> {
       },
     );
     if (picked != null && picked != date) {
+      if(!mounted)return;
       setState(() {
         date = picked;
         isFirstTime = false;

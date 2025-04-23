@@ -20,6 +20,8 @@ class FullPostResponse {
 
   bool isLocal;
 
+  bool isSaved=false;
+
   FullPostResponse({
     required this.id,
     required this.description,

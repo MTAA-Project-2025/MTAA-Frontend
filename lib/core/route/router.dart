@@ -5,8 +5,16 @@ import 'package:mtaa_frontend/core/utils/app_injections.dart';
 import 'package:mtaa_frontend/features/groups/presentation/screens/userGroupListScreen.dart';
 import 'package:mtaa_frontend/features/images/data/storages/my_image_storage.dart';
 import 'package:mtaa_frontend/features/images/presentation/widgets/test.dart';
+import 'package:mtaa_frontend/features/locations/data/models/requests/add_location_request.dart';
+import 'package:mtaa_frontend/features/locations/data/models/responses/simple_location_point_response.dart';
+import 'package:mtaa_frontend/features/locations/data/repositories/locations_repository.dart';
+import 'package:mtaa_frontend/features/locations/presentation/screens/location_cluster_points_screen.dart';
+import 'package:mtaa_frontend/features/locations/presentation/screens/main_location_map_screen.dart';
+import 'package:mtaa_frontend/features/locations/presentation/screens/one_point_screen_widget.dart';
+import 'package:mtaa_frontend/features/locations/presentation/screens/saved_location_points_screen.dart';
 import 'package:mtaa_frontend/features/posts/data/models/responses/full_post_response.dart';
 import 'package:mtaa_frontend/features/posts/data/repositories/posts_repository.dart';
+import 'package:mtaa_frontend/features/posts/presentation/screens/add_post_location_screen.dart';
 import 'package:mtaa_frontend/features/posts/presentation/screens/add_post_screen.dart';
 import 'package:mtaa_frontend/features/posts/presentation/screens/full_post_screen.dart';
 import 'package:mtaa_frontend/features/posts/presentation/screens/post_recommendations_screen.dart';
@@ -25,6 +33,7 @@ import 'package:mtaa_frontend/features/users/authentication/sign-up/presentation
 import 'package:mtaa_frontend/features/users/authentication/sign-up/presentation/screens/startScreen.dart';
 import 'package:mtaa_frontend/features/users/authentication/sign-up/presentation/screens/startSignUpScreen.dart';
 import 'package:mtaa_frontend/features/users/authentication/log-in/presentation/screens/logInScreen.dart';
+import 'package:uuid/uuid_value.dart';
 
 class AppRouter {
   static GoRouter createRouter(String initialRoute) {
@@ -87,8 +96,20 @@ class AppRouter {
             FullPostResponse? post;
             if(state.extra!=null && state.extra is FullPostResponse) post = state.extra as FullPostResponse;
             
-            return UpdatePostScreen(repository: getIt<PostsRepository>(), toastService: getIt<MyToastService>(), imageStorage: getIt<MyImageStorage>(), post:post!);
+            return UpdatePostScreen(repository: getIt<PostsRepository>(), toastService: getIt<MyToastService>(), imageStorage: getIt<MyImageStorage>(), post:post!, locationsRepository: getIt<LocationsRepository>());
           }  
+        ),
+        GoRoute(path: onePointScreenRoute,
+          builder: (context, state) {
+            SimpleLocationPointResponse? point;
+            if(state.extra!=null && state.extra is SimpleLocationPointResponse) point = state.extra as SimpleLocationPointResponse;
+            String? pointIdStr = state.pathParameters['id'];
+            UuidValue? pointId;
+            if(pointIdStr!=null && pointIdStr.isNotEmpty) {
+              pointId = UuidValue.fromString(pointIdStr);
+            }
+            return OnePointScreenScreen(repository: getIt<LocationsRepository>(), toastService: getIt<MyToastService>(), point: point, pointId: pointId,);
+          }
         ),
         GoRoute(
           path: userSettingsScreenRoute,
@@ -98,13 +119,37 @@ class AppRouter {
           path: globalSearchScreenRoute,
           builder: (context, state) => PostsGlobalSearchScreen(repository: getIt<PostsRepository>())
         ),
+        GoRoute(path: userMapScreenRoute,
+          builder: (context, state) => MainLocationMapScreen(repository: getIt<LocationsRepository>(),toastService: getIt<MyToastService>())
+        ),
         GoRoute(
           path: '$fullPostScreenRoute/:id',	
           builder: (context, state) {
             FullPostResponse? post;
             if(state.extra!=null && state.extra is FullPostResponse) post = state.extra as FullPostResponse;
             String? postId = state.pathParameters['id']!;
-            return FullPostScreen(repository: getIt<PostsRepository>(), postId: postId, post: post);
+            return FullPostScreen(repository: getIt<PostsRepository>(), postId: postId, post: post, locationsRepository: getIt<LocationsRepository>());
+          }
+        ),
+        GoRoute(
+          path: addPostLocationScreenRoute,	
+          builder: (context, state) {
+            AddLocationRequest? request;
+            if(state.extra!=null && state.extra is AddLocationRequest) request = state.extra as AddLocationRequest;
+            return AddPostLocationScreen(toastService: getIt<MyToastService>(), addLocationRequest: request!);
+          }
+        ),
+        GoRoute(
+          path: '$locationClusterPointsScreenRoute/:id',	
+          builder: (context, state) {
+            String? clusterId = state.pathParameters['id']!;
+            return LocationClusterPointsScreen(repository: getIt<LocationsRepository>(), clusterId: UuidValue.fromString(clusterId));
+          }
+        ),
+        GoRoute(
+          path: locationClusterPointsScreenRoute,	
+          builder: (context, state) {
+            return SavedLocationsPointsScreen(repository: getIt<PostsRepository>());
           }
         ),
         GoRoute(

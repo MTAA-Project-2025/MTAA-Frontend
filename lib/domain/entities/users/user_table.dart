@@ -16,4 +16,7 @@ class Users extends Table{
   BoolColumn get isSimple => boolean()();
 
   BoolColumn get isTempRecommendation => boolean()();
+
+  @override
+  Set<Column> get primaryKey => {id};
 }

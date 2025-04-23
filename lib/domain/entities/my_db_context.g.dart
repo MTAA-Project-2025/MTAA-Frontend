@@ -177,7 +177,7 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => const {};
+  Set<GeneratedColumn> get $primaryKey => {id};
   @override
   User map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
@@ -653,7 +653,7 @@ class $PostsTable extends Posts with TableInfo<$PostsTable, Post> {
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => const {};
+  Set<GeneratedColumn> get $primaryKey => {id};
   @override
   Post map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
@@ -938,7 +938,7 @@ class $MyImageGroupsTable extends MyImageGroups
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => const {};
+  Set<GeneratedColumn> get $primaryKey => {id};
   @override
   MyImageGroup map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
@@ -1170,6 +1170,981 @@ class MyImageGroupsCompanion extends UpdateCompanion<MyImageGroup> {
   }
 }
 
+class $SimpleLocationPointsTable extends SimpleLocationPoints
+    with TableInfo<$SimpleLocationPointsTable, SimpleLocationPoint> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SimpleLocationPointsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _postIdMeta = const VerificationMeta('postId');
+  @override
+  late final GeneratedColumn<String> postId = GeneratedColumn<String>(
+      'post_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _longitudeMeta =
+      const VerificationMeta('longitude');
+  @override
+  late final GeneratedColumn<double> longitude = GeneratedColumn<double>(
+      'longitude', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _latitudeMeta =
+      const VerificationMeta('latitude');
+  @override
+  late final GeneratedColumn<double> latitude = GeneratedColumn<double>(
+      'latitude', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _typeMeta = const VerificationMeta('type');
+  @override
+  late final GeneratedColumn<int> type = GeneratedColumn<int>(
+      'type', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _zoomLevelMeta =
+      const VerificationMeta('zoomLevel');
+  @override
+  late final GeneratedColumn<int> zoomLevel = GeneratedColumn<int>(
+      'zoom_level', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _childCountMeta =
+      const VerificationMeta('childCount');
+  @override
+  late final GeneratedColumn<int> childCount = GeneratedColumn<int>(
+      'child_count', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _imageIdMeta =
+      const VerificationMeta('imageId');
+  @override
+  late final GeneratedColumn<String> imageId = GeneratedColumn<String>(
+      'image_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _currentUserMeta =
+      const VerificationMeta('currentUser');
+  @override
+  late final GeneratedColumn<String> currentUser = GeneratedColumn<String>(
+      'current_user', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        postId,
+        longitude,
+        latitude,
+        type,
+        zoomLevel,
+        childCount,
+        imageId,
+        currentUser
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'simple_location_points';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<SimpleLocationPoint> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('post_id')) {
+      context.handle(_postIdMeta,
+          postId.isAcceptableOrUnknown(data['post_id']!, _postIdMeta));
+    }
+    if (data.containsKey('longitude')) {
+      context.handle(_longitudeMeta,
+          longitude.isAcceptableOrUnknown(data['longitude']!, _longitudeMeta));
+    } else if (isInserting) {
+      context.missing(_longitudeMeta);
+    }
+    if (data.containsKey('latitude')) {
+      context.handle(_latitudeMeta,
+          latitude.isAcceptableOrUnknown(data['latitude']!, _latitudeMeta));
+    } else if (isInserting) {
+      context.missing(_latitudeMeta);
+    }
+    if (data.containsKey('type')) {
+      context.handle(
+          _typeMeta, type.isAcceptableOrUnknown(data['type']!, _typeMeta));
+    } else if (isInserting) {
+      context.missing(_typeMeta);
+    }
+    if (data.containsKey('zoom_level')) {
+      context.handle(_zoomLevelMeta,
+          zoomLevel.isAcceptableOrUnknown(data['zoom_level']!, _zoomLevelMeta));
+    } else if (isInserting) {
+      context.missing(_zoomLevelMeta);
+    }
+    if (data.containsKey('child_count')) {
+      context.handle(
+          _childCountMeta,
+          childCount.isAcceptableOrUnknown(
+              data['child_count']!, _childCountMeta));
+    } else if (isInserting) {
+      context.missing(_childCountMeta);
+    }
+    if (data.containsKey('image_id')) {
+      context.handle(_imageIdMeta,
+          imageId.isAcceptableOrUnknown(data['image_id']!, _imageIdMeta));
+    }
+    if (data.containsKey('current_user')) {
+      context.handle(
+          _currentUserMeta,
+          currentUser.isAcceptableOrUnknown(
+              data['current_user']!, _currentUserMeta));
+    } else if (isInserting) {
+      context.missing(_currentUserMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  SimpleLocationPoint map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SimpleLocationPoint(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      postId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}post_id']),
+      longitude: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}longitude'])!,
+      latitude: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}latitude'])!,
+      type: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}type'])!,
+      zoomLevel: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}zoom_level'])!,
+      childCount: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}child_count'])!,
+      imageId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}image_id']),
+      currentUser: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}current_user'])!,
+    );
+  }
+
+  @override
+  $SimpleLocationPointsTable createAlias(String alias) {
+    return $SimpleLocationPointsTable(attachedDatabase, alias);
+  }
+}
+
+class SimpleLocationPoint extends DataClass
+    implements Insertable<SimpleLocationPoint> {
+  final String id;
+  final String? postId;
+  final double longitude;
+  final double latitude;
+  final int type;
+  final int zoomLevel;
+  final int childCount;
+  final String? imageId;
+  final String currentUser;
+  const SimpleLocationPoint(
+      {required this.id,
+      this.postId,
+      required this.longitude,
+      required this.latitude,
+      required this.type,
+      required this.zoomLevel,
+      required this.childCount,
+      this.imageId,
+      required this.currentUser});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    if (!nullToAbsent || postId != null) {
+      map['post_id'] = Variable<String>(postId);
+    }
+    map['longitude'] = Variable<double>(longitude);
+    map['latitude'] = Variable<double>(latitude);
+    map['type'] = Variable<int>(type);
+    map['zoom_level'] = Variable<int>(zoomLevel);
+    map['child_count'] = Variable<int>(childCount);
+    if (!nullToAbsent || imageId != null) {
+      map['image_id'] = Variable<String>(imageId);
+    }
+    map['current_user'] = Variable<String>(currentUser);
+    return map;
+  }
+
+  SimpleLocationPointsCompanion toCompanion(bool nullToAbsent) {
+    return SimpleLocationPointsCompanion(
+      id: Value(id),
+      postId:
+          postId == null && nullToAbsent ? const Value.absent() : Value(postId),
+      longitude: Value(longitude),
+      latitude: Value(latitude),
+      type: Value(type),
+      zoomLevel: Value(zoomLevel),
+      childCount: Value(childCount),
+      imageId: imageId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(imageId),
+      currentUser: Value(currentUser),
+    );
+  }
+
+  factory SimpleLocationPoint.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SimpleLocationPoint(
+      id: serializer.fromJson<String>(json['id']),
+      postId: serializer.fromJson<String?>(json['postId']),
+      longitude: serializer.fromJson<double>(json['longitude']),
+      latitude: serializer.fromJson<double>(json['latitude']),
+      type: serializer.fromJson<int>(json['type']),
+      zoomLevel: serializer.fromJson<int>(json['zoomLevel']),
+      childCount: serializer.fromJson<int>(json['childCount']),
+      imageId: serializer.fromJson<String?>(json['imageId']),
+      currentUser: serializer.fromJson<String>(json['currentUser']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'postId': serializer.toJson<String?>(postId),
+      'longitude': serializer.toJson<double>(longitude),
+      'latitude': serializer.toJson<double>(latitude),
+      'type': serializer.toJson<int>(type),
+      'zoomLevel': serializer.toJson<int>(zoomLevel),
+      'childCount': serializer.toJson<int>(childCount),
+      'imageId': serializer.toJson<String?>(imageId),
+      'currentUser': serializer.toJson<String>(currentUser),
+    };
+  }
+
+  SimpleLocationPoint copyWith(
+          {String? id,
+          Value<String?> postId = const Value.absent(),
+          double? longitude,
+          double? latitude,
+          int? type,
+          int? zoomLevel,
+          int? childCount,
+          Value<String?> imageId = const Value.absent(),
+          String? currentUser}) =>
+      SimpleLocationPoint(
+        id: id ?? this.id,
+        postId: postId.present ? postId.value : this.postId,
+        longitude: longitude ?? this.longitude,
+        latitude: latitude ?? this.latitude,
+        type: type ?? this.type,
+        zoomLevel: zoomLevel ?? this.zoomLevel,
+        childCount: childCount ?? this.childCount,
+        imageId: imageId.present ? imageId.value : this.imageId,
+        currentUser: currentUser ?? this.currentUser,
+      );
+  SimpleLocationPoint copyWithCompanion(SimpleLocationPointsCompanion data) {
+    return SimpleLocationPoint(
+      id: data.id.present ? data.id.value : this.id,
+      postId: data.postId.present ? data.postId.value : this.postId,
+      longitude: data.longitude.present ? data.longitude.value : this.longitude,
+      latitude: data.latitude.present ? data.latitude.value : this.latitude,
+      type: data.type.present ? data.type.value : this.type,
+      zoomLevel: data.zoomLevel.present ? data.zoomLevel.value : this.zoomLevel,
+      childCount:
+          data.childCount.present ? data.childCount.value : this.childCount,
+      imageId: data.imageId.present ? data.imageId.value : this.imageId,
+      currentUser:
+          data.currentUser.present ? data.currentUser.value : this.currentUser,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SimpleLocationPoint(')
+          ..write('id: $id, ')
+          ..write('postId: $postId, ')
+          ..write('longitude: $longitude, ')
+          ..write('latitude: $latitude, ')
+          ..write('type: $type, ')
+          ..write('zoomLevel: $zoomLevel, ')
+          ..write('childCount: $childCount, ')
+          ..write('imageId: $imageId, ')
+          ..write('currentUser: $currentUser')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, postId, longitude, latitude, type,
+      zoomLevel, childCount, imageId, currentUser);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SimpleLocationPoint &&
+          other.id == this.id &&
+          other.postId == this.postId &&
+          other.longitude == this.longitude &&
+          other.latitude == this.latitude &&
+          other.type == this.type &&
+          other.zoomLevel == this.zoomLevel &&
+          other.childCount == this.childCount &&
+          other.imageId == this.imageId &&
+          other.currentUser == this.currentUser);
+}
+
+class SimpleLocationPointsCompanion
+    extends UpdateCompanion<SimpleLocationPoint> {
+  final Value<String> id;
+  final Value<String?> postId;
+  final Value<double> longitude;
+  final Value<double> latitude;
+  final Value<int> type;
+  final Value<int> zoomLevel;
+  final Value<int> childCount;
+  final Value<String?> imageId;
+  final Value<String> currentUser;
+  final Value<int> rowid;
+  const SimpleLocationPointsCompanion({
+    this.id = const Value.absent(),
+    this.postId = const Value.absent(),
+    this.longitude = const Value.absent(),
+    this.latitude = const Value.absent(),
+    this.type = const Value.absent(),
+    this.zoomLevel = const Value.absent(),
+    this.childCount = const Value.absent(),
+    this.imageId = const Value.absent(),
+    this.currentUser = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  SimpleLocationPointsCompanion.insert({
+    required String id,
+    this.postId = const Value.absent(),
+    required double longitude,
+    required double latitude,
+    required int type,
+    required int zoomLevel,
+    required int childCount,
+    this.imageId = const Value.absent(),
+    required String currentUser,
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        longitude = Value(longitude),
+        latitude = Value(latitude),
+        type = Value(type),
+        zoomLevel = Value(zoomLevel),
+        childCount = Value(childCount),
+        currentUser = Value(currentUser);
+  static Insertable<SimpleLocationPoint> custom({
+    Expression<String>? id,
+    Expression<String>? postId,
+    Expression<double>? longitude,
+    Expression<double>? latitude,
+    Expression<int>? type,
+    Expression<int>? zoomLevel,
+    Expression<int>? childCount,
+    Expression<String>? imageId,
+    Expression<String>? currentUser,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (postId != null) 'post_id': postId,
+      if (longitude != null) 'longitude': longitude,
+      if (latitude != null) 'latitude': latitude,
+      if (type != null) 'type': type,
+      if (zoomLevel != null) 'zoom_level': zoomLevel,
+      if (childCount != null) 'child_count': childCount,
+      if (imageId != null) 'image_id': imageId,
+      if (currentUser != null) 'current_user': currentUser,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  SimpleLocationPointsCompanion copyWith(
+      {Value<String>? id,
+      Value<String?>? postId,
+      Value<double>? longitude,
+      Value<double>? latitude,
+      Value<int>? type,
+      Value<int>? zoomLevel,
+      Value<int>? childCount,
+      Value<String?>? imageId,
+      Value<String>? currentUser,
+      Value<int>? rowid}) {
+    return SimpleLocationPointsCompanion(
+      id: id ?? this.id,
+      postId: postId ?? this.postId,
+      longitude: longitude ?? this.longitude,
+      latitude: latitude ?? this.latitude,
+      type: type ?? this.type,
+      zoomLevel: zoomLevel ?? this.zoomLevel,
+      childCount: childCount ?? this.childCount,
+      imageId: imageId ?? this.imageId,
+      currentUser: currentUser ?? this.currentUser,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (postId.present) {
+      map['post_id'] = Variable<String>(postId.value);
+    }
+    if (longitude.present) {
+      map['longitude'] = Variable<double>(longitude.value);
+    }
+    if (latitude.present) {
+      map['latitude'] = Variable<double>(latitude.value);
+    }
+    if (type.present) {
+      map['type'] = Variable<int>(type.value);
+    }
+    if (zoomLevel.present) {
+      map['zoom_level'] = Variable<int>(zoomLevel.value);
+    }
+    if (childCount.present) {
+      map['child_count'] = Variable<int>(childCount.value);
+    }
+    if (imageId.present) {
+      map['image_id'] = Variable<String>(imageId.value);
+    }
+    if (currentUser.present) {
+      map['current_user'] = Variable<String>(currentUser.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SimpleLocationPointsCompanion(')
+          ..write('id: $id, ')
+          ..write('postId: $postId, ')
+          ..write('longitude: $longitude, ')
+          ..write('latitude: $latitude, ')
+          ..write('type: $type, ')
+          ..write('zoomLevel: $zoomLevel, ')
+          ..write('childCount: $childCount, ')
+          ..write('imageId: $imageId, ')
+          ..write('currentUser: $currentUser, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $LocationPostsTable extends LocationPosts
+    with TableInfo<$LocationPostsTable, LocationPost> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LocationPostsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _locationIdMeta =
+      const VerificationMeta('locationId');
+  @override
+  late final GeneratedColumn<String> locationId = GeneratedColumn<String>(
+      'location_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _eventTimeMeta =
+      const VerificationMeta('eventTime');
+  @override
+  late final GeneratedColumn<DateTime> eventTime = GeneratedColumn<DateTime>(
+      'event_time', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _descriptionMeta =
+      const VerificationMeta('description');
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+      'description', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _ownerDisplayNameMeta =
+      const VerificationMeta('ownerDisplayName');
+  @override
+  late final GeneratedColumn<String> ownerDisplayName = GeneratedColumn<String>(
+      'owner_display_name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _pointIdMeta =
+      const VerificationMeta('pointId');
+  @override
+  late final GeneratedColumn<String> pointId = GeneratedColumn<String>(
+      'point_id', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES simple_location_points (id)'));
+  static const VerificationMeta _smallFirstImageIdMeta =
+      const VerificationMeta('smallFirstImageId');
+  @override
+  late final GeneratedColumn<String> smallFirstImageId =
+      GeneratedColumn<String>('small_first_image_id', aliasedName, false,
+          type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _dataCreationTimeMeta =
+      const VerificationMeta('dataCreationTime');
+  @override
+  late final GeneratedColumn<DateTime> dataCreationTime =
+      GeneratedColumn<DateTime>('data_creation_time', aliasedName, false,
+          type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _currentUserMeta =
+      const VerificationMeta('currentUser');
+  @override
+  late final GeneratedColumn<String> currentUser = GeneratedColumn<String>(
+      'current_user', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        locationId,
+        eventTime,
+        description,
+        ownerDisplayName,
+        pointId,
+        smallFirstImageId,
+        dataCreationTime,
+        currentUser
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'location_posts';
+  @override
+  VerificationContext validateIntegrity(Insertable<LocationPost> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('location_id')) {
+      context.handle(
+          _locationIdMeta,
+          locationId.isAcceptableOrUnknown(
+              data['location_id']!, _locationIdMeta));
+    }
+    if (data.containsKey('event_time')) {
+      context.handle(_eventTimeMeta,
+          eventTime.isAcceptableOrUnknown(data['event_time']!, _eventTimeMeta));
+    } else if (isInserting) {
+      context.missing(_eventTimeMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+          _descriptionMeta,
+          description.isAcceptableOrUnknown(
+              data['description']!, _descriptionMeta));
+    } else if (isInserting) {
+      context.missing(_descriptionMeta);
+    }
+    if (data.containsKey('owner_display_name')) {
+      context.handle(
+          _ownerDisplayNameMeta,
+          ownerDisplayName.isAcceptableOrUnknown(
+              data['owner_display_name']!, _ownerDisplayNameMeta));
+    } else if (isInserting) {
+      context.missing(_ownerDisplayNameMeta);
+    }
+    if (data.containsKey('point_id')) {
+      context.handle(_pointIdMeta,
+          pointId.isAcceptableOrUnknown(data['point_id']!, _pointIdMeta));
+    } else if (isInserting) {
+      context.missing(_pointIdMeta);
+    }
+    if (data.containsKey('small_first_image_id')) {
+      context.handle(
+          _smallFirstImageIdMeta,
+          smallFirstImageId.isAcceptableOrUnknown(
+              data['small_first_image_id']!, _smallFirstImageIdMeta));
+    } else if (isInserting) {
+      context.missing(_smallFirstImageIdMeta);
+    }
+    if (data.containsKey('data_creation_time')) {
+      context.handle(
+          _dataCreationTimeMeta,
+          dataCreationTime.isAcceptableOrUnknown(
+              data['data_creation_time']!, _dataCreationTimeMeta));
+    } else if (isInserting) {
+      context.missing(_dataCreationTimeMeta);
+    }
+    if (data.containsKey('current_user')) {
+      context.handle(
+          _currentUserMeta,
+          currentUser.isAcceptableOrUnknown(
+              data['current_user']!, _currentUserMeta));
+    } else if (isInserting) {
+      context.missing(_currentUserMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  LocationPost map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LocationPost(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      locationId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}location_id']),
+      eventTime: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}event_time'])!,
+      description: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}description'])!,
+      ownerDisplayName: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}owner_display_name'])!,
+      pointId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}point_id'])!,
+      smallFirstImageId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}small_first_image_id'])!,
+      dataCreationTime: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}data_creation_time'])!,
+      currentUser: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}current_user'])!,
+    );
+  }
+
+  @override
+  $LocationPostsTable createAlias(String alias) {
+    return $LocationPostsTable(attachedDatabase, alias);
+  }
+}
+
+class LocationPost extends DataClass implements Insertable<LocationPost> {
+  final String id;
+  final String? locationId;
+  final DateTime eventTime;
+  final String description;
+  final String ownerDisplayName;
+  final String pointId;
+  final String smallFirstImageId;
+  final DateTime dataCreationTime;
+  final String currentUser;
+  const LocationPost(
+      {required this.id,
+      this.locationId,
+      required this.eventTime,
+      required this.description,
+      required this.ownerDisplayName,
+      required this.pointId,
+      required this.smallFirstImageId,
+      required this.dataCreationTime,
+      required this.currentUser});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    if (!nullToAbsent || locationId != null) {
+      map['location_id'] = Variable<String>(locationId);
+    }
+    map['event_time'] = Variable<DateTime>(eventTime);
+    map['description'] = Variable<String>(description);
+    map['owner_display_name'] = Variable<String>(ownerDisplayName);
+    map['point_id'] = Variable<String>(pointId);
+    map['small_first_image_id'] = Variable<String>(smallFirstImageId);
+    map['data_creation_time'] = Variable<DateTime>(dataCreationTime);
+    map['current_user'] = Variable<String>(currentUser);
+    return map;
+  }
+
+  LocationPostsCompanion toCompanion(bool nullToAbsent) {
+    return LocationPostsCompanion(
+      id: Value(id),
+      locationId: locationId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(locationId),
+      eventTime: Value(eventTime),
+      description: Value(description),
+      ownerDisplayName: Value(ownerDisplayName),
+      pointId: Value(pointId),
+      smallFirstImageId: Value(smallFirstImageId),
+      dataCreationTime: Value(dataCreationTime),
+      currentUser: Value(currentUser),
+    );
+  }
+
+  factory LocationPost.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LocationPost(
+      id: serializer.fromJson<String>(json['id']),
+      locationId: serializer.fromJson<String?>(json['locationId']),
+      eventTime: serializer.fromJson<DateTime>(json['eventTime']),
+      description: serializer.fromJson<String>(json['description']),
+      ownerDisplayName: serializer.fromJson<String>(json['ownerDisplayName']),
+      pointId: serializer.fromJson<String>(json['pointId']),
+      smallFirstImageId: serializer.fromJson<String>(json['smallFirstImageId']),
+      dataCreationTime: serializer.fromJson<DateTime>(json['dataCreationTime']),
+      currentUser: serializer.fromJson<String>(json['currentUser']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'locationId': serializer.toJson<String?>(locationId),
+      'eventTime': serializer.toJson<DateTime>(eventTime),
+      'description': serializer.toJson<String>(description),
+      'ownerDisplayName': serializer.toJson<String>(ownerDisplayName),
+      'pointId': serializer.toJson<String>(pointId),
+      'smallFirstImageId': serializer.toJson<String>(smallFirstImageId),
+      'dataCreationTime': serializer.toJson<DateTime>(dataCreationTime),
+      'currentUser': serializer.toJson<String>(currentUser),
+    };
+  }
+
+  LocationPost copyWith(
+          {String? id,
+          Value<String?> locationId = const Value.absent(),
+          DateTime? eventTime,
+          String? description,
+          String? ownerDisplayName,
+          String? pointId,
+          String? smallFirstImageId,
+          DateTime? dataCreationTime,
+          String? currentUser}) =>
+      LocationPost(
+        id: id ?? this.id,
+        locationId: locationId.present ? locationId.value : this.locationId,
+        eventTime: eventTime ?? this.eventTime,
+        description: description ?? this.description,
+        ownerDisplayName: ownerDisplayName ?? this.ownerDisplayName,
+        pointId: pointId ?? this.pointId,
+        smallFirstImageId: smallFirstImageId ?? this.smallFirstImageId,
+        dataCreationTime: dataCreationTime ?? this.dataCreationTime,
+        currentUser: currentUser ?? this.currentUser,
+      );
+  LocationPost copyWithCompanion(LocationPostsCompanion data) {
+    return LocationPost(
+      id: data.id.present ? data.id.value : this.id,
+      locationId:
+          data.locationId.present ? data.locationId.value : this.locationId,
+      eventTime: data.eventTime.present ? data.eventTime.value : this.eventTime,
+      description:
+          data.description.present ? data.description.value : this.description,
+      ownerDisplayName: data.ownerDisplayName.present
+          ? data.ownerDisplayName.value
+          : this.ownerDisplayName,
+      pointId: data.pointId.present ? data.pointId.value : this.pointId,
+      smallFirstImageId: data.smallFirstImageId.present
+          ? data.smallFirstImageId.value
+          : this.smallFirstImageId,
+      dataCreationTime: data.dataCreationTime.present
+          ? data.dataCreationTime.value
+          : this.dataCreationTime,
+      currentUser:
+          data.currentUser.present ? data.currentUser.value : this.currentUser,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocationPost(')
+          ..write('id: $id, ')
+          ..write('locationId: $locationId, ')
+          ..write('eventTime: $eventTime, ')
+          ..write('description: $description, ')
+          ..write('ownerDisplayName: $ownerDisplayName, ')
+          ..write('pointId: $pointId, ')
+          ..write('smallFirstImageId: $smallFirstImageId, ')
+          ..write('dataCreationTime: $dataCreationTime, ')
+          ..write('currentUser: $currentUser')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id,
+      locationId,
+      eventTime,
+      description,
+      ownerDisplayName,
+      pointId,
+      smallFirstImageId,
+      dataCreationTime,
+      currentUser);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LocationPost &&
+          other.id == this.id &&
+          other.locationId == this.locationId &&
+          other.eventTime == this.eventTime &&
+          other.description == this.description &&
+          other.ownerDisplayName == this.ownerDisplayName &&
+          other.pointId == this.pointId &&
+          other.smallFirstImageId == this.smallFirstImageId &&
+          other.dataCreationTime == this.dataCreationTime &&
+          other.currentUser == this.currentUser);
+}
+
+class LocationPostsCompanion extends UpdateCompanion<LocationPost> {
+  final Value<String> id;
+  final Value<String?> locationId;
+  final Value<DateTime> eventTime;
+  final Value<String> description;
+  final Value<String> ownerDisplayName;
+  final Value<String> pointId;
+  final Value<String> smallFirstImageId;
+  final Value<DateTime> dataCreationTime;
+  final Value<String> currentUser;
+  final Value<int> rowid;
+  const LocationPostsCompanion({
+    this.id = const Value.absent(),
+    this.locationId = const Value.absent(),
+    this.eventTime = const Value.absent(),
+    this.description = const Value.absent(),
+    this.ownerDisplayName = const Value.absent(),
+    this.pointId = const Value.absent(),
+    this.smallFirstImageId = const Value.absent(),
+    this.dataCreationTime = const Value.absent(),
+    this.currentUser = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  LocationPostsCompanion.insert({
+    required String id,
+    this.locationId = const Value.absent(),
+    required DateTime eventTime,
+    required String description,
+    required String ownerDisplayName,
+    required String pointId,
+    required String smallFirstImageId,
+    required DateTime dataCreationTime,
+    required String currentUser,
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        eventTime = Value(eventTime),
+        description = Value(description),
+        ownerDisplayName = Value(ownerDisplayName),
+        pointId = Value(pointId),
+        smallFirstImageId = Value(smallFirstImageId),
+        dataCreationTime = Value(dataCreationTime),
+        currentUser = Value(currentUser);
+  static Insertable<LocationPost> custom({
+    Expression<String>? id,
+    Expression<String>? locationId,
+    Expression<DateTime>? eventTime,
+    Expression<String>? description,
+    Expression<String>? ownerDisplayName,
+    Expression<String>? pointId,
+    Expression<String>? smallFirstImageId,
+    Expression<DateTime>? dataCreationTime,
+    Expression<String>? currentUser,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (locationId != null) 'location_id': locationId,
+      if (eventTime != null) 'event_time': eventTime,
+      if (description != null) 'description': description,
+      if (ownerDisplayName != null) 'owner_display_name': ownerDisplayName,
+      if (pointId != null) 'point_id': pointId,
+      if (smallFirstImageId != null) 'small_first_image_id': smallFirstImageId,
+      if (dataCreationTime != null) 'data_creation_time': dataCreationTime,
+      if (currentUser != null) 'current_user': currentUser,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  LocationPostsCompanion copyWith(
+      {Value<String>? id,
+      Value<String?>? locationId,
+      Value<DateTime>? eventTime,
+      Value<String>? description,
+      Value<String>? ownerDisplayName,
+      Value<String>? pointId,
+      Value<String>? smallFirstImageId,
+      Value<DateTime>? dataCreationTime,
+      Value<String>? currentUser,
+      Value<int>? rowid}) {
+    return LocationPostsCompanion(
+      id: id ?? this.id,
+      locationId: locationId ?? this.locationId,
+      eventTime: eventTime ?? this.eventTime,
+      description: description ?? this.description,
+      ownerDisplayName: ownerDisplayName ?? this.ownerDisplayName,
+      pointId: pointId ?? this.pointId,
+      smallFirstImageId: smallFirstImageId ?? this.smallFirstImageId,
+      dataCreationTime: dataCreationTime ?? this.dataCreationTime,
+      currentUser: currentUser ?? this.currentUser,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (locationId.present) {
+      map['location_id'] = Variable<String>(locationId.value);
+    }
+    if (eventTime.present) {
+      map['event_time'] = Variable<DateTime>(eventTime.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (ownerDisplayName.present) {
+      map['owner_display_name'] = Variable<String>(ownerDisplayName.value);
+    }
+    if (pointId.present) {
+      map['point_id'] = Variable<String>(pointId.value);
+    }
+    if (smallFirstImageId.present) {
+      map['small_first_image_id'] = Variable<String>(smallFirstImageId.value);
+    }
+    if (dataCreationTime.present) {
+      map['data_creation_time'] = Variable<DateTime>(dataCreationTime.value);
+    }
+    if (currentUser.present) {
+      map['current_user'] = Variable<String>(currentUser.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocationPostsCompanion(')
+          ..write('id: $id, ')
+          ..write('locationId: $locationId, ')
+          ..write('eventTime: $eventTime, ')
+          ..write('description: $description, ')
+          ..write('ownerDisplayName: $ownerDisplayName, ')
+          ..write('pointId: $pointId, ')
+          ..write('smallFirstImageId: $smallFirstImageId, ')
+          ..write('dataCreationTime: $dataCreationTime, ')
+          ..write('currentUser: $currentUser, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $MyImagesTable extends MyImages with TableInfo<$MyImagesTable, MyImage> {
   @override
   final GeneratedDatabase attachedDatabase;
@@ -1242,6 +2217,24 @@ class $MyImagesTable extends MyImages with TableInfo<$MyImagesTable, MyImage> {
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('REFERENCES posts (id)'));
+  static const VerificationMeta _locationPostIdMeta =
+      const VerificationMeta('locationPostId');
+  @override
+  late final GeneratedColumn<String> locationPostId = GeneratedColumn<String>(
+      'location_post_id', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('REFERENCES location_posts (id)'));
+  static const VerificationMeta _simpleLocationPointIdMeta =
+      const VerificationMeta('simpleLocationPointId');
+  @override
+  late final GeneratedColumn<String> simpleLocationPointId =
+      GeneratedColumn<String>('simple_location_point_id', aliasedName, true,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          defaultConstraints: GeneratedColumn.constraintIsAlways(
+              'REFERENCES simple_location_points (id)'));
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -1254,7 +2247,9 @@ class $MyImagesTable extends MyImages with TableInfo<$MyImagesTable, MyImage> {
         aspectRatio,
         type,
         myImageGroupId,
-        postId
+        postId,
+        locationPostId,
+        simpleLocationPointId
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1335,11 +2330,23 @@ class $MyImagesTable extends MyImages with TableInfo<$MyImagesTable, MyImage> {
       context.handle(_postIdMeta,
           postId.isAcceptableOrUnknown(data['post_id']!, _postIdMeta));
     }
+    if (data.containsKey('location_post_id')) {
+      context.handle(
+          _locationPostIdMeta,
+          locationPostId.isAcceptableOrUnknown(
+              data['location_post_id']!, _locationPostIdMeta));
+    }
+    if (data.containsKey('simple_location_point_id')) {
+      context.handle(
+          _simpleLocationPointIdMeta,
+          simpleLocationPointId.isAcceptableOrUnknown(
+              data['simple_location_point_id']!, _simpleLocationPointIdMeta));
+    }
     return context;
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => const {};
+  Set<GeneratedColumn> get $primaryKey => {id};
   @override
   MyImage map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
@@ -1366,6 +2373,11 @@ class $MyImagesTable extends MyImages with TableInfo<$MyImagesTable, MyImage> {
           DriftSqlType.string, data['${effectivePrefix}my_image_group_id'])!,
       postId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}post_id']),
+      locationPostId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}location_post_id']),
+      simpleLocationPointId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}simple_location_point_id']),
     );
   }
 
@@ -1387,6 +2399,8 @@ class MyImage extends DataClass implements Insertable<MyImage> {
   final int type;
   final String myImageGroupId;
   final String? postId;
+  final String? locationPostId;
+  final String? simpleLocationPointId;
   const MyImage(
       {required this.id,
       required this.shortPath,
@@ -1398,7 +2412,9 @@ class MyImage extends DataClass implements Insertable<MyImage> {
       required this.aspectRatio,
       required this.type,
       required this.myImageGroupId,
-      this.postId});
+      this.postId,
+      this.locationPostId,
+      this.simpleLocationPointId});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -1414,6 +2430,12 @@ class MyImage extends DataClass implements Insertable<MyImage> {
     map['my_image_group_id'] = Variable<String>(myImageGroupId);
     if (!nullToAbsent || postId != null) {
       map['post_id'] = Variable<String>(postId);
+    }
+    if (!nullToAbsent || locationPostId != null) {
+      map['location_post_id'] = Variable<String>(locationPostId);
+    }
+    if (!nullToAbsent || simpleLocationPointId != null) {
+      map['simple_location_point_id'] = Variable<String>(simpleLocationPointId);
     }
     return map;
   }
@@ -1432,6 +2454,12 @@ class MyImage extends DataClass implements Insertable<MyImage> {
       myImageGroupId: Value(myImageGroupId),
       postId:
           postId == null && nullToAbsent ? const Value.absent() : Value(postId),
+      locationPostId: locationPostId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(locationPostId),
+      simpleLocationPointId: simpleLocationPointId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(simpleLocationPointId),
     );
   }
 
@@ -1450,6 +2478,9 @@ class MyImage extends DataClass implements Insertable<MyImage> {
       type: serializer.fromJson<int>(json['type']),
       myImageGroupId: serializer.fromJson<String>(json['myImageGroupId']),
       postId: serializer.fromJson<String?>(json['postId']),
+      locationPostId: serializer.fromJson<String?>(json['locationPostId']),
+      simpleLocationPointId:
+          serializer.fromJson<String?>(json['simpleLocationPointId']),
     );
   }
   @override
@@ -1467,6 +2498,9 @@ class MyImage extends DataClass implements Insertable<MyImage> {
       'type': serializer.toJson<int>(type),
       'myImageGroupId': serializer.toJson<String>(myImageGroupId),
       'postId': serializer.toJson<String?>(postId),
+      'locationPostId': serializer.toJson<String?>(locationPostId),
+      'simpleLocationPointId':
+          serializer.toJson<String?>(simpleLocationPointId),
     };
   }
 
@@ -1481,7 +2515,9 @@ class MyImage extends DataClass implements Insertable<MyImage> {
           double? aspectRatio,
           int? type,
           String? myImageGroupId,
-          Value<String?> postId = const Value.absent()}) =>
+          Value<String?> postId = const Value.absent(),
+          Value<String?> locationPostId = const Value.absent(),
+          Value<String?> simpleLocationPointId = const Value.absent()}) =>
       MyImage(
         id: id ?? this.id,
         shortPath: shortPath ?? this.shortPath,
@@ -1494,6 +2530,11 @@ class MyImage extends DataClass implements Insertable<MyImage> {
         type: type ?? this.type,
         myImageGroupId: myImageGroupId ?? this.myImageGroupId,
         postId: postId.present ? postId.value : this.postId,
+        locationPostId:
+            locationPostId.present ? locationPostId.value : this.locationPostId,
+        simpleLocationPointId: simpleLocationPointId.present
+            ? simpleLocationPointId.value
+            : this.simpleLocationPointId,
       );
   MyImage copyWithCompanion(MyImagesCompanion data) {
     return MyImage(
@@ -1513,6 +2554,12 @@ class MyImage extends DataClass implements Insertable<MyImage> {
           ? data.myImageGroupId.value
           : this.myImageGroupId,
       postId: data.postId.present ? data.postId.value : this.postId,
+      locationPostId: data.locationPostId.present
+          ? data.locationPostId.value
+          : this.locationPostId,
+      simpleLocationPointId: data.simpleLocationPointId.present
+          ? data.simpleLocationPointId.value
+          : this.simpleLocationPointId,
     );
   }
 
@@ -1529,14 +2576,28 @@ class MyImage extends DataClass implements Insertable<MyImage> {
           ..write('aspectRatio: $aspectRatio, ')
           ..write('type: $type, ')
           ..write('myImageGroupId: $myImageGroupId, ')
-          ..write('postId: $postId')
+          ..write('postId: $postId, ')
+          ..write('locationPostId: $locationPostId, ')
+          ..write('simpleLocationPointId: $simpleLocationPointId')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, shortPath, fullPath, localFullPath,
-      fileType, height, width, aspectRatio, type, myImageGroupId, postId);
+  int get hashCode => Object.hash(
+      id,
+      shortPath,
+      fullPath,
+      localFullPath,
+      fileType,
+      height,
+      width,
+      aspectRatio,
+      type,
+      myImageGroupId,
+      postId,
+      locationPostId,
+      simpleLocationPointId);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1551,7 +2612,9 @@ class MyImage extends DataClass implements Insertable<MyImage> {
           other.aspectRatio == this.aspectRatio &&
           other.type == this.type &&
           other.myImageGroupId == this.myImageGroupId &&
-          other.postId == this.postId);
+          other.postId == this.postId &&
+          other.locationPostId == this.locationPostId &&
+          other.simpleLocationPointId == this.simpleLocationPointId);
 }
 
 class MyImagesCompanion extends UpdateCompanion<MyImage> {
@@ -1566,6 +2629,8 @@ class MyImagesCompanion extends UpdateCompanion<MyImage> {
   final Value<int> type;
   final Value<String> myImageGroupId;
   final Value<String?> postId;
+  final Value<String?> locationPostId;
+  final Value<String?> simpleLocationPointId;
   final Value<int> rowid;
   const MyImagesCompanion({
     this.id = const Value.absent(),
@@ -1579,6 +2644,8 @@ class MyImagesCompanion extends UpdateCompanion<MyImage> {
     this.type = const Value.absent(),
     this.myImageGroupId = const Value.absent(),
     this.postId = const Value.absent(),
+    this.locationPostId = const Value.absent(),
+    this.simpleLocationPointId = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   MyImagesCompanion.insert({
@@ -1593,6 +2660,8 @@ class MyImagesCompanion extends UpdateCompanion<MyImage> {
     required int type,
     required String myImageGroupId,
     this.postId = const Value.absent(),
+    this.locationPostId = const Value.absent(),
+    this.simpleLocationPointId = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : id = Value(id),
         shortPath = Value(shortPath),
@@ -1616,6 +2685,8 @@ class MyImagesCompanion extends UpdateCompanion<MyImage> {
     Expression<int>? type,
     Expression<String>? myImageGroupId,
     Expression<String>? postId,
+    Expression<String>? locationPostId,
+    Expression<String>? simpleLocationPointId,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -1630,6 +2701,9 @@ class MyImagesCompanion extends UpdateCompanion<MyImage> {
       if (type != null) 'type': type,
       if (myImageGroupId != null) 'my_image_group_id': myImageGroupId,
       if (postId != null) 'post_id': postId,
+      if (locationPostId != null) 'location_post_id': locationPostId,
+      if (simpleLocationPointId != null)
+        'simple_location_point_id': simpleLocationPointId,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -1646,6 +2720,8 @@ class MyImagesCompanion extends UpdateCompanion<MyImage> {
       Value<int>? type,
       Value<String>? myImageGroupId,
       Value<String?>? postId,
+      Value<String?>? locationPostId,
+      Value<String?>? simpleLocationPointId,
       Value<int>? rowid}) {
     return MyImagesCompanion(
       id: id ?? this.id,
@@ -1659,6 +2735,9 @@ class MyImagesCompanion extends UpdateCompanion<MyImage> {
       type: type ?? this.type,
       myImageGroupId: myImageGroupId ?? this.myImageGroupId,
       postId: postId ?? this.postId,
+      locationPostId: locationPostId ?? this.locationPostId,
+      simpleLocationPointId:
+          simpleLocationPointId ?? this.simpleLocationPointId,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -1699,6 +2778,13 @@ class MyImagesCompanion extends UpdateCompanion<MyImage> {
     if (postId.present) {
       map['post_id'] = Variable<String>(postId.value);
     }
+    if (locationPostId.present) {
+      map['location_post_id'] = Variable<String>(locationPostId.value);
+    }
+    if (simpleLocationPointId.present) {
+      map['simple_location_point_id'] =
+          Variable<String>(simpleLocationPointId.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -1719,6 +2805,8 @@ class MyImagesCompanion extends UpdateCompanion<MyImage> {
           ..write('type: $type, ')
           ..write('myImageGroupId: $myImageGroupId, ')
           ..write('postId: $postId, ')
+          ..write('locationPostId: $locationPostId, ')
+          ..write('simpleLocationPointId: $simpleLocationPointId, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -1757,7 +2845,7 @@ class $LocationsTable extends Locations
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => const {};
+  Set<GeneratedColumn> get $primaryKey => {id};
   @override
   Location map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
@@ -1884,14 +2972,24 @@ abstract class _$MyDbContext extends GeneratedDatabase {
   late final $UsersTable users = $UsersTable(this);
   late final $PostsTable posts = $PostsTable(this);
   late final $MyImageGroupsTable myImageGroups = $MyImageGroupsTable(this);
+  late final $SimpleLocationPointsTable simpleLocationPoints =
+      $SimpleLocationPointsTable(this);
+  late final $LocationPostsTable locationPosts = $LocationPostsTable(this);
   late final $MyImagesTable myImages = $MyImagesTable(this);
   late final $LocationsTable locations = $LocationsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [users, posts, myImageGroups, myImages, locations];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [
+        users,
+        posts,
+        myImageGroups,
+        simpleLocationPoints,
+        locationPosts,
+        myImages,
+        locations
+      ];
 }
 
 typedef $$UsersTableCreateCompanionBuilder = UsersCompanion Function({
@@ -3130,6 +4228,817 @@ typedef $$MyImageGroupsTableProcessedTableManager = ProcessedTableManager<
     (MyImageGroup, $$MyImageGroupsTableReferences),
     MyImageGroup,
     PrefetchHooks Function({bool postId, bool userId, bool myImagesRefs})>;
+typedef $$SimpleLocationPointsTableCreateCompanionBuilder
+    = SimpleLocationPointsCompanion Function({
+  required String id,
+  Value<String?> postId,
+  required double longitude,
+  required double latitude,
+  required int type,
+  required int zoomLevel,
+  required int childCount,
+  Value<String?> imageId,
+  required String currentUser,
+  Value<int> rowid,
+});
+typedef $$SimpleLocationPointsTableUpdateCompanionBuilder
+    = SimpleLocationPointsCompanion Function({
+  Value<String> id,
+  Value<String?> postId,
+  Value<double> longitude,
+  Value<double> latitude,
+  Value<int> type,
+  Value<int> zoomLevel,
+  Value<int> childCount,
+  Value<String?> imageId,
+  Value<String> currentUser,
+  Value<int> rowid,
+});
+
+final class $$SimpleLocationPointsTableReferences extends BaseReferences<
+    _$MyDbContext, $SimpleLocationPointsTable, SimpleLocationPoint> {
+  $$SimpleLocationPointsTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$LocationPostsTable, List<LocationPost>>
+      _locationPostsRefsTable(_$MyDbContext db) =>
+          MultiTypedResultKey.fromTable(db.locationPosts,
+              aliasName: $_aliasNameGenerator(
+                  db.simpleLocationPoints.id, db.locationPosts.pointId));
+
+  $$LocationPostsTableProcessedTableManager get locationPostsRefs {
+    final manager = $$LocationPostsTableTableManager($_db, $_db.locationPosts)
+        .filter((f) => f.pointId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_locationPostsRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+
+  static MultiTypedResultKey<$MyImagesTable, List<MyImage>> _myImagesRefsTable(
+          _$MyDbContext db) =>
+      MultiTypedResultKey.fromTable(db.myImages,
+          aliasName: $_aliasNameGenerator(
+              db.simpleLocationPoints.id, db.myImages.simpleLocationPointId));
+
+  $$MyImagesTableProcessedTableManager get myImagesRefs {
+    final manager = $$MyImagesTableTableManager($_db, $_db.myImages).filter(
+        (f) =>
+            f.simpleLocationPointId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_myImagesRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+}
+
+class $$SimpleLocationPointsTableFilterComposer
+    extends Composer<_$MyDbContext, $SimpleLocationPointsTable> {
+  $$SimpleLocationPointsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get postId => $composableBuilder(
+      column: $table.postId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get longitude => $composableBuilder(
+      column: $table.longitude, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get latitude => $composableBuilder(
+      column: $table.latitude, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get type => $composableBuilder(
+      column: $table.type, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get zoomLevel => $composableBuilder(
+      column: $table.zoomLevel, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get childCount => $composableBuilder(
+      column: $table.childCount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get imageId => $composableBuilder(
+      column: $table.imageId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get currentUser => $composableBuilder(
+      column: $table.currentUser, builder: (column) => ColumnFilters(column));
+
+  Expression<bool> locationPostsRefs(
+      Expression<bool> Function($$LocationPostsTableFilterComposer f) f) {
+    final $$LocationPostsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.locationPosts,
+        getReferencedColumn: (t) => t.pointId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$LocationPostsTableFilterComposer(
+              $db: $db,
+              $table: $db.locationPosts,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+
+  Expression<bool> myImagesRefs(
+      Expression<bool> Function($$MyImagesTableFilterComposer f) f) {
+    final $$MyImagesTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.myImages,
+        getReferencedColumn: (t) => t.simpleLocationPointId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$MyImagesTableFilterComposer(
+              $db: $db,
+              $table: $db.myImages,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+}
+
+class $$SimpleLocationPointsTableOrderingComposer
+    extends Composer<_$MyDbContext, $SimpleLocationPointsTable> {
+  $$SimpleLocationPointsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get postId => $composableBuilder(
+      column: $table.postId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get longitude => $composableBuilder(
+      column: $table.longitude, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get latitude => $composableBuilder(
+      column: $table.latitude, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get type => $composableBuilder(
+      column: $table.type, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get zoomLevel => $composableBuilder(
+      column: $table.zoomLevel, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get childCount => $composableBuilder(
+      column: $table.childCount, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get imageId => $composableBuilder(
+      column: $table.imageId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get currentUser => $composableBuilder(
+      column: $table.currentUser, builder: (column) => ColumnOrderings(column));
+}
+
+class $$SimpleLocationPointsTableAnnotationComposer
+    extends Composer<_$MyDbContext, $SimpleLocationPointsTable> {
+  $$SimpleLocationPointsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get postId =>
+      $composableBuilder(column: $table.postId, builder: (column) => column);
+
+  GeneratedColumn<double> get longitude =>
+      $composableBuilder(column: $table.longitude, builder: (column) => column);
+
+  GeneratedColumn<double> get latitude =>
+      $composableBuilder(column: $table.latitude, builder: (column) => column);
+
+  GeneratedColumn<int> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+
+  GeneratedColumn<int> get zoomLevel =>
+      $composableBuilder(column: $table.zoomLevel, builder: (column) => column);
+
+  GeneratedColumn<int> get childCount => $composableBuilder(
+      column: $table.childCount, builder: (column) => column);
+
+  GeneratedColumn<String> get imageId =>
+      $composableBuilder(column: $table.imageId, builder: (column) => column);
+
+  GeneratedColumn<String> get currentUser => $composableBuilder(
+      column: $table.currentUser, builder: (column) => column);
+
+  Expression<T> locationPostsRefs<T extends Object>(
+      Expression<T> Function($$LocationPostsTableAnnotationComposer a) f) {
+    final $$LocationPostsTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.locationPosts,
+        getReferencedColumn: (t) => t.pointId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$LocationPostsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.locationPosts,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+
+  Expression<T> myImagesRefs<T extends Object>(
+      Expression<T> Function($$MyImagesTableAnnotationComposer a) f) {
+    final $$MyImagesTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.myImages,
+        getReferencedColumn: (t) => t.simpleLocationPointId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$MyImagesTableAnnotationComposer(
+              $db: $db,
+              $table: $db.myImages,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+}
+
+class $$SimpleLocationPointsTableTableManager extends RootTableManager<
+    _$MyDbContext,
+    $SimpleLocationPointsTable,
+    SimpleLocationPoint,
+    $$SimpleLocationPointsTableFilterComposer,
+    $$SimpleLocationPointsTableOrderingComposer,
+    $$SimpleLocationPointsTableAnnotationComposer,
+    $$SimpleLocationPointsTableCreateCompanionBuilder,
+    $$SimpleLocationPointsTableUpdateCompanionBuilder,
+    (SimpleLocationPoint, $$SimpleLocationPointsTableReferences),
+    SimpleLocationPoint,
+    PrefetchHooks Function({bool locationPostsRefs, bool myImagesRefs})> {
+  $$SimpleLocationPointsTableTableManager(
+      _$MyDbContext db, $SimpleLocationPointsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SimpleLocationPointsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SimpleLocationPointsTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SimpleLocationPointsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String?> postId = const Value.absent(),
+            Value<double> longitude = const Value.absent(),
+            Value<double> latitude = const Value.absent(),
+            Value<int> type = const Value.absent(),
+            Value<int> zoomLevel = const Value.absent(),
+            Value<int> childCount = const Value.absent(),
+            Value<String?> imageId = const Value.absent(),
+            Value<String> currentUser = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              SimpleLocationPointsCompanion(
+            id: id,
+            postId: postId,
+            longitude: longitude,
+            latitude: latitude,
+            type: type,
+            zoomLevel: zoomLevel,
+            childCount: childCount,
+            imageId: imageId,
+            currentUser: currentUser,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            Value<String?> postId = const Value.absent(),
+            required double longitude,
+            required double latitude,
+            required int type,
+            required int zoomLevel,
+            required int childCount,
+            Value<String?> imageId = const Value.absent(),
+            required String currentUser,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              SimpleLocationPointsCompanion.insert(
+            id: id,
+            postId: postId,
+            longitude: longitude,
+            latitude: latitude,
+            type: type,
+            zoomLevel: zoomLevel,
+            childCount: childCount,
+            imageId: imageId,
+            currentUser: currentUser,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$SimpleLocationPointsTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: (
+              {locationPostsRefs = false, myImagesRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (locationPostsRefs) db.locationPosts,
+                if (myImagesRefs) db.myImages
+              ],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (locationPostsRefs)
+                    await $_getPrefetchedData<SimpleLocationPoint,
+                            $SimpleLocationPointsTable, LocationPost>(
+                        currentTable: table,
+                        referencedTable: $$SimpleLocationPointsTableReferences
+                            ._locationPostsRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$SimpleLocationPointsTableReferences(db, table, p0)
+                                .locationPostsRefs,
+                        referencedItemsForCurrentItem: (item,
+                                referencedItems) =>
+                            referencedItems.where((e) => e.pointId == item.id),
+                        typedResults: items),
+                  if (myImagesRefs)
+                    await $_getPrefetchedData<SimpleLocationPoint,
+                            $SimpleLocationPointsTable, MyImage>(
+                        currentTable: table,
+                        referencedTable: $$SimpleLocationPointsTableReferences
+                            ._myImagesRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$SimpleLocationPointsTableReferences(db, table, p0)
+                                .myImagesRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems.where(
+                                (e) => e.simpleLocationPointId == item.id),
+                        typedResults: items)
+                ];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$SimpleLocationPointsTableProcessedTableManager
+    = ProcessedTableManager<
+        _$MyDbContext,
+        $SimpleLocationPointsTable,
+        SimpleLocationPoint,
+        $$SimpleLocationPointsTableFilterComposer,
+        $$SimpleLocationPointsTableOrderingComposer,
+        $$SimpleLocationPointsTableAnnotationComposer,
+        $$SimpleLocationPointsTableCreateCompanionBuilder,
+        $$SimpleLocationPointsTableUpdateCompanionBuilder,
+        (SimpleLocationPoint, $$SimpleLocationPointsTableReferences),
+        SimpleLocationPoint,
+        PrefetchHooks Function({bool locationPostsRefs, bool myImagesRefs})>;
+typedef $$LocationPostsTableCreateCompanionBuilder = LocationPostsCompanion
+    Function({
+  required String id,
+  Value<String?> locationId,
+  required DateTime eventTime,
+  required String description,
+  required String ownerDisplayName,
+  required String pointId,
+  required String smallFirstImageId,
+  required DateTime dataCreationTime,
+  required String currentUser,
+  Value<int> rowid,
+});
+typedef $$LocationPostsTableUpdateCompanionBuilder = LocationPostsCompanion
+    Function({
+  Value<String> id,
+  Value<String?> locationId,
+  Value<DateTime> eventTime,
+  Value<String> description,
+  Value<String> ownerDisplayName,
+  Value<String> pointId,
+  Value<String> smallFirstImageId,
+  Value<DateTime> dataCreationTime,
+  Value<String> currentUser,
+  Value<int> rowid,
+});
+
+final class $$LocationPostsTableReferences
+    extends BaseReferences<_$MyDbContext, $LocationPostsTable, LocationPost> {
+  $$LocationPostsTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static $SimpleLocationPointsTable _pointIdTable(_$MyDbContext db) =>
+      db.simpleLocationPoints.createAlias($_aliasNameGenerator(
+          db.locationPosts.pointId, db.simpleLocationPoints.id));
+
+  $$SimpleLocationPointsTableProcessedTableManager get pointId {
+    final $_column = $_itemColumn<String>('point_id')!;
+
+    final manager =
+        $$SimpleLocationPointsTableTableManager($_db, $_db.simpleLocationPoints)
+            .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_pointIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+
+  static MultiTypedResultKey<$MyImagesTable, List<MyImage>> _myImagesRefsTable(
+          _$MyDbContext db) =>
+      MultiTypedResultKey.fromTable(db.myImages,
+          aliasName: $_aliasNameGenerator(
+              db.locationPosts.id, db.myImages.locationPostId));
+
+  $$MyImagesTableProcessedTableManager get myImagesRefs {
+    final manager = $$MyImagesTableTableManager($_db, $_db.myImages).filter(
+        (f) => f.locationPostId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_myImagesRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+}
+
+class $$LocationPostsTableFilterComposer
+    extends Composer<_$MyDbContext, $LocationPostsTable> {
+  $$LocationPostsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get locationId => $composableBuilder(
+      column: $table.locationId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get eventTime => $composableBuilder(
+      column: $table.eventTime, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get ownerDisplayName => $composableBuilder(
+      column: $table.ownerDisplayName,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get smallFirstImageId => $composableBuilder(
+      column: $table.smallFirstImageId,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get dataCreationTime => $composableBuilder(
+      column: $table.dataCreationTime,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get currentUser => $composableBuilder(
+      column: $table.currentUser, builder: (column) => ColumnFilters(column));
+
+  $$SimpleLocationPointsTableFilterComposer get pointId {
+    final $$SimpleLocationPointsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.pointId,
+        referencedTable: $db.simpleLocationPoints,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$SimpleLocationPointsTableFilterComposer(
+              $db: $db,
+              $table: $db.simpleLocationPoints,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
+  Expression<bool> myImagesRefs(
+      Expression<bool> Function($$MyImagesTableFilterComposer f) f) {
+    final $$MyImagesTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.myImages,
+        getReferencedColumn: (t) => t.locationPostId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$MyImagesTableFilterComposer(
+              $db: $db,
+              $table: $db.myImages,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+}
+
+class $$LocationPostsTableOrderingComposer
+    extends Composer<_$MyDbContext, $LocationPostsTable> {
+  $$LocationPostsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get locationId => $composableBuilder(
+      column: $table.locationId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get eventTime => $composableBuilder(
+      column: $table.eventTime, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get ownerDisplayName => $composableBuilder(
+      column: $table.ownerDisplayName,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get smallFirstImageId => $composableBuilder(
+      column: $table.smallFirstImageId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get dataCreationTime => $composableBuilder(
+      column: $table.dataCreationTime,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get currentUser => $composableBuilder(
+      column: $table.currentUser, builder: (column) => ColumnOrderings(column));
+
+  $$SimpleLocationPointsTableOrderingComposer get pointId {
+    final $$SimpleLocationPointsTableOrderingComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.pointId,
+            referencedTable: $db.simpleLocationPoints,
+            getReferencedColumn: (t) => t.id,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$SimpleLocationPointsTableOrderingComposer(
+                  $db: $db,
+                  $table: $db.simpleLocationPoints,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return composer;
+  }
+}
+
+class $$LocationPostsTableAnnotationComposer
+    extends Composer<_$MyDbContext, $LocationPostsTable> {
+  $$LocationPostsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get locationId => $composableBuilder(
+      column: $table.locationId, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get eventTime =>
+      $composableBuilder(column: $table.eventTime, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => column);
+
+  GeneratedColumn<String> get ownerDisplayName => $composableBuilder(
+      column: $table.ownerDisplayName, builder: (column) => column);
+
+  GeneratedColumn<String> get smallFirstImageId => $composableBuilder(
+      column: $table.smallFirstImageId, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get dataCreationTime => $composableBuilder(
+      column: $table.dataCreationTime, builder: (column) => column);
+
+  GeneratedColumn<String> get currentUser => $composableBuilder(
+      column: $table.currentUser, builder: (column) => column);
+
+  $$SimpleLocationPointsTableAnnotationComposer get pointId {
+    final $$SimpleLocationPointsTableAnnotationComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.pointId,
+            referencedTable: $db.simpleLocationPoints,
+            getReferencedColumn: (t) => t.id,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$SimpleLocationPointsTableAnnotationComposer(
+                  $db: $db,
+                  $table: $db.simpleLocationPoints,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return composer;
+  }
+
+  Expression<T> myImagesRefs<T extends Object>(
+      Expression<T> Function($$MyImagesTableAnnotationComposer a) f) {
+    final $$MyImagesTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.myImages,
+        getReferencedColumn: (t) => t.locationPostId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$MyImagesTableAnnotationComposer(
+              $db: $db,
+              $table: $db.myImages,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+}
+
+class $$LocationPostsTableTableManager extends RootTableManager<
+    _$MyDbContext,
+    $LocationPostsTable,
+    LocationPost,
+    $$LocationPostsTableFilterComposer,
+    $$LocationPostsTableOrderingComposer,
+    $$LocationPostsTableAnnotationComposer,
+    $$LocationPostsTableCreateCompanionBuilder,
+    $$LocationPostsTableUpdateCompanionBuilder,
+    (LocationPost, $$LocationPostsTableReferences),
+    LocationPost,
+    PrefetchHooks Function({bool pointId, bool myImagesRefs})> {
+  $$LocationPostsTableTableManager(_$MyDbContext db, $LocationPostsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$LocationPostsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$LocationPostsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$LocationPostsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String?> locationId = const Value.absent(),
+            Value<DateTime> eventTime = const Value.absent(),
+            Value<String> description = const Value.absent(),
+            Value<String> ownerDisplayName = const Value.absent(),
+            Value<String> pointId = const Value.absent(),
+            Value<String> smallFirstImageId = const Value.absent(),
+            Value<DateTime> dataCreationTime = const Value.absent(),
+            Value<String> currentUser = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              LocationPostsCompanion(
+            id: id,
+            locationId: locationId,
+            eventTime: eventTime,
+            description: description,
+            ownerDisplayName: ownerDisplayName,
+            pointId: pointId,
+            smallFirstImageId: smallFirstImageId,
+            dataCreationTime: dataCreationTime,
+            currentUser: currentUser,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            Value<String?> locationId = const Value.absent(),
+            required DateTime eventTime,
+            required String description,
+            required String ownerDisplayName,
+            required String pointId,
+            required String smallFirstImageId,
+            required DateTime dataCreationTime,
+            required String currentUser,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              LocationPostsCompanion.insert(
+            id: id,
+            locationId: locationId,
+            eventTime: eventTime,
+            description: description,
+            ownerDisplayName: ownerDisplayName,
+            pointId: pointId,
+            smallFirstImageId: smallFirstImageId,
+            dataCreationTime: dataCreationTime,
+            currentUser: currentUser,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$LocationPostsTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: ({pointId = false, myImagesRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [if (myImagesRefs) db.myImages],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (pointId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.pointId,
+                    referencedTable:
+                        $$LocationPostsTableReferences._pointIdTable(db),
+                    referencedColumn:
+                        $$LocationPostsTableReferences._pointIdTable(db).id,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (myImagesRefs)
+                    await $_getPrefetchedData<LocationPost, $LocationPostsTable,
+                            MyImage>(
+                        currentTable: table,
+                        referencedTable: $$LocationPostsTableReferences
+                            ._myImagesRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$LocationPostsTableReferences(db, table, p0)
+                                .myImagesRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.locationPostId == item.id),
+                        typedResults: items)
+                ];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$LocationPostsTableProcessedTableManager = ProcessedTableManager<
+    _$MyDbContext,
+    $LocationPostsTable,
+    LocationPost,
+    $$LocationPostsTableFilterComposer,
+    $$LocationPostsTableOrderingComposer,
+    $$LocationPostsTableAnnotationComposer,
+    $$LocationPostsTableCreateCompanionBuilder,
+    $$LocationPostsTableUpdateCompanionBuilder,
+    (LocationPost, $$LocationPostsTableReferences),
+    LocationPost,
+    PrefetchHooks Function({bool pointId, bool myImagesRefs})>;
 typedef $$MyImagesTableCreateCompanionBuilder = MyImagesCompanion Function({
   required String id,
   required String shortPath,
@@ -3142,6 +5051,8 @@ typedef $$MyImagesTableCreateCompanionBuilder = MyImagesCompanion Function({
   required int type,
   required String myImageGroupId,
   Value<String?> postId,
+  Value<String?> locationPostId,
+  Value<String?> simpleLocationPointId,
   Value<int> rowid,
 });
 typedef $$MyImagesTableUpdateCompanionBuilder = MyImagesCompanion Function({
@@ -3156,6 +5067,8 @@ typedef $$MyImagesTableUpdateCompanionBuilder = MyImagesCompanion Function({
   Value<int> type,
   Value<String> myImageGroupId,
   Value<String?> postId,
+  Value<String?> locationPostId,
+  Value<String?> simpleLocationPointId,
   Value<int> rowid,
 });
 
@@ -3187,6 +5100,39 @@ final class $$MyImagesTableReferences
     final manager = $$PostsTableTableManager($_db, $_db.posts)
         .filter((f) => f.id.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_postIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+
+  static $LocationPostsTable _locationPostIdTable(_$MyDbContext db) =>
+      db.locationPosts.createAlias($_aliasNameGenerator(
+          db.myImages.locationPostId, db.locationPosts.id));
+
+  $$LocationPostsTableProcessedTableManager? get locationPostId {
+    final $_column = $_itemColumn<String>('location_post_id');
+    if ($_column == null) return null;
+    final manager = $$LocationPostsTableTableManager($_db, $_db.locationPosts)
+        .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_locationPostIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+
+  static $SimpleLocationPointsTable _simpleLocationPointIdTable(
+          _$MyDbContext db) =>
+      db.simpleLocationPoints.createAlias($_aliasNameGenerator(
+          db.myImages.simpleLocationPointId, db.simpleLocationPoints.id));
+
+  $$SimpleLocationPointsTableProcessedTableManager? get simpleLocationPointId {
+    final $_column = $_itemColumn<String>('simple_location_point_id');
+    if ($_column == null) return null;
+    final manager =
+        $$SimpleLocationPointsTableTableManager($_db, $_db.simpleLocationPoints)
+            .filter((f) => f.id.sqlEquals($_column));
+    final item =
+        $_typedResult.readTableOrNull(_simpleLocationPointIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: [item]));
@@ -3261,6 +5207,46 @@ class $$MyImagesTableFilterComposer
             $$PostsTableFilterComposer(
               $db: $db,
               $table: $db.posts,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
+  $$LocationPostsTableFilterComposer get locationPostId {
+    final $$LocationPostsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.locationPostId,
+        referencedTable: $db.locationPosts,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$LocationPostsTableFilterComposer(
+              $db: $db,
+              $table: $db.locationPosts,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
+  $$SimpleLocationPointsTableFilterComposer get simpleLocationPointId {
+    final $$SimpleLocationPointsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.simpleLocationPointId,
+        referencedTable: $db.simpleLocationPoints,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$SimpleLocationPointsTableFilterComposer(
+              $db: $db,
+              $table: $db.simpleLocationPoints,
               $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
               joinBuilder: joinBuilder,
               $removeJoinBuilderFromRootComposer:
@@ -3346,6 +5332,47 @@ class $$MyImagesTableOrderingComposer
             ));
     return composer;
   }
+
+  $$LocationPostsTableOrderingComposer get locationPostId {
+    final $$LocationPostsTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.locationPostId,
+        referencedTable: $db.locationPosts,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$LocationPostsTableOrderingComposer(
+              $db: $db,
+              $table: $db.locationPosts,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
+  $$SimpleLocationPointsTableOrderingComposer get simpleLocationPointId {
+    final $$SimpleLocationPointsTableOrderingComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.simpleLocationPointId,
+            referencedTable: $db.simpleLocationPoints,
+            getReferencedColumn: (t) => t.id,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$SimpleLocationPointsTableOrderingComposer(
+                  $db: $db,
+                  $table: $db.simpleLocationPoints,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return composer;
+  }
 }
 
 class $$MyImagesTableAnnotationComposer
@@ -3423,6 +5450,47 @@ class $$MyImagesTableAnnotationComposer
             ));
     return composer;
   }
+
+  $$LocationPostsTableAnnotationComposer get locationPostId {
+    final $$LocationPostsTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.locationPostId,
+        referencedTable: $db.locationPosts,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$LocationPostsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.locationPosts,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
+  $$SimpleLocationPointsTableAnnotationComposer get simpleLocationPointId {
+    final $$SimpleLocationPointsTableAnnotationComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.simpleLocationPointId,
+            referencedTable: $db.simpleLocationPoints,
+            getReferencedColumn: (t) => t.id,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$SimpleLocationPointsTableAnnotationComposer(
+                  $db: $db,
+                  $table: $db.simpleLocationPoints,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return composer;
+  }
 }
 
 class $$MyImagesTableTableManager extends RootTableManager<
@@ -3436,7 +5504,11 @@ class $$MyImagesTableTableManager extends RootTableManager<
     $$MyImagesTableUpdateCompanionBuilder,
     (MyImage, $$MyImagesTableReferences),
     MyImage,
-    PrefetchHooks Function({bool myImageGroupId, bool postId})> {
+    PrefetchHooks Function(
+        {bool myImageGroupId,
+        bool postId,
+        bool locationPostId,
+        bool simpleLocationPointId})> {
   $$MyImagesTableTableManager(_$MyDbContext db, $MyImagesTable table)
       : super(TableManagerState(
           db: db,
@@ -3459,6 +5531,8 @@ class $$MyImagesTableTableManager extends RootTableManager<
             Value<int> type = const Value.absent(),
             Value<String> myImageGroupId = const Value.absent(),
             Value<String?> postId = const Value.absent(),
+            Value<String?> locationPostId = const Value.absent(),
+            Value<String?> simpleLocationPointId = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               MyImagesCompanion(
@@ -3473,6 +5547,8 @@ class $$MyImagesTableTableManager extends RootTableManager<
             type: type,
             myImageGroupId: myImageGroupId,
             postId: postId,
+            locationPostId: locationPostId,
+            simpleLocationPointId: simpleLocationPointId,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -3487,6 +5563,8 @@ class $$MyImagesTableTableManager extends RootTableManager<
             required int type,
             required String myImageGroupId,
             Value<String?> postId = const Value.absent(),
+            Value<String?> locationPostId = const Value.absent(),
+            Value<String?> simpleLocationPointId = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               MyImagesCompanion.insert(
@@ -3501,13 +5579,19 @@ class $$MyImagesTableTableManager extends RootTableManager<
             type: type,
             myImageGroupId: myImageGroupId,
             postId: postId,
+            locationPostId: locationPostId,
+            simpleLocationPointId: simpleLocationPointId,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) =>
                   (e.readTable(table), $$MyImagesTableReferences(db, table, e)))
               .toList(),
-          prefetchHooksCallback: ({myImageGroupId = false, postId = false}) {
+          prefetchHooksCallback: (
+              {myImageGroupId = false,
+              postId = false,
+              locationPostId = false,
+              simpleLocationPointId = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [],
@@ -3543,6 +5627,27 @@ class $$MyImagesTableTableManager extends RootTableManager<
                         $$MyImagesTableReferences._postIdTable(db).id,
                   ) as T;
                 }
+                if (locationPostId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.locationPostId,
+                    referencedTable:
+                        $$MyImagesTableReferences._locationPostIdTable(db),
+                    referencedColumn:
+                        $$MyImagesTableReferences._locationPostIdTable(db).id,
+                  ) as T;
+                }
+                if (simpleLocationPointId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.simpleLocationPointId,
+                    referencedTable: $$MyImagesTableReferences
+                        ._simpleLocationPointIdTable(db),
+                    referencedColumn: $$MyImagesTableReferences
+                        ._simpleLocationPointIdTable(db)
+                        .id,
+                  ) as T;
+                }
 
                 return state;
               },
@@ -3565,7 +5670,11 @@ typedef $$MyImagesTableProcessedTableManager = ProcessedTableManager<
     $$MyImagesTableUpdateCompanionBuilder,
     (MyImage, $$MyImagesTableReferences),
     MyImage,
-    PrefetchHooks Function({bool myImageGroupId, bool postId})>;
+    PrefetchHooks Function(
+        {bool myImageGroupId,
+        bool postId,
+        bool locationPostId,
+        bool simpleLocationPointId})>;
 typedef $$LocationsTableCreateCompanionBuilder = LocationsCompanion Function({
   required String id,
   Value<int> rowid,
@@ -3681,6 +5790,10 @@ class $MyDbContextManager {
       $$PostsTableTableManager(_db, _db.posts);
   $$MyImageGroupsTableTableManager get myImageGroups =>
       $$MyImageGroupsTableTableManager(_db, _db.myImageGroups);
+  $$SimpleLocationPointsTableTableManager get simpleLocationPoints =>
+      $$SimpleLocationPointsTableTableManager(_db, _db.simpleLocationPoints);
+  $$LocationPostsTableTableManager get locationPosts =>
+      $$LocationPostsTableTableManager(_db, _db.locationPosts);
   $$MyImagesTableTableManager get myImages =>
       $$MyImagesTableTableManager(_db, _db.myImages);
   $$LocationsTableTableManager get locations =>

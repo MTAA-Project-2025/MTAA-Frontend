@@ -169,6 +169,7 @@ class _FirstUpdateAvatarScreenState extends State<FirstUpdateAvatarScreen> {
                       TextButton(
                         onPressed: () async {
                           if (selectedPresetImage == null && selectedCustomImage == null) {
+                            if(!mounted)return;
                             setState(() {
                               isError = true;
                             });
@@ -176,6 +177,7 @@ class _FirstUpdateAvatarScreenState extends State<FirstUpdateAvatarScreen> {
                           } else {
                             isError = false;
                             if (_formKey.currentState!.validate()) {
+                              if(!mounted)return;
                               setState(() => isLoading = true);
 
                               MyImageGroupResponse? res;
@@ -184,6 +186,7 @@ class _FirstUpdateAvatarScreenState extends State<FirstUpdateAvatarScreen> {
                               } else if (selectedCustomImage != null) {
                                 res = await widget.accountApi.customUpdateAccountAvatar(CustomUpdateAccountAvatarRequest(avatar: selectedCustomImage!));
                               }
+                              if(!mounted)return;
                               setState(() => isLoading = false);
                               if (res != null) {
                                 _navigateToGroupListScreen();
@@ -211,6 +214,7 @@ class _FirstUpdateAvatarScreenState extends State<FirstUpdateAvatarScreen> {
         return; //TODO: show error (image is not valid)
       }
 
+if(!mounted)return;
       setState(() {
         _pickedFile = pickedFile;
         _cropImage(context);
@@ -255,6 +259,7 @@ class _FirstUpdateAvatarScreenState extends State<FirstUpdateAvatarScreen> {
         ],
       );
       if (croppedFile != null) {
+        if(!mounted)return;
         setState(() {
           selectedCustomImage = File(croppedFile.path);
           _pickedFile = null;

@@ -11,6 +11,7 @@ import 'package:mtaa_frontend/domain/hive_data/add-posts/add_image_hive.dart';
 import 'package:mtaa_frontend/features/images/data/models/requests/add_image_request.dart';
 import 'package:mtaa_frontend/features/images/data/storages/my_image_storage.dart';
 import 'package:mtaa_frontend/features/images/domain/utils/cropAspectRatioPresetCustom.dart';
+import 'package:mtaa_frontend/features/locations/data/models/requests/add_location_request.dart';
 import 'package:mtaa_frontend/features/posts/data/models/requests/add_post_request.dart';
 import 'package:mtaa_frontend/features/posts/data/repositories/posts_repository.dart';
 import 'package:mtaa_frontend/features/posts/presentation/widgets/add_post_form.dart';
@@ -43,6 +44,8 @@ class _AddPostScreenState extends State<AddPostScreen> {
 
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
+  AddLocationRequest addLocationRequest = AddLocationRequest(latitude: -200, longitude: -200, eventTime: DateTime.now());
+
   @override
   void initState() {
     super.initState();
@@ -56,8 +59,12 @@ class _AddPostScreenState extends State<AddPostScreen> {
       if (!mounted) return;
       var hiveData = await widget.repository.getTempPostAddForm();
       if (hiveData != null) {
+        if (!mounted) return;
         setState(() {
           descriptionController.text = hiveData.description;
+          if (hiveData.location != null) {
+            addLocationRequest = AddLocationRequest.fromHive(hiveData.location!);
+          }
 
           bool flag = false;
           for (var img in hiveData.images) {
@@ -94,12 +101,13 @@ class _AddPostScreenState extends State<AddPostScreen> {
       if (!mounted) return;
       await widget.repository.deleteTempPostAddForm();
 
-      if(!mounted && !context.mounted)return;
+      if (!mounted && !context.mounted) return;
       GoRouter.of(context).go(userRecommendationsScreenRoute);
     });
   }
 
   void deleteImg(int pos) {
+    if(!mounted) return;
     setState(() {
       var addImgDTO = addImagesDTOs[pos];
       if (addImgDTO.isLocal) {
@@ -139,6 +147,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
   }
 
   void uploadImg(XFile orig, File cropped) {
+    if(!mounted) return;
     setState(() {
       AddPostImageScreenDTO newImage = AddPostImageScreenDTO(position: images.length);
       newImage.originalImage = orig;
@@ -164,6 +173,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
     if (aspectRatio == null) {
       return;
     }
+    if(!mounted) return;
     setState(() {
       images[pos].image = Image(image: FileImage(cropped), fit: BoxFit.fitHeight);
 
@@ -182,10 +192,12 @@ class _AddPostScreenState extends State<AddPostScreen> {
       if (!((img.aspectRatioPreset.width.toDouble() / img.aspectRatioPreset.height.toDouble() - firstImg.aspectRatioPreset.width.toDouble() / firstImg.aspectRatioPreset.height.toDouble()).abs() <=
           0.01)) {
         flag = true;
+        if(!mounted) return;
         setState(() {
           img.isAspectRatioError = true;
         });
       } else {
+        if(!mounted) return;
         setState(() {
           img.isAspectRatioError = false;
         });
@@ -198,6 +210,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
         });
       }
     }
+    if(!mounted) return;
     setState(() {
       if (flag) {
         isAspectRatioError = true;
@@ -228,7 +241,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
             TextButton(
               onPressed: () async {
                 if (descriptionController.text.isNotEmpty || images.isNotEmpty) {
-                  await widget.repository.setTempPostAddForm(addImagesDTOs, images, descriptionController.text, null);
+                  await widget.repository.setTempPostAddForm(addImagesDTOs, images, descriptionController.text, addLocationRequest);
                 } else {
                   await widget.repository.deleteTempPostAddForm();
                 }
@@ -280,6 +293,38 @@ class _AddPostScreenState extends State<AddPostScreen> {
                     toastService: widget.toastService,
                     imageStorage: widget.imageStorage),
                 const SizedBox(height: 20),
+                Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: GestureDetector(
+                      onTap: () {
+                        GoRouter.of(context).push(addPostLocationScreenRoute, extra: addLocationRequest);
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.location_pin, color: Theme.of(context).textTheme.bodySmall!.color),
+                              const SizedBox(width: 5),
+                              Text(
+                                addLocationRequest.latitude > -200 ? '${addLocationRequest.latitude} ${addLocationRequest.longitude}' : 'Choose your location (optional)',
+                                style: Theme.of(context).textTheme.labelSmall,
+                              ),
+                            ],
+                          ),
+                          if (addLocationRequest.latitude > -200)
+                            IconButton(
+                                onPressed: () {
+                                  if(!mounted) return;
+                                  setState(() {
+                                    addLocationRequest.latitude = -200;
+                                    addLocationRequest.longitude = -200;
+                                  });
+                                },
+                                icon: Icon(Icons.cancel_outlined, color: Theme.of(context).textTheme.bodySmall!.color))
+                        ],
+                      ),
+                    )),
                 Expanded(flex: 1, child: Container()),
                 isLoading
                     ? const DotLoader()
@@ -298,6 +343,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                                 return;
                               }
                               if (formKey.currentState!.validate()) {
+                                if(!mounted) return;
                                 setState(() => isLoading = true);
                                 List<AddImageRequest> addImageRequests = [];
                                 for (int i = 0; i < addImagesDTOs.length; i++) {
@@ -307,7 +353,9 @@ class _AddPostScreenState extends State<AddPostScreen> {
                                     addImageRequests.add(AddImageRequest(image: File(addImagesDTOs[i].imagePath!), position: i));
                                   }
                                 }
-                                var id = await widget.repository.addPost(AddPostRequest(images: addImageRequests, description: descriptionController.text));
+                                var id = await widget.repository
+                                    .addPost(AddPostRequest(images: addImageRequests, description: descriptionController.text, location: addLocationRequest.latitude > -200 ? addLocationRequest : null));
+                                if(!mounted)return;
                                 setState(() => isLoading = false);
                                 if (id != null) {
                                   _navigateToGroupListScreen();

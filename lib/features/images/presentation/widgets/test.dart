@@ -246,6 +246,7 @@ class _HomePageState extends State<HomePage> {
         ],
       );
       if (croppedFile != null) {
+        if(!mounted)return;
         setState(() {
           _croppedFile = croppedFile;
         });
@@ -257,6 +258,7 @@ class _HomePageState extends State<HomePage> {
     final pickedFile =
         await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
+      if(!mounted)return;
       setState(() {
         _pickedFile = pickedFile;
       });
@@ -264,6 +266,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _clear() {
+    if(!mounted)return;
     setState(() {
       _pickedFile = null;
       _croppedFile = null;

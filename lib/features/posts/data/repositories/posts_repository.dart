@@ -8,6 +8,7 @@ import 'package:mtaa_frontend/features/posts/data/models/requests/add_post_reque
 import 'package:mtaa_frontend/features/posts/data/models/requests/get_global_posts_request.dart';
 import 'package:mtaa_frontend/features/posts/data/models/requests/update_post_request.dart';
 import 'package:mtaa_frontend/features/posts/data/models/responses/full_post_response.dart';
+import 'package:mtaa_frontend/features/posts/data/models/responses/location_post_response.dart';
 import 'package:mtaa_frontend/features/posts/data/models/responses/simple_post_response.dart';
 import 'package:mtaa_frontend/features/posts/data/network/posts_api.dart';
 import 'package:mtaa_frontend/features/posts/data/storages/posts_storage.dart';
@@ -37,6 +38,11 @@ abstract class PostsRepository {
   Future<AddPostHive?> getTempPostAddForm();
   Future setTempPostAddForm(List<AddPostImageScreenDTO> images, List<ImageDTO> imageDTOs, String text, AddLocationRequest? addLocation);
   Future deleteTempPostAddForm();
+
+  Future saveLocationPost(LocationPostResponse post);
+  Future removeLocationPost(LocationPostResponse post);
+  Future<List<LocationPostResponse>> getSavedLocationPosts(PageParameters pageParameteres);
+  Future<bool> isLocationPostSaved(UuidValue postId);
 }
 
 class PostsRepositoryImpl extends PostsRepository {
@@ -51,8 +57,8 @@ class PostsRepositoryImpl extends PostsRepository {
     if (status == AirplaneModeStatus.on) {
       if (getIt.isRegistered<BuildContext>()) {
         var context = getIt.get<BuildContext>();
-        if(context.mounted){
-        context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: true, exceptionType: ExceptionTypes.flightMode, message: 'Flight mode is enabled'));
+        if (context.mounted) {
+          context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: true, exceptionType: ExceptionTypes.flightMode, message: 'Flight mode is enabled'));
         }
         return null;
       }
@@ -66,8 +72,8 @@ class PostsRepositoryImpl extends PostsRepository {
     if (status == AirplaneModeStatus.on) {
       if (getIt.isRegistered<BuildContext>()) {
         var context = getIt.get<BuildContext>();
-        if(context.mounted){
-        context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: true, exceptionType: ExceptionTypes.flightMode, message: 'Flight mode is enabled'));
+        if (context.mounted) {
+          context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: true, exceptionType: ExceptionTypes.flightMode, message: 'Flight mode is enabled'));
         }
         return false;
       }
@@ -155,8 +161,8 @@ class PostsRepositoryImpl extends PostsRepository {
     if (status == AirplaneModeStatus.on) {
       if (getIt.isRegistered<BuildContext>()) {
         var context = getIt.get<BuildContext>();
-        if(context.mounted){
-        context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: true, exceptionType: ExceptionTypes.flightMode, message: 'Flight mode is enabled'));
+        if (context.mounted) {
+          context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: true, exceptionType: ExceptionTypes.flightMode, message: 'Flight mode is enabled'));
         }
         return false;
       }
@@ -180,17 +186,37 @@ class PostsRepositoryImpl extends PostsRepository {
   }
 
   @override
-  Future<AddPostHive?> getTempPostAddForm() async{
+  Future<AddPostHive?> getTempPostAddForm() async {
     return await postsStorage.getTempPostAddForm();
   }
 
   @override
-  Future setTempPostAddForm(List<AddPostImageScreenDTO> images, List<ImageDTO> imageDTOs, String text, AddLocationRequest? addLocation) async{
-    return await postsStorage.setTempPostAddForm(images,imageDTOs,text,addLocation);
+  Future setTempPostAddForm(List<AddPostImageScreenDTO> images, List<ImageDTO> imageDTOs, String text, AddLocationRequest? addLocation) async {
+    return await postsStorage.setTempPostAddForm(images, imageDTOs, text, addLocation);
   }
 
   @override
-  Future deleteTempPostAddForm() async{
+  Future deleteTempPostAddForm() async {
     return await postsStorage.deleteTempPostAddForm();
+  }
+
+  @override
+  Future saveLocationPost(LocationPostResponse post) async {
+    await postsStorage.saveLocationPost(post);
+  }
+
+  @override
+  Future removeLocationPost(LocationPostResponse post) async {
+    return await postsStorage.removeLocationPost(post);
+  }
+
+  @override
+  Future<List<LocationPostResponse>> getSavedLocationPosts(PageParameters pageParameteres) async {
+    return await postsStorage.getSavedLocationPosts(pageParameteres);
+  }
+
+  @override
+  Future<bool> isLocationPostSaved(UuidValue postId) async {
+    return await postsStorage.isLocationPostSaved(postId);
   }
 }

@@ -12,8 +12,11 @@ import 'package:mtaa_frontend/features/images/data/models/requests/update_image_
 import 'package:mtaa_frontend/features/images/data/models/responses/myImageResponse.dart';
 import 'package:mtaa_frontend/features/images/data/storages/my_image_storage.dart';
 import 'package:mtaa_frontend/features/images/domain/utils/cropAspectRatioPresetCustom.dart';
+import 'package:mtaa_frontend/features/locations/data/models/requests/add_location_request.dart';
+import 'package:mtaa_frontend/features/locations/data/repositories/locations_repository.dart';
 import 'package:mtaa_frontend/features/posts/data/models/requests/update_post_request.dart';
 import 'package:mtaa_frontend/features/posts/data/models/responses/full_post_response.dart';
+import 'package:mtaa_frontend/features/posts/data/models/responses/location_post_response.dart';
 import 'package:mtaa_frontend/features/posts/data/repositories/posts_repository.dart';
 import 'package:mtaa_frontend/features/posts/presentation/widgets/add_post_form.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/dotLoader.dart';
@@ -21,11 +24,12 @@ import 'package:mtaa_frontend/themes/button_theme.dart';
 
 class UpdatePostScreen extends StatefulWidget {
   final PostsRepository repository;
+  final LocationsRepository locationsRepository;
   final MyToastService toastService;
   final MyImageStorage imageStorage;
   final FullPostResponse post;
 
-  const UpdatePostScreen({super.key, required this.repository, required this.toastService, required this.imageStorage, required this.post});
+  const UpdatePostScreen({super.key, required this.repository, required this.toastService, required this.imageStorage, required this.post, required this.locationsRepository});
 
   @override
   State<UpdatePostScreen> createState() => _UpdatePostScreenState();
@@ -45,6 +49,8 @@ class _UpdatePostScreenState extends State<UpdatePostScreen> {
 
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
+  AddLocationRequest addLocationRequest = AddLocationRequest(latitude: -200, longitude: -200, eventTime: DateTime.now());
+
   @override
   void initState() {
     super.initState();
@@ -56,8 +62,19 @@ class _UpdatePostScreenState extends State<UpdatePostScreen> {
 
     Future.microtask(() async {
       if (!mounted) return;
+
+      LocationPostResponse? location;
+      if (widget.post.locationId != null) {
+        location =  await widget.locationsRepository.getLocationPostById(widget.post.locationId!);
+      }
+
+      if (!mounted) return;
       setState(() {
         descriptionController.text = widget.post.description;
+
+        if (location != null) {
+            addLocationRequest = AddLocationRequest(latitude: location.point.latitude, longitude: location.point.longitude, eventTime: location.eventTime);
+        }
 
         for (var img in widget.post.images) {
           var middleImg = img.images.where((e) => e.type == ImageSizeType.middle).first;
@@ -97,6 +114,7 @@ class _UpdatePostScreenState extends State<UpdatePostScreen> {
   }
 
   void deleteImg(int pos) {
+    if(!mounted)return;
     setState(() {
       images.removeAt(pos);
       addImagesDTOs.removeAt(pos);
@@ -130,10 +148,11 @@ class _UpdatePostScreenState extends State<UpdatePostScreen> {
     newImage.image = cropped;
     ImageDTO newImageDTO =
         ImageDTO(image: Image(image: FileImage(cropped), fit: BoxFit.fitHeight), originalPath: orig.path, isAspectRatioError: false, aspectRatioPreset: CropAspectRatioPresetCustom(1, 1, '1x1'));
-    
+
     Future.microtask(() async {
       var res = await rewiewAspectRatio(cropped);
       if (res != null) {
+        if (!mounted) return;
         setState(() {
           newImageDTO.aspectRatioPreset = res;
           addImagesDTOs.add(newImage);
@@ -148,6 +167,7 @@ class _UpdatePostScreenState extends State<UpdatePostScreen> {
     if (aspectRatio == null) {
       return;
     }
+    if (!mounted) return;
     setState(() {
       images[pos].image = Image(image: FileImage(cropped), fit: BoxFit.fitHeight);
 
@@ -163,10 +183,12 @@ class _UpdatePostScreenState extends State<UpdatePostScreen> {
       if (!((img.aspectRatioPreset.width.toDouble() / img.aspectRatioPreset.height.toDouble() - firstImg.aspectRatioPreset.width.toDouble() / firstImg.aspectRatioPreset.height.toDouble()).abs() <=
           0.01)) {
         flag = true;
+        if (!mounted) return;
         setState(() {
           img.isAspectRatioError = true;
         });
       } else {
+        if (!mounted) return;
         setState(() {
           img.isAspectRatioError = false;
         });
@@ -181,6 +203,7 @@ class _UpdatePostScreenState extends State<UpdatePostScreen> {
         });
       }
     }
+    if (!mounted) return;
     setState(() {
       if (flag) {
         isAspectRatioError = true;
@@ -217,6 +240,38 @@ class _UpdatePostScreenState extends State<UpdatePostScreen> {
                   toastService: widget.toastService,
                   imageStorage: widget.imageStorage),
               const SizedBox(height: 20),
+              Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: GestureDetector(
+                    onTap: () {
+                      GoRouter.of(context).push(addPostLocationScreenRoute, extra: addLocationRequest);
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.location_pin, color: Theme.of(context).textTheme.bodySmall!.color),
+                            const SizedBox(width: 5),
+                            Text(
+                              addLocationRequest.latitude > -200 ? '${addLocationRequest.latitude} ${addLocationRequest.longitude}' : 'Choose your location (optional)',
+                              style: Theme.of(context).textTheme.labelSmall,
+                            ),
+                          ],
+                        ),
+                        if (addLocationRequest.latitude > -200)
+                          IconButton(
+                              onPressed: () {
+                                if (!mounted) return;
+                                setState(() {
+                                  addLocationRequest.latitude = -200;
+                                  addLocationRequest.longitude = -200;
+                                });
+                              },
+                              icon: Icon(Icons.cancel_outlined, color: Theme.of(context).textTheme.bodySmall!.color))
+                      ],
+                    ),
+                  )),
               Expanded(flex: 1, child: Container()),
               isLoading
                   ? const DotLoader()
@@ -235,6 +290,7 @@ class _UpdatePostScreenState extends State<UpdatePostScreen> {
                               return;
                             }
                             if (formKey.currentState!.validate()) {
+                              if(!mounted)return;
                               setState(() => isLoading = true);
                               List<UpdateImageRequest> updateImageRequests = [];
                               for (int i = 0; i < addImagesDTOs.length; i++) {
@@ -244,7 +300,9 @@ class _UpdatePostScreenState extends State<UpdatePostScreen> {
                                   updateImageRequests.add(UpdateImageRequest(oldImageId: addImagesDTOs[i].onlineImage!.id, position: i));
                                 }
                               }
-                              var res = await widget.repository.updatePost(UpdatePostRequest(id: widget.post.id, images: updateImageRequests, description: descriptionController.text));
+                              var res = await widget.repository.updatePost(UpdatePostRequest(
+                                  id: widget.post.id, images: updateImageRequests, description: descriptionController.text, location: addLocationRequest.latitude > -200 ? addLocationRequest : null));
+                              if(!mounted)return;
                               setState(() => isLoading = false);
                               if (res) {
                                 _navigateToGroupListScreen();

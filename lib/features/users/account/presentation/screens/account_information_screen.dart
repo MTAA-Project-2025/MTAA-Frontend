@@ -31,6 +31,7 @@ class _AccountInformationScreenState extends State<AccountInformationScreen> {
     }
     getIt.registerSingleton<BuildContext>(context);
 
+    if (!mounted) return;
     setState(() {
       isLoading = true;
     });
@@ -40,10 +41,12 @@ class _AccountInformationScreenState extends State<AccountInformationScreen> {
       var res = await widget.repository.getFullAccount();
 
       if (res != null) {
+        if(!mounted)return;
         setState(() {
           user = res;
         });
       }
+      if(!mounted)return;
       setState(() {
         isLoading = false;
       });
@@ -110,7 +113,7 @@ class _AccountInformationScreenState extends State<AccountInformationScreen> {
                       onPressed: () {},
                       child: Text('Notifications'),
                     ),
-                    if (user != null) Expanded(child: AccountPostListWidget(repository: getIt<PostsRepository>(), userId: user!.id))
+                    if (user != null) Expanded(child: AccountPostListWidget(repository: getIt<PostsRepository>(), userId: user!.id, isOwner: true))
                   ],
                 ),
         ),

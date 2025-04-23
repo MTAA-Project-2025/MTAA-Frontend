@@ -25,6 +25,7 @@ class _DotLoaderState extends State<DotLoader> {
     ];
 
     _colorChangeTimer ??= Timer.periodic(const Duration(milliseconds: 200), (timer) {
+      if(!mounted)return;
       setState(() {
         _currentIndex = (_currentIndex + 1) % colors.length;
       });

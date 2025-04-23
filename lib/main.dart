@@ -1,15 +1,19 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_map_tile_caching/flutter_map_tile_caching.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:mtaa_frontend/core/config/app_config.dart';
 import 'package:mtaa_frontend/core/constants/route_constants.dart';
 import 'package:mtaa_frontend/core/constants/storages/storage_boxes.dart';
+import 'package:mtaa_frontend/core/services/internet_checker.dart';
 import 'package:mtaa_frontend/core/utils/app_injections.dart';
 import 'package:mtaa_frontend/domain/hive_data/add-posts/add_image_hive.dart';
 import 'package:mtaa_frontend/domain/hive_data/add-posts/add_location_hive.dart';
 import 'package:mtaa_frontend/domain/hive_data/add-posts/add_post_hive.dart';
 import 'package:mtaa_frontend/domain/hive_data/add-posts/crop_aspect_ratio_preset_custom_hive.dart';
+import 'package:mtaa_frontend/domain/hive_data/locations/simple_point_hive.dart';
+import 'package:mtaa_frontend/domain/hive_data/locations/user_position_hive.dart';
 import 'package:mtaa_frontend/domain/hive_data/posts/full_post_hive.dart';
 import 'package:mtaa_frontend/domain/hive_data/posts/my_image_group_hive.dart';
 import 'package:mtaa_frontend/domain/hive_data/posts/my_image_hive.dart';
@@ -25,17 +29,21 @@ import 'package:mtaa_frontend/core/route/router.dart' as router;
 
 Future<void> main() async {
   await Hive.initFlutter();
-  Hive.registerAdapter(MyImageHiveAdapter());
-  Hive.registerAdapter(MyImageGroupHiveAdapter());
-  Hive.registerAdapter(SimpleUserHiveAdapter());
   Hive.registerAdapter(FullPostHiveAdapter());
+  Hive.registerAdapter(MyImageGroupHiveAdapter());
+  Hive.registerAdapter(MyImageHiveAdapter());
+  Hive.registerAdapter(SimpleUserHiveAdapter());
   Hive.registerAdapter(AddImageHiveAdapter());
   Hive.registerAdapter(AddLocationHiveAdapter());
   Hive.registerAdapter(AddPostHiveAdapter());
   Hive.registerAdapter(CropAspectRatioPresetCustomHiveAdapter());
-  
+  Hive.registerAdapter(UserPositionHiveAdapter());
+  Hive.registerAdapter(SimplePointHiveAdapter());
+
   await Hive.openBox(currentUserDataBox);
   await Hive.openBox<List>(postsDataBox);
+  await Hive.openBox<List>(locationPointsDataBox);
+  await Hive.openBox<UserPositionHive>(prevUserLocationDataBox);
 
   const environment = String.fromEnvironment('ENV', defaultValue: 'development');
   AppConfig.loadConfig(environment);
@@ -43,6 +51,10 @@ Future<void> main() async {
   HttpOverrides.global = MyHttpOverrides();
   WidgetsFlutterBinding.ensureInitialized();
   String initialRoute = await getInitialRoute();
+
+  await FMTCObjectBoxBackend().initialise();
+  await FMTCStore(tilesBox).manage.create();
+
   runApp(MultiBlocProvider(
     providers: [
       BlocProvider<ThemeBloc>(
@@ -72,10 +84,26 @@ Future<void> main() async {
     return '/';
   }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   final String initialRoute;
   const MyApp({super.key, required this.initialRoute});
 
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+    InternetChecker.initialize();
+  }
+
+  @override
+  void dispose() {
+    InternetChecker.dispose();
+    super.dispose();
+  }
 
 
   @override
@@ -83,13 +111,13 @@ class MyApp extends StatelessWidget {
     return BlocBuilder<ThemeBloc, ThemeState>(
       builder: (context, state) {
         return MaterialApp.router(
-          title: 'Flutter Demo',
+          title: 'Likely',
           theme: AppTheme.lightTheme(context),
           darkTheme: AppTheme.darkTheme(context),
           themeMode: state.themeMode,
-          routerConfig: router.AppRouter.createRouter(initialRoute),
+          routerConfig: router.AppRouter.createRouter(widget.initialRoute),
         );
-      },
+      }, 
     );
   }
 }

@@ -12,12 +12,27 @@ class AddLocationHiveAdapter extends TypeAdapter<AddLocationHive> {
 
   @override
   AddLocationHive read(BinaryReader reader) {
-    return AddLocationHive();
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return AddLocationHive(
+      latitude: fields[0] as double,
+      longitude: fields[1] as double,
+      eventTime: fields[2] as DateTime,
+    );
   }
 
   @override
   void write(BinaryWriter writer, AddLocationHive obj) {
-    writer.writeByte(0);
+    writer
+      ..writeByte(3)
+      ..writeByte(0)
+      ..write(obj.latitude)
+      ..writeByte(1)
+      ..write(obj.longitude)
+      ..writeByte(2)
+      ..write(obj.eventTime);
   }
 
   @override

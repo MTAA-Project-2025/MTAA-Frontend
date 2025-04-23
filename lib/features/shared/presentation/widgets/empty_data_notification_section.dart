@@ -6,7 +6,7 @@ import 'package:mtaa_frontend/features/shared/bloc/exceptions_bloc.dart';
 import 'package:mtaa_frontend/features/shared/bloc/exceptions_event.dart';
 
 class EmptyErrorNotificationSectionWidget extends StatelessWidget {
-  final void Function() onPressed;
+  final void Function()? onPressed;
   final String title;
 
   const EmptyErrorNotificationSectionWidget({
@@ -29,18 +29,19 @@ class EmptyErrorNotificationSectionWidget extends StatelessWidget {
         ),
         Text(title, style: Theme.of(context).textTheme.headlineLarge),
         const SizedBox(height: 10),
-        TextButton(
-          onPressed: () {
-            context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: false, exceptionType: ExceptionTypes.none, message: ''));
-            onPressed();
-          },
-          style: Theme.of(context).textButtonTheme.style!.copyWith(
-                minimumSize: WidgetStateProperty.all(Size(100, 39)),
-              ),
-          child: Text(
-            'Try again',
+        if (onPressed != null)
+          TextButton(
+            onPressed: () {
+              context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: false, exceptionType: ExceptionTypes.none, message: ''));
+              onPressed!();
+            },
+            style: Theme.of(context).textButtonTheme.style!.copyWith(
+                  minimumSize: WidgetStateProperty.all(Size(100, 39)),
+                ),
+            child: Text(
+              'Try again',
+            ),
           ),
-        ),
       ],
     );
   }

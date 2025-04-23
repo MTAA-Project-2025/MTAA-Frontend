@@ -2,6 +2,7 @@ import 'package:airplane_mode_checker/airplane_mode_checker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mtaa_frontend/core/constants/colors.dart';
 import 'package:mtaa_frontend/core/constants/route_constants.dart';
 import 'package:mtaa_frontend/core/utils/app_injections.dart';
 import 'package:mtaa_frontend/features/posts/data/models/responses/simple_post_response.dart';
@@ -13,14 +14,14 @@ import 'package:mtaa_frontend/features/shared/bloc/exceptions_state.dart';
 import 'package:mtaa_frontend/features/shared/data/controllers/pagination_scroll_controller.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/airmode_error_notification_section.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/dotLoader.dart';
-import 'package:mtaa_frontend/features/shared/presentation/widgets/empty_data_notification_section.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/server_error_notification_section.dart';
 
 class AccountPostListWidget extends StatefulWidget {
   final PostsRepository repository;
   final String userId;
+  final bool isOwner;
 
-  const AccountPostListWidget({super.key, required this.repository, required this.userId});
+  const AccountPostListWidget({super.key, required this.repository, required this.userId, required this.isOwner});
 
   @override
   State<AccountPostListWidget> createState() => _AccountPostListWidgetState();
@@ -78,6 +79,7 @@ class _AccountPostListWidgetState extends State<AccountPostListWidget> {
       paginationScrollController.stopLoading = true;
     }
     if (res.isNotEmpty) {
+      if (!mounted) return;
       setState(() {
         posts.addAll(res);
       });
@@ -98,10 +100,12 @@ class _AccountPostListWidgetState extends State<AccountPostListWidget> {
     paginationScrollController.dispose();
     paginationScrollController.init(loadAction: () => loadPosts());
 
+    if (!mounted) return;
     setState(() {
       paginationScrollController.isLoading = true;
     });
     await loadPosts();
+    if (!mounted) return;
     setState(() {
       paginationScrollController.isLoading = false;
     });
@@ -115,13 +119,40 @@ class _AccountPostListWidgetState extends State<AccountPostListWidget> {
         slivers: [
           SliverGrid(
             delegate: SliverChildBuilderDelegate(
-              childCount: posts.length,
+              childCount: posts.length + (widget.isOwner ? 1 : 0),
               (context, index) {
+                if (widget.isOwner && index == 0) {
+                  return AspectRatio(
+                      aspectRatio: 1,
+                      child: GestureDetector(
+                          onTap: () {
+                            GoRouter.of(context).push(addPostScreenRoute);
+                          },
+                          child: IconButton(
+                            onPressed: () {
+                              GoRouter.of(context).push(addPostScreenRoute);
+                            },
+                            style: IconButton.styleFrom(
+                              backgroundColor: Theme.of(context).secondaryHeaderColor.withAlpha(25),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            icon: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: secondary1InvincibleColor,
+                                borderRadius: BorderRadius.circular(999),
+                              ),
+                              child: Icon(Icons.add_rounded, color: whiteColor, size: 36),
+                            ),
+                          )));
+                }
                 return GestureDetector(
                   onTap: () {
-                    GoRouter.of(context).push('$fullPostScreenRoute/${posts[index].id}');
+                    GoRouter.of(context).push('$fullPostScreenRoute/${posts[index - (widget.isOwner ? 1 : 0)].id}');
                   },
-                  child: Image(image: NetworkImage(posts[index].smallFirstImage.fullPath)),
+                  child: Image(image: NetworkImage(posts[index - (widget.isOwner ? 1 : 0)].smallFirstImage.fullPath)),
                 );
               },
             ),
@@ -153,12 +184,10 @@ class _AccountPostListWidgetState extends State<AccountPostListWidget> {
             )),
           if (!paginationScrollController.isLoading && !state.isException && posts.isEmpty)
             SliverToBoxAdapter(
-                child: EmptyErrorNotificationSectionWidget(
-              onPressed: () {
-                loadFirst();
-              },
-              title: 'No posts found',
-            )),
+              child: Padding(
+                  padding: const EdgeInsets.only(top: 15.0),
+                  child: Center(child: Text('No posts found', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).textTheme.bodySmall?.color)))),
+            )
         ],
       );
     });

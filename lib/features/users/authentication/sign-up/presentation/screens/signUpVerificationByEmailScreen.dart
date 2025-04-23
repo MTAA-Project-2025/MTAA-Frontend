@@ -21,12 +21,10 @@ class SignUpVerificationByEmailScreen extends StatefulWidget {
   const SignUpVerificationByEmailScreen({super.key, required this.identityApi});
 
   @override
-  State<SignUpVerificationByEmailScreen> createState() =>
-      _SignUpVerificationByEmailScreenState();
+  State<SignUpVerificationByEmailScreen> createState() => _SignUpVerificationByEmailScreenState();
 }
 
-class _SignUpVerificationByEmailScreenState
-    extends State<SignUpVerificationByEmailScreen> {
+class _SignUpVerificationByEmailScreenState extends State<SignUpVerificationByEmailScreen> {
   bool isLoading = false;
 
   void _navigateToCreateAccount() {
@@ -54,99 +52,87 @@ class _SignUpVerificationByEmailScreenState
         ),
         body: Container(
             padding: const EdgeInsets.all(28),
-            child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Column(children: [
-                    Text(
-                      'Verify Your Email',
+            child: Column(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+              Column(children: [
+                Text(
+                  'Verify Your Email',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.headlineLarge,
+                ),
+                const SizedBox(height: 9),
+                BlocBuilder<VerificationEmailPhoneBloc, VerificationEmailPhoneState>(builder: (context, state) {
+                  return Text.rich(
                       textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.headlineLarge,
-                    ),
-                    const SizedBox(height: 9),
-                    BlocBuilder<VerificationEmailPhoneBloc,
-                        VerificationEmailPhoneState>(builder: (context, state) {
-                      return Text.rich(
-                          textAlign: TextAlign.center,
+                      TextSpan(
+                        text: 'We sent a confirmation Email to the ${state.str}. ',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                        children: [
                           TextSpan(
-                            text:
-                                'We sent a confirmation Email to the ${state.str}. ',
-                            style: Theme.of(context).textTheme.bodyMedium,
-                            children: [
-                              TextSpan(
-                                text: 'Wrong email?',
-                                style: Theme.of(context).textTheme.labelSmall,
-                              ),
-                            ],
-                          ));
-                    }),
-                  ]),
-                  Spacer(flex: 1),
-                  Column(
-                    children: [
-                      Text(
-                        'Enter 6-digit code',
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.labelMedium,
-                      ),
-                      isLoading
-                          ? Container(
-                              width: (6 * 32) + (3 * 4) + 16,
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 28),
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                    color: primarily0InvincibleColor, width: 1),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: DotLoader(),
-                            )
-                          : BlocBuilder<VerificationEmailPhoneBloc,
-                                  VerificationEmailPhoneState>(
-                              builder: (context, state) {
-                              return VerificationCodeInput(
-                                  onCompleted: (code) async {
-                                if (mounted) {
-                                  setState(() => isLoading = true);
-                                }
-                                bool res = await widget.identityApi
-                                    .signUpVerifyEmail(SignUpVerifyEmailRequest(
-                                        email: state.str, code: code));
-
-                                if (mounted) {
-                                  setState(() => isLoading = false);
-                                }
-
-                                if (!mounted) return;
-                                if (res == true) {
-                                  _navigateToCreateAccount();
-                                } else {
-                                  Fluttertoast.showToast(
-                                      msg: "The code is invalid",
-                                      toastLength: Toast.LENGTH_SHORT,
-                                      gravity: ToastGravity.CENTER,
-                                      timeInSecForIosWeb: 1,
-                                      backgroundColor: Colors.red,
-                                      textColor: whiteColor,
-                                      fontSize: 16.0);
-                                }
-                              });
-                            }),
-                    ],
+                            text: 'Wrong email?',
+                            style: Theme.of(context).textTheme.labelSmall,
+                          ),
+                        ],
+                      ));
+                }),
+              ]),
+              Spacer(flex: 1),
+              Column(
+                children: [
+                  Text(
+                    'Enter 6-digit code',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.labelMedium,
                   ),
-                  Spacer(flex: 1),
-                  BlocBuilder<VerificationEmailPhoneBloc,
-                      VerificationEmailPhoneState>(builder: (context, state) {
-                    return ResendEmailButton(
-                      onTriggered: () async {
-                        setState(() => isLoading = true);
-                        await widget.identityApi.signUpStartEmailVerification(
-                            StartSignUpEmailVerificationRequest(
-                                email: state.str));
-                        setState(() => isLoading = false);
-                      },
-                    );
-                  }),
-                ])));
+                  isLoading
+                      ? Container(
+                          width: (6 * 32) + (3 * 4) + 16,
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 28),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: primarily0InvincibleColor, width: 1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: DotLoader(),
+                        )
+                      : BlocBuilder<VerificationEmailPhoneBloc, VerificationEmailPhoneState>(builder: (context, state) {
+                          return VerificationCodeInput(onCompleted: (code) async {
+                            if (mounted) {
+                              setState(() => isLoading = true);
+                            }
+                            bool res = await widget.identityApi.signUpVerifyEmail(SignUpVerifyEmailRequest(email: state.str, code: code));
+
+                            if (mounted) {
+                              setState(() => isLoading = false);
+                            }
+
+                            if (!mounted) return;
+                            if (res == true) {
+                              _navigateToCreateAccount();
+                            } else {
+                              Fluttertoast.showToast(
+                                  msg: "The code is invalid",
+                                  toastLength: Toast.LENGTH_SHORT,
+                                  gravity: ToastGravity.CENTER,
+                                  timeInSecForIosWeb: 1,
+                                  backgroundColor: Colors.red,
+                                  textColor: whiteColor,
+                                  fontSize: 16.0);
+                            }
+                          });
+                        }),
+                ],
+              ),
+              Spacer(flex: 1),
+              BlocBuilder<VerificationEmailPhoneBloc, VerificationEmailPhoneState>(builder: (context, state) {
+                return ResendEmailButton(
+                  onTriggered: () async {
+                    if (!mounted) return;
+                    setState(() => isLoading = true);
+                    await widget.identityApi.signUpStartEmailVerification(StartSignUpEmailVerificationRequest(email: state.str));
+                    if (!mounted) return;
+                    setState(() => isLoading = false);
+                  },
+                );
+              }),
+            ])));
   }
 }

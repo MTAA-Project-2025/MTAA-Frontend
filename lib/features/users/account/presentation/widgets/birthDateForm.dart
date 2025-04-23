@@ -4,8 +4,10 @@ import 'package:mtaa_frontend/features/shared/presentation/widgets/dataTimeInput
 class BirthDateForm extends StatefulWidget {
   final void Function(DateTime) onChanged;
   final GlobalKey<FormState> formKey;
+  final String placeholder;
 
-  const BirthDateForm({super.key, required this.formKey, required this.onChanged});
+  const BirthDateForm({super.key, required this.formKey, required this.onChanged,
+  this.placeholder = 'Select your birth date'});
 
   @override
   State<BirthDateForm> createState() => _BirthDateFormState();
@@ -26,11 +28,14 @@ class _BirthDateFormState extends State<BirthDateForm> {
           SizedBox(
             height: 65,
             child: DateTimeInput(
-                placeholder: 'Select your birth date',
+                placeholder: widget.placeholder,
                 onChanged: (date) async {
                   birthDate = date;
                   widget.onChanged(date);
-                }),
+                },
+                minDate: DateTime(1900),
+                maxDisplayedDate: DateTime.now().add(Duration(days: 10)),
+                maxDate: DateTime.now()),
           )
         ],
       ),

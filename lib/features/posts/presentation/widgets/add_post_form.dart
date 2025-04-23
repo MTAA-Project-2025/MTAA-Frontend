@@ -42,6 +42,7 @@ class _AddPostFormState extends State<AddPostForm> {
   int currentPos = 0;
   XFile? pickedFile;
   List<String> imagesForDelete = [];
+  final int maxImages = 10;
 
   @override
   void dispose() {
@@ -65,14 +66,14 @@ class _AddPostFormState extends State<AddPostForm> {
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 scrollDirection: Axis.horizontal,
                 cacheExtent: 9999,
-                itemCount: widget.images.length < 10 ? widget.images.length + 1 : 10,
+                itemCount: widget.images.length < maxImages ? widget.images.length + 1 : maxImages,
                 separatorBuilder: (BuildContext context, int index) {
                   return SizedBox(width: 10);
                 },
                 itemBuilder: (context, index) {
                   if (index < widget.images.length) {
                     return Container(
-                        height: 100,
+                        height: 200,
                         child: Stack(
                           children: [
                             GestureDetector(
@@ -80,13 +81,18 @@ class _AddPostFormState extends State<AddPostForm> {
                                 currentPos = index;
                                 _cropImage(context, false);
                               },
-                              child: ClipRRect(
+                              child: Container(
+                                height: 200,
+                                child: ClipRRect(
                                   borderRadius: BorderRadius.circular(8),
                                   child: ColorFiltered(
-                                      colorFilter: widget.images[index].isAspectRatioError
-                                          ? ColorFilter.mode(errorColor.withAlpha(200), BlendMode.multiply)
-                                          : ColorFilter.mode(Colors.transparent, BlendMode.multiply),
-                                      child: widget.images[index].image)),
+                                    colorFilter: widget.images[index].isAspectRatioError
+                                        ? ColorFilter.mode(errorColor.withAlpha(200), BlendMode.multiply)
+                                        : ColorFilter.mode(Colors.transparent, BlendMode.multiply),
+                                    child: widget.images[index].image,
+                                  ),
+                                ),
+                              ),
                             ),
                             Positioned(
                               top: 10,
@@ -202,6 +208,8 @@ class _AddPostFormState extends State<AddPostForm> {
           }
         }
       }
+
+      if (!mounted) return;
 
       final croppedFile = await ImageCropper().cropImage(
         sourcePath: originalPath,

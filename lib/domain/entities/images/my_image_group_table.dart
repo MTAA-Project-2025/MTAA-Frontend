@@ -8,4 +8,7 @@ class MyImageGroups extends Table{
   IntColumn get position => integer()();
   TextColumn? get postId => text().nullable().references(Posts, #id)();
   TextColumn? get userId => text().nullable().references(Users, #id)();
+
+  @override
+  Set<Column> get primaryKey => {id};
 }
