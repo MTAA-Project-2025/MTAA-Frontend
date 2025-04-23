@@ -25,6 +25,7 @@ class _PostLikeWidgetState extends State<PostLikeWidget> {
               ? SvgPicture.asset('assets/icons/heart_active.svg', width: 24, height: 24)
               : SvgPicture.asset('assets/icons/heart.svg', width: 24, height: 24, color: Theme.of(context).textTheme.bodySmall!.color),
           onPressed: () async {
+            if (!mounted) return;
             setState(() {
               widget.post.isLiked = !widget.post.isLiked;
               if (widget.post.isLiked) {
@@ -36,12 +37,13 @@ class _PostLikeWidgetState extends State<PostLikeWidget> {
 
             bool res = false;
 
-            if(widget.post.isLiked) {
+            if (widget.post.isLiked) {
               res = await widget.repository.likePost(widget.post.id);
             } else {
               res = await widget.repository.removePostLike(widget.post.id);
             }
 
+            if (!mounted) return;
             setState(() {
               if (!res) {
                 widget.post.isLiked = !widget.post.isLiked;

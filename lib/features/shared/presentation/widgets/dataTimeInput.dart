@@ -103,6 +103,7 @@ class _DateTimeInputState extends State<DateTimeInput> {
   }
 
   buildCupertinoDatePicker(BuildContext context) {
+    if(!context.mounted)return;
     showModalBottomSheet(
         context: context,
         builder: (BuildContext builder) {
@@ -113,6 +114,7 @@ class _DateTimeInputState extends State<DateTimeInput> {
               mode: CupertinoDatePickerMode.date,
               onDateTimeChanged: (picked) {
                 if (picked != date) {
+                  if(!mounted)return;
                   setState(() {
                     date = picked;
                     isFirstTime = false;
@@ -129,6 +131,7 @@ class _DateTimeInputState extends State<DateTimeInput> {
   }
 
   buildMaterialDatePicker(BuildContext context) async {
+    if(!context.mounted)return;
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: date,
@@ -152,6 +155,7 @@ class _DateTimeInputState extends State<DateTimeInput> {
       },
     );
     if (picked != null && picked != date) {
+      if(!mounted)return;
       setState(() {
         date = picked;
         isFirstTime = false;

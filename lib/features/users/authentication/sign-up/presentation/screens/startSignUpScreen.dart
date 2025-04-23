@@ -155,6 +155,7 @@ class _StartSignUpScreenState extends State<StartSignUpScreen> {
                     : TextButton(
                         onPressed: () async {
                           if (_emailformKey.currentState!.validate()) {
+                            if(!mounted)return;
                             setState(() => isLoading = true);
                             emailPhoneBloc.add(SetVerificationEmailPhoneEvent(
                                 emailController.text));
@@ -162,6 +163,8 @@ class _StartSignUpScreenState extends State<StartSignUpScreen> {
                                 .signUpStartEmailVerification(
                                     StartSignUpEmailVerificationRequest(
                                         email: emailController.text));
+                            
+                            if(!mounted)return;
                             setState(() => isLoading = false);
                             if (res == true) {
                               GoRouter.of(context)

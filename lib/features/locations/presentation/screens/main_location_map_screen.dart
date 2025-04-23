@@ -108,6 +108,7 @@ class _MainLocationMapScreenState extends State<MainLocationMapScreen> {
           floor: userPos.floor);
     }
     List<SimpleLocationPointResponse> points = await widget.repository.getPreviousLocationPoints();
+    if(!mounted)return;
     setState(() {
       locationPoints = points;
     });

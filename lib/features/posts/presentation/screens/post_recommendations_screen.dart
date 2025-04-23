@@ -104,6 +104,7 @@ class _PostRecommendationsScreenState extends State<PostRecommendationsScreen> {
     posts.clear();
     paginationScrollController.dispose();
     paginationScrollController.init(loadAction: () => loadPosts());
+    if(!mounted)return;
     setState(() {
       paginationScrollController.isLoading = true;
     });

@@ -114,6 +114,7 @@ class _UpdatePostScreenState extends State<UpdatePostScreen> {
   }
 
   void deleteImg(int pos) {
+    if(!mounted)return;
     setState(() {
       images.removeAt(pos);
       addImagesDTOs.removeAt(pos);
@@ -289,6 +290,7 @@ class _UpdatePostScreenState extends State<UpdatePostScreen> {
                               return;
                             }
                             if (formKey.currentState!.validate()) {
+                              if(!mounted)return;
                               setState(() => isLoading = true);
                               List<UpdateImageRequest> updateImageRequests = [];
                               for (int i = 0; i < addImagesDTOs.length; i++) {
@@ -300,6 +302,7 @@ class _UpdatePostScreenState extends State<UpdatePostScreen> {
                               }
                               var res = await widget.repository.updatePost(UpdatePostRequest(
                                   id: widget.post.id, images: updateImageRequests, description: descriptionController.text, location: addLocationRequest.latitude > -200 ? addLocationRequest : null));
+                              if(!mounted)return;
                               setState(() => isLoading = false);
                               if (res) {
                                 _navigateToGroupListScreen();

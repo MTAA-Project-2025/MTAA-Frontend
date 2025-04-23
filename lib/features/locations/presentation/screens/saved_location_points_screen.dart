@@ -101,6 +101,7 @@ class _SavedLocationsPointsScreenState extends State<SavedLocationsPointsScreen>
     points.clear();
     paginationScrollController.dispose();
     paginationScrollController.init(loadAction: () => loadPosts());
+    if(!mounted)return;
     setState(() {
       paginationScrollController.isLoading = true;
     });

@@ -73,6 +73,7 @@ class _FirstUpdateBirthDateScreenState extends State<FirstUpdateBirthDateScreen>
             BirthDateForm(
               formKey: _formKey,
               onChanged: (date) async {
+                if(!mounted)return;
                 setState(() {
                   selectedDate = date;
                   isError = false;
@@ -101,6 +102,7 @@ class _FirstUpdateBirthDateScreenState extends State<FirstUpdateBirthDateScreen>
                       TextButton(
                         onPressed: () async {
                           if (selectedDate == null) {
+                            if(!mounted)return;
                             setState(() {
                               isError = true;
                             });
@@ -108,8 +110,10 @@ class _FirstUpdateBirthDateScreenState extends State<FirstUpdateBirthDateScreen>
                           } else {
                             isError = false;
                             if (_formKey.currentState!.validate()) {
+                              if(!mounted)return;
                               setState(() => isLoading = true);
                               bool res = await widget.accountApi.updateAccountBirthDate(UpdateAccountBirthDateRequest(birthDate: selectedDate ?? DateTime.now()));
+                              if(!mounted)return;
                               setState(() => isLoading = false);
                               if (res) {
                                 _navigateToGroupListScreen();

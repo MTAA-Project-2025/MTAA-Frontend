@@ -85,8 +85,11 @@ class _FirstUpdateDisplayNameScreenState extends State<FirstUpdateDisplayNameScr
                       TextButton(
                         onPressed: () async {
                           if (_formKey.currentState!.validate()) {
+                            if(!mounted)return;
                             setState(() => isLoading = true);
                             bool res = await widget.accountApi.updateAccountDisplayName(UpdateAccountDisplayNameRequest(displayName: displayNameController.text));
+                            
+                            if(!mounted)return;
                             setState(() => isLoading = false);
                             if (res) {
                               _navigateToUpdateBirthDateScreen();

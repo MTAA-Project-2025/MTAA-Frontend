@@ -123,6 +123,7 @@ class _FullDateTimeInputState extends State<FullDateTimeInput> {
               mode: CupertinoDatePickerMode.date,
               onDateTimeChanged: (picked) {
                 if (picked != date) {
+                  if(!mounted)return;
                   setState(() {
                     date = picked;
                     isFirstTime = false;
@@ -139,6 +140,7 @@ class _FullDateTimeInputState extends State<FullDateTimeInput> {
   }
 
   buildMaterialDatePicker(BuildContext context) async {
+    if(!context.mounted)return;
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: date,
@@ -175,6 +177,7 @@ class _FullDateTimeInputState extends State<FullDateTimeInput> {
       );
 
       if (time != null) {
+        if(!mounted)return;
         setState(() {
           date = DateTime(picked.year, picked.month, picked.day, time.hour, time.minute);
           isFirstTime = false;

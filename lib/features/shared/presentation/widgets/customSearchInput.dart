@@ -35,6 +35,7 @@ class _CustomSearchInputState extends State<CustomSearchInput> {
     return FocusScope(
       child: Focus(
         onFocusChange: (focus) {
+          if(!mounted)return;
           setState(() => _isFocused = focus);
           if(!_isFocused){
             widget.onSearch.call();
@@ -57,6 +58,7 @@ class _CustomSearchInputState extends State<CustomSearchInput> {
               icon: Icon(Icons.search_rounded),
               color: Theme.of(context).textTheme.labelMedium?.decorationColor,
               onPressed: () {
+                if(!mounted)return;
                 setState(
                   () {
                     _isFocused=!_isFocused;

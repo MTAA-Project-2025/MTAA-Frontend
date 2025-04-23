@@ -74,6 +74,7 @@ class _LogInScreenState extends State<LogInScreen> {
                       : TextButton(
                           onPressed: () async {
                             if (_formKey.currentState!.validate()) {
+                              if(!mounted)return;
                               setState(() => isLoading = true);
 
                               String input = loginController.text.trim();
@@ -91,6 +92,7 @@ class _LogInScreenState extends State<LogInScreen> {
                                 LogInRequest(email: email, phone: phone, password: passwordController.text),
                               );
 
+                              if(!mounted)return;
                               setState(() => isLoading = false);
 
                               if (res != null) {

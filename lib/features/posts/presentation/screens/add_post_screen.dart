@@ -355,6 +355,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                                 }
                                 var id = await widget.repository
                                     .addPost(AddPostRequest(images: addImageRequests, description: descriptionController.text, location: addLocationRequest.latitude > -200 ? addLocationRequest : null));
+                                if(!mounted)return;
                                 setState(() => isLoading = false);
                                 if (id != null) {
                                   _navigateToGroupListScreen();

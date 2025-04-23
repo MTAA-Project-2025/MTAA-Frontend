@@ -89,6 +89,7 @@ class _PostLocationSaveSectionState extends State<PostLocationSaveSection> {
                 size: 24,
               ),
               onPressed: () async {
+                if(!mounted)return;
                 setState(() {
                   isSaved = !isSaved;
                   if (widget.locationPost != null) {

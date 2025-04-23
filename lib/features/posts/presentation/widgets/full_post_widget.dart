@@ -118,6 +118,7 @@ class _FullPostWidgetState extends State<FullPostWidget> {
                       //TODO: implement confirmation
                       widget.repository.deletePost(widget.post.id);
                     }
+                    if(!mounted)return;
                     setState(() {});
                   },
                   itemBuilder: (BuildContext context) => <PopupMenuEntry<PostMenuElements>>[

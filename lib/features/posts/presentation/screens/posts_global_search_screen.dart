@@ -63,7 +63,7 @@ class _PostsGlobalSearchScreenState extends State<PostsGlobalSearchScreen> {
           if (mounted && context.mounted) {
             final status = await AirplaneModeChecker.instance.checkAirplaneMode();
             if (status == AirplaneModeStatus.off) {
-              if(mounted && context.mounted){
+              if (mounted && context.mounted) {
                 context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: false, exceptionType: ExceptionTypes.none, message: ''));
               }
               loadFirst();
@@ -83,7 +83,7 @@ class _PostsGlobalSearchScreenState extends State<PostsGlobalSearchScreen> {
       paginationScrollController.stopLoading = true;
     }
     if (res.isNotEmpty) {
-      if(!mounted) return false;
+      if (!mounted) return false;
       setState(() {
         posts.addAll(res);
       });
@@ -104,10 +104,12 @@ class _PostsGlobalSearchScreenState extends State<PostsGlobalSearchScreen> {
     paginationScrollController.dispose();
     paginationScrollController.init(loadAction: () => loadPosts());
 
+    if (!mounted) return;
     setState(() {
       paginationScrollController.isLoading = true;
     });
     await loadPosts();
+    if (!mounted) return;
     setState(() {
       paginationScrollController.isLoading = false;
     });

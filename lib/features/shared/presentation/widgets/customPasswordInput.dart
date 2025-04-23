@@ -58,6 +58,7 @@ class _CustomPasswordInputState extends State<CustomPasswordInput> {
               icon: Icon(passwordVisible ? Icons.visibility : Icons.visibility_off),
               color: Theme.of(context).textTheme.labelMedium?.decorationColor,
               onPressed: () {
+                if(!mounted)return;
                 setState(
                   () {
                     passwordVisible = !passwordVisible;

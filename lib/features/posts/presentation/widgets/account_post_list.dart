@@ -79,6 +79,7 @@ class _AccountPostListWidgetState extends State<AccountPostListWidget> {
       paginationScrollController.stopLoading = true;
     }
     if (res.isNotEmpty) {
+      if (!mounted) return;
       setState(() {
         posts.addAll(res);
       });
@@ -99,10 +100,12 @@ class _AccountPostListWidgetState extends State<AccountPostListWidget> {
     paginationScrollController.dispose();
     paginationScrollController.init(loadAction: () => loadPosts());
 
+    if (!mounted) return;
     setState(() {
       paginationScrollController.isLoading = true;
     });
     await loadPosts();
+    if (!mounted) return;
     setState(() {
       paginationScrollController.isLoading = false;
     });
@@ -181,7 +184,9 @@ class _AccountPostListWidgetState extends State<AccountPostListWidget> {
             )),
           if (!paginationScrollController.isLoading && !state.isException && posts.isEmpty)
             SliverToBoxAdapter(
-              child:Padding(padding: const EdgeInsets.only(top: 15.0), child:  Center(child: Text('No posts found', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).textTheme.bodySmall?.color)))),
+              child: Padding(
+                  padding: const EdgeInsets.only(top: 15.0),
+                  child: Center(child: Text('No posts found', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).textTheme.bodySmall?.color)))),
             )
         ],
       );

@@ -13,7 +13,6 @@ import 'package:mtaa_frontend/core/constants/colors.dart';
 import 'package:mtaa_frontend/core/constants/route_constants.dart';
 import 'package:mtaa_frontend/core/constants/storages/storage_boxes.dart';
 import 'package:mtaa_frontend/core/services/my_toast_service.dart';
-import 'package:mtaa_frontend/core/utils/app_injections.dart';
 import 'package:mtaa_frontend/features/locations/data/models/responses/simple_location_point_response.dart';
 import 'package:mtaa_frontend/features/locations/data/repositories/locations_repository.dart';
 import 'package:mtaa_frontend/features/shared/bloc/exception_type.dart';
@@ -100,7 +99,7 @@ class _MapWidgetState extends State<MapWidget> {
   }
 
   Future initLocation() async {
-    if(!widget.isUserPos)return;
+    if (!widget.isUserPos) return;
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
@@ -162,6 +161,7 @@ class _MapWidgetState extends State<MapWidget> {
       return locationMarker;
     });
 
+    if (!mounted) return;
     setState(() {});
   }
 
@@ -333,7 +333,9 @@ class _MapWidgetState extends State<MapWidget> {
     } else {
       return GestureDetector(
           onTap: () {
-            GoRouter.of(context).push('$fullPostScreenRoute/${point.postId}');
+            if (point.image != null && point.image!.fullPath.isNotEmpty) {
+              GoRouter.of(context).push('$fullPostScreenRoute/${point.postId}');
+            }
           },
           child: ClipRRect(
             borderRadius: BorderRadius.circular(20),

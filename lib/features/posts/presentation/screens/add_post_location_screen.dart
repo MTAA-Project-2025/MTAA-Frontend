@@ -81,6 +81,7 @@ class _AddPostLocationScreenState extends State<AddPostLocationScreen> {
                         widget.toastService.showErrorWithContext('Please select a valid date in the future', context);
                         return;
                       }
+                      if(!mounted)return;
                       setState(() {
                         selectedDate = date;
                       });
@@ -106,6 +107,7 @@ class _AddPostLocationScreenState extends State<AddPostLocationScreen> {
                         isLoading: false,
                         mapController: mapController,
                         onTap: (TapPosition pos, LatLng latPos) {
+                          if(!mounted)return;
                           setState(() {
                             selectedLocationPoint = SimpleLocationPointResponse(
                               childCount: 0,
