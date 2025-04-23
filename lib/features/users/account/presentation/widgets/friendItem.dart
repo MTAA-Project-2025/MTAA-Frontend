@@ -2,16 +2,19 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mtaa_frontend/core/constants/route_constants.dart';
+import 'package:mtaa_frontend/features/users/account/data/models/requests/follow.dart';
+import 'package:mtaa_frontend/features/users/account/data/models/requests/unfollow.dart';
 import 'package:mtaa_frontend/features/users/account/data/models/responses/publicBaseAccountResponse.dart';
+import 'package:mtaa_frontend/features/users/account/data/repositories/account_repository.dart';
 
 class FriendItem extends StatefulWidget {
   final PublicBaseAccountResponse friend;
-  final void Function()? onUnfollow;
+  final AccountRepository repository;
 
   const FriendItem({
     super.key,
     required this.friend,
-    this.onUnfollow,
+    required this.repository,
   });
   
   @override
@@ -82,7 +85,20 @@ class _FriendItemState extends State<FriendItem> {
           ),
           if (widget.friend.isFollowing)
             TextButton(
-              onPressed: widget.onUnfollow,
+              onPressed:() async{
+                if(!mounted) return;
+                setState(() {
+                  widget.friend.isFollowing = false;
+                });
+                bool res = await widget.repository.unfollow(Unfollow(userId: widget.friend.id));
+
+                if(!res){
+                  if(!mounted) return;
+                  setState(() {
+                    widget.friend.isFollowing = true;
+                  });
+                }
+              },
               style: Theme.of(context).textButtonTheme.style!.copyWith(
                 padding: WidgetStatePropertyAll(const EdgeInsets.symmetric(vertical: 5, horizontal: 8)),
                 minimumSize: WidgetStatePropertyAll(Size(0,0)), 
@@ -91,7 +107,20 @@ class _FriendItemState extends State<FriendItem> {
             ),
           if (!widget.friend.isFollowing)
             TextButton(
-              onPressed: widget.onUnfollow,
+              onPressed:() async{
+                if(!mounted) return;
+                setState(() {
+                  widget.friend.isFollowing = true;
+                });
+                bool res = await widget.repository.follow(Follow(userId: widget.friend.id));
+
+                if(!res){
+                  if(!mounted) return;
+                  setState(() {
+                    widget.friend.isFollowing = false;
+                  });
+                }
+              },
               style: Theme.of(context).textButtonTheme.style!.copyWith(
                 backgroundColor: WidgetStatePropertyAll(Theme.of(context).colorScheme.secondary),
                 padding: WidgetStatePropertyAll(const EdgeInsets.symmetric(vertical: 5, horizontal: 8)),

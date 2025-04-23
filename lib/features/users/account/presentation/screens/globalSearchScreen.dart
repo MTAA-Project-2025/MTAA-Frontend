@@ -33,6 +33,7 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
       getIt.unregister<BuildContext>();
     }
     getIt.registerSingleton<BuildContext>(context);
+    super.initState();
   }
 
   void onTabChange(String tabId) {

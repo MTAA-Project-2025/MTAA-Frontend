@@ -2,18 +2,15 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:form_field_validator/form_field_validator.dart';
-import 'package:go_router/go_router.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mtaa_frontend/core/constants/colors.dart';
 import 'package:mtaa_frontend/core/constants/menu_buttons.dart';
-import 'package:mtaa_frontend/core/constants/route_constants.dart';
 import 'package:mtaa_frontend/core/constants/validators.dart';
 import 'package:mtaa_frontend/core/services/my_toast_service.dart';
 import 'package:mtaa_frontend/core/utils/app_injections.dart';
 import 'package:mtaa_frontend/features/images/data/models/responses/myImageResponse.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/customTextInput.dart';
-import 'package:mtaa_frontend/features/shared/presentation/widgets/dataTimeInput.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/dotLoader.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/phone_bottom_menu.dart';
 import 'package:mtaa_frontend/features/users/account/data/models/requests/updateAccountUsernameRequest.dart';
@@ -50,6 +47,7 @@ class _UpdateAccountScreenState extends State<UpdateAccountScreen> {
     }
     getIt.registerSingleton<BuildContext>(context);
 
+    if(!mounted) return;
     setState(() {
       isLoading = true;
     });
@@ -62,10 +60,12 @@ class _UpdateAccountScreenState extends State<UpdateAccountScreen> {
     var res = await widget.repository.getFullAccount();
 
     if (res != null) {
+      if(!mounted) return;
       setState(() {
         user = res;
       });
     }
+    if(!mounted) return;
     setState(() {
       isLoading = false;
     });
@@ -99,6 +99,7 @@ class _UpdateAccountScreenState extends State<UpdateAccountScreen> {
           ? BirthDateForm(
               formKey: _formKey,
               onChanged: (date) async {
+                if(!mounted)return;
                 setState(() {
                   selectedDate = date;
                 });
@@ -134,6 +135,7 @@ class _UpdateAccountScreenState extends State<UpdateAccountScreen> {
                     );
 
                     if (res) {
+                      if(!mounted)return;
                       setState(() {
                         user?.username = controller.text;
                       });
@@ -142,6 +144,7 @@ class _UpdateAccountScreenState extends State<UpdateAccountScreen> {
                   break;
                 case 'full name':
                   if (user != null) {
+                    if(!mounted)return;
                     setState(() {
                       user?.displayName = controller.text;
                     });
@@ -151,6 +154,7 @@ class _UpdateAccountScreenState extends State<UpdateAccountScreen> {
                   break;
               }
 
+              if(!mounted || !context.mounted) return;
               Navigator.pop(context);
               widget.toastService.showMsgWithContext('$fieldName updated successfully', context);
             },
@@ -293,6 +297,7 @@ class _UpdateAccountScreenState extends State<UpdateAccountScreen> {
         return;
       }
 
+      if (!mounted) return;
       setState(() {
         _pickedFile = pickedFile;
         _cropImage(context);
@@ -337,6 +342,7 @@ class _UpdateAccountScreenState extends State<UpdateAccountScreen> {
         ],
       );
       if (croppedFile != null) {
+        if(!mounted)return;
         setState(() {
           selectedCustomImage = File(croppedFile.path);
           _pickedFile = null;

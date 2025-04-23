@@ -160,6 +160,8 @@ class _SavedLocationsPointsScreenState extends State<SavedLocationsPointsScreen>
                     return EmptyErrorNotificationSectionWidget(
                       onPressed:null,
                       title: 'No saved locations found',
+                      imgPath: 'assets/svgs/kitsune_with_book.svg',
+                      aspectRatio: 0.9078,
                     );
                   }
                   return null;

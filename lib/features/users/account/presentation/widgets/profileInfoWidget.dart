@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mtaa_frontend/core/constants/route_constants.dart';
-import 'package:mtaa_frontend/features/users/account/presentation/widgets/tabNavigation.dart';
 
 class ProfileInfoWidget extends StatelessWidget {
   final String avatarUrl;

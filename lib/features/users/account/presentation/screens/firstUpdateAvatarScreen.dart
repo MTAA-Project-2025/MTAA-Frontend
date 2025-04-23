@@ -170,28 +170,26 @@ class _FirstUpdateAvatarScreenState extends State<FirstUpdateAvatarScreen> {
                       TextButton(
                         onPressed: () async {
                           if (selectedPresetImage == null && selectedCustomImage == null) {
-                            if(!mounted)return;
+                            if (!mounted) return;
                             setState(() {
                               isError = true;
                             });
                             return;
                           } else {
                             isError = false;
-                            if (_formKey.currentState!.validate()) {
-                              if(!mounted)return;
-                              setState(() => isLoading = true);
+                            if (!mounted) return;
+                            setState(() => isLoading = true);
 
-                              MyImageGroupResponse? res;
-                              if (selectedPresetImage != null) {
-                                res = await widget.accountApi.presetUpdateAccountAvatar(PresetUpdateAccountAvatarRequest(imageGroupId: selectedPresetImage!.id));
-                              } else if (selectedCustomImage != null) {
-                                res = await widget.accountApi.customUpdateAccountAvatar(CustomUpdateAccountAvatarRequest(avatar: selectedCustomImage!));
-                              }
-                              if(!mounted)return;
-                              setState(() => isLoading = false);
-                              if (res != null) {
-                                _navigateToGroupListScreen();
-                              }
+                            MyImageGroupResponse? res;
+                            if (selectedPresetImage != null) {
+                              res = await widget.accountApi.presetUpdateAccountAvatar(PresetUpdateAccountAvatarRequest(imageGroupId: selectedPresetImage!.id));
+                            } else if (selectedCustomImage != null) {
+                              res = await widget.accountApi.customUpdateAccountAvatar(CustomUpdateAccountAvatarRequest(avatar: selectedCustomImage!));
+                            }
+                            if (!mounted) return;
+                            setState(() => isLoading = false);
+                            if (res != null) {
+                              _navigateToGroupListScreen();
                             }
                           }
                         },
@@ -218,7 +216,7 @@ class _FirstUpdateAvatarScreenState extends State<FirstUpdateAvatarScreen> {
         return;
       }
 
-if(!mounted)return;
+      if (!mounted) return;
       setState(() {
         _pickedFile = pickedFile;
         _cropImage(context);
@@ -263,7 +261,7 @@ if(!mounted)return;
         ],
       );
       if (croppedFile != null) {
-        if(!mounted)return;
+        if (!mounted) return;
         setState(() {
           selectedCustomImage = File(croppedFile.path);
           _pickedFile = null;

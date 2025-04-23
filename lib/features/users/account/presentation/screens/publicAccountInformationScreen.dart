@@ -39,12 +39,12 @@ class _PublicAccountInformationScreenState extends State<PublicAccountInformatio
   }
 
   Future<void> _loadUser() async {
+    if(!mounted) return;
     setState(() => isLoading = true);
 
     final res = await widget.repository.getPublicFullAccount(widget.userId);
 
     if (!mounted) return;
-
     setState(() {
       user = res;
       isLoading = false;
@@ -56,6 +56,7 @@ class _PublicAccountInformationScreenState extends State<PublicAccountInformatio
 
     final wasFollowing = user!.isFollowing;
 
+    if(!mounted)return;
     setState(() {
       user?.isFollowing = !wasFollowing;
     });
@@ -67,6 +68,7 @@ class _PublicAccountInformationScreenState extends State<PublicAccountInformatio
         await widget.repository.follow(Follow(userId: user!.id));
       }
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         user?.isFollowing = wasFollowing;
       });
@@ -108,6 +110,7 @@ class _PublicAccountInformationScreenState extends State<PublicAccountInformatio
                       child: AccountPostListWidget(
                         repository: getIt<PostsRepository>(),
                         userId: user!.id,
+                        isOwner: false,
                       ),
                     ),
                 ],

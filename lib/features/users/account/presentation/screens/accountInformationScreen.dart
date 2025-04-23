@@ -97,7 +97,7 @@ class _AccountInformationScreenState extends State<AccountInformationScreen> {
                       onTabChange: handleTabChange,
                     ),
                     const SizedBox(height: 10),
-                    if (user != null) Expanded(child: AccountPostListWidget(repository: getIt<PostsRepository>(), userId: user!.id))
+                    if (user != null) Expanded(child: AccountPostListWidget(repository: getIt<PostsRepository>(), userId: user!.id, isOwner: true,))
                   ],
                 ),
         ),

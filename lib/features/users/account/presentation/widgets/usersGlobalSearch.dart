@@ -10,8 +10,8 @@ import 'package:mtaa_frontend/features/shared/data/models/global_search.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/airmode_error_notification_section.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/customSearchInput.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/dotLoader.dart';
-import 'package:mtaa_frontend/features/shared/presentation/widgets/empty_data_notification_section.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/server_error_notification_section.dart';
+import 'package:mtaa_frontend/features/shared/presentation/widgets/users_empty_data_notifications_section.dart';
 import 'package:mtaa_frontend/features/users/account/data/models/responses/publicBaseAccountResponse.dart';
 import 'package:mtaa_frontend/features/users/account/data/repositories/account_repository.dart';
 import 'package:mtaa_frontend/features/users/account/presentation/widgets/friendItem.dart';
@@ -129,7 +129,7 @@ class _UsersGlobalSearchState extends State<UsersGlobalSearch> {
                   if (index - 1 < users.length) {
                     return FriendItem(
                       friend: users[index - 1],
-                      onUnfollow: (){},
+                      repository: widget.repository,
                     );
                   }
                   if (paginationScrollController.isLoading) {
@@ -155,10 +155,9 @@ class _UsersGlobalSearchState extends State<UsersGlobalSearch> {
                     );
                   }
                   if (users.isEmpty) {
-                    return EmptyErrorNotificationSectionWidget(
-                      onPressed: () {
-                        loadFirst();
-                      },
+                    return UsersEmptyErrorNotificationSectionWidget(
+                      onPressed: null,
+                      imgPath: 'assets/svgs/kitsune_mask.svg',
                       title: 'No users found',
                     );
                   }

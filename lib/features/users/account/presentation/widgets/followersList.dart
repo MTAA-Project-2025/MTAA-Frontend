@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mtaa_frontend/features/users/account/data/models/requests/follow.dart';
-import 'package:mtaa_frontend/features/users/account/data/models/requests/unfollow.dart';
 import 'package:mtaa_frontend/features/users/account/data/models/responses/publicBaseAccountResponse.dart';
 import 'package:mtaa_frontend/features/users/account/data/repositories/account_repository.dart';
 import 'package:mtaa_frontend/features/users/account/presentation/widgets/followerItem.dart';
@@ -44,24 +42,7 @@ class _FollowersListState extends State<FollowersList> {
           final follower = filteredFollowers[index];
           return FollowerItem(
             follower: follower,
-            onFollowToggle: () async {
-              setState((){
-                follower.isFollowing=!follower.isFollowing;
-              });
-              bool res=false;
-              if(follower.isFollowing){
-                await widget.repository.follow(Follow(userId: follower.id));
-              }
-              else {
-                await widget.repository.unfollow(Unfollow(userId: follower.id));
-              }
-
-              if(!res){
-                setState((){
-                follower.isFollowing=!follower.isFollowing;
-              });
-              }
-            },
+            repository: widget.repository,
           );
         },
       )

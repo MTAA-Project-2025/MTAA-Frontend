@@ -2,24 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mtaa_frontend/core/constants/route_constants.dart';
+import 'package:mtaa_frontend/features/users/account/data/models/requests/follow.dart';
+import 'package:mtaa_frontend/features/users/account/data/models/requests/unfollow.dart';
 import 'package:mtaa_frontend/features/users/account/data/models/responses/publicBaseAccountResponse.dart';
+import 'package:mtaa_frontend/features/users/account/data/repositories/account_repository.dart';
 
 class FollowerItem extends StatefulWidget {
   final PublicBaseAccountResponse follower;
-  final VoidCallback? onFollowToggle;
+  final AccountRepository repository;
 
   const FollowerItem({
     super.key,
     required this.follower,
-    this.onFollowToggle,
+    required this.repository,
   });
-  
+
   @override
   State<FollowerItem> createState() => _FollowerItemState();
 }
 
 class _FollowerItemState extends State<FollowerItem> {
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -91,9 +93,36 @@ class _FollowerItemState extends State<FollowerItem> {
           ),
           PopupMenuButton<FollowerMenuAction>(
             icon: Icon(Icons.more_vert, color: theme.iconTheme.color),
-            onSelected: (action) {
-              if (widget.onFollowToggle != null) {
-                widget.onFollowToggle!();
+            onSelected: (action) async {
+              switch (action) {
+                case FollowerMenuAction.follow:
+                  if (!mounted) return;
+                  setState(() {
+                    widget.follower.isFollowing = true;
+                  });
+                  bool res = await widget.repository.follow(Follow(userId: widget.follower.id));
+
+                  if (!res) {
+                    if (!mounted) return;
+                    setState(() {
+                      widget.follower.isFollowing = false;
+                    });
+                  }
+                  break;
+                case FollowerMenuAction.unfollow:
+                  if (!mounted) return;
+                  setState(() {
+                    widget.follower.isFollowing = false;
+                  });
+                  bool res = await widget.repository.unfollow(Unfollow(userId: widget.follower.id));
+
+                  if (!res) {
+                    if (!mounted) return;
+                    setState(() {
+                      widget.follower.isFollowing = true;
+                    });
+                  }
+                  break;
               }
             },
             itemBuilder: (BuildContext context) => <PopupMenuEntry<FollowerMenuAction>>[
@@ -111,4 +140,5 @@ class _FollowerItemState extends State<FollowerItem> {
     );
   }
 }
+
 enum FollowerMenuAction { follow, unfollow }
