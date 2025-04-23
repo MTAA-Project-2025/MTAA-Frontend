@@ -21,9 +21,7 @@ class ExceptionsServiceImpl extends ExceptionsService {
         msg = exception.response?.data['Message'];
       }
       catch(e){}
-      if(msg==null){
-        msg=exception.response?.statusMessage;
-      }
+      msg ??= exception.response?.statusMessage;
 
 
       if (msg != null) {

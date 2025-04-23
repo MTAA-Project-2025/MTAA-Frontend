@@ -21,12 +21,20 @@ import 'package:mtaa_frontend/features/posts/presentation/screens/post_recommend
 import 'package:mtaa_frontend/features/posts/presentation/screens/posts_global_search_screen.dart';
 import 'package:mtaa_frontend/features/posts/presentation/screens/update_post_screen.dart';
 import 'package:mtaa_frontend/features/settings/presentation/screens/user_settings_screen.dart';
+import 'package:mtaa_frontend/features/users/account/data/models/responses/publicBaseAccountResponse.dart';
+import 'package:mtaa_frontend/features/users/account/data/models/responses/publicFullAccountResponse.dart';
 import 'package:mtaa_frontend/features/users/account/data/network/account_api.dart';
 import 'package:mtaa_frontend/features/users/account/data/repositories/account_repository.dart';
-import 'package:mtaa_frontend/features/users/account/presentation/screens/account_information_screen.dart';
+import 'package:mtaa_frontend/features/users/account/presentation/screens/accountInformationScreen.dart';
 import 'package:mtaa_frontend/features/users/account/presentation/screens/firstUpdateAvatarScreen.dart';
 import 'package:mtaa_frontend/features/users/account/presentation/screens/firstUpdateBirthDateScreen.dart';
 import 'package:mtaa_frontend/features/users/account/presentation/screens/firstUpdateDisplayNameScreen.dart';
+import 'package:mtaa_frontend/features/users/account/presentation/screens/followersScreen.dart';
+import 'package:mtaa_frontend/features/users/account/presentation/screens/friendsScreen.dart';
+import 'package:mtaa_frontend/features/users/account/presentation/screens/globalSearchScreen.dart';
+import 'package:mtaa_frontend/features/users/account/presentation/screens/publicAccountInformationScreen.dart';
+import 'package:mtaa_frontend/features/users/account/presentation/screens/updateAccountScreen.dart';
+import 'package:mtaa_frontend/features/users/account/presentation/screens/updateAvatarScreen.dart';
 import 'package:mtaa_frontend/features/users/authentication/shared/data/network/identity_api.dart';
 import 'package:mtaa_frontend/features/users/authentication/sign-up/presentation/screens/createAccountScreen.dart';
 import 'package:mtaa_frontend/features/users/authentication/sign-up/presentation/screens/signUpVerificationByEmailScreen.dart';
@@ -68,7 +76,7 @@ class AppRouter {
         ),
         GoRoute(
           path: firstUpdateAvatarScreenRoute,
-          builder: (context, state) => FirstUpdateAvatarScreen(accountApi: getIt<AccountApi>()),
+          builder: (context, state) => FirstUpdateAvatarScreen(accountApi: getIt<AccountApi>(), toastService: getIt<MyToastService>()),
         ),
         GoRoute(
           path: userGroupListScreenRoute,
@@ -85,6 +93,23 @@ class AppRouter {
         GoRoute(
           path: accountProfileScreenRoute,
           builder: (context, state) => AccountInformationScreen(repository: getIt<AccountRepository>()),
+        ),
+        GoRoute(
+          path: publicAccountInformationScreenRoute,
+          builder: (context, state) {
+            String? userId;
+            if(state.extra!=null && state.extra is String) userId = state.extra as String;
+            
+            return PublicAccountInformationScreen(repository: getIt<AccountRepository>(), userId:userId!);
+          }  
+        ),
+        GoRoute(
+          path: updateUserScreenRoute,
+          builder: (context, state) => UpdateAccountScreen(repository: getIt<AccountRepository>(), toastService: getIt<MyToastService>(),),
+        ),
+        GoRoute(
+          path: updateAccountAvatarRoute,
+          builder: (context, state) => UpdateAvatarScreen(repository: getIt<AccountRepository>(), toastService: getIt<MyToastService>()),
         ),
         GoRoute(
           path: addPostScreenRoute,
@@ -117,7 +142,7 @@ class AppRouter {
         ),
         GoRoute(
           path: globalSearchScreenRoute,
-          builder: (context, state) => PostsGlobalSearchScreen(repository: getIt<PostsRepository>())
+          builder: (context, state) => GlobalSearchScreen(postsRepository: getIt<PostsRepository>(), usersRepository: getIt<AccountRepository>(),)
         ),
         GoRoute(path: userMapScreenRoute,
           builder: (context, state) => MainLocationMapScreen(repository: getIt<LocationsRepository>(),toastService: getIt<MyToastService>())
@@ -161,6 +186,13 @@ class AppRouter {
           builder: (context, state) => LogInScreen(
             identityApi: getIt<IdentityApi>(),
           ),
+        ),
+        GoRoute(
+          path: followersScreenRoute,
+          builder: (context, state) => FollowersScreen(repository: getIt<AccountRepository>())
+        ),GoRoute(
+          path: friendsScreenRoute,
+          builder: (context, state) => FriendsScreen(repository: getIt<AccountRepository>())
         ),
       ],
     );

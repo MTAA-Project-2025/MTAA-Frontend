@@ -8,7 +8,7 @@ import 'package:mtaa_frontend/features/shared/bloc/exceptions_event.dart';
 
 class ErrorInterceptor extends Interceptor {
   @override
-  Future<void> onError(DioError err, ErrorInterceptorHandler handler) async {
+  Future<void> onError(DioException err, ErrorInterceptorHandler handler) async {
     if (getIt.isRegistered<BuildContext>()) {
       var context = getIt.get<BuildContext>();
       if(context.mounted){

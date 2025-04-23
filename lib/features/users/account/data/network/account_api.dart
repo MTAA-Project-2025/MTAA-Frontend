@@ -3,18 +3,25 @@ import 'package:mtaa_frontend/core/services/exceptions_service.dart';
 import 'package:mtaa_frontend/features/images/data/models/responses/myImageGroupResponse.dart';
 import 'package:mtaa_frontend/features/shared/data/models/global_search.dart';
 import 'package:mtaa_frontend/features/users/account/data/models/requests/customUpdateAccountAvatarRequest.dart';
+import 'package:mtaa_frontend/features/users/account/data/models/requests/follow.dart';
 import 'package:mtaa_frontend/features/users/account/data/models/requests/presetUpdateAccountAvatarRequest.dart';
+import 'package:mtaa_frontend/features/users/account/data/models/requests/unfollow.dart';
 import 'package:mtaa_frontend/features/users/account/data/models/requests/updateAccountBirthDateRequest.dart';
 import 'package:mtaa_frontend/features/users/account/data/models/requests/updateAccountDisplayNameRequest.dart';
 import 'package:mtaa_frontend/features/users/account/data/models/requests/updateAccountUsernameRequest.dart';
 import 'package:mtaa_frontend/features/users/account/data/models/responses/publicBaseAccountResponse.dart';
+import 'package:mtaa_frontend/features/users/account/data/models/responses/publicFullAccountResponse.dart';
 import 'package:mtaa_frontend/features/users/account/data/models/responses/userFullAccountResponse.dart';
 
 abstract class AccountApi {
   Future<UserFullAccountResponse?> getFullAccount();
+  Future<PublicFullAccountResponse?> getPublicFullAccount(String userId);
 
   Future<List<PublicBaseAccountResponse>> getFollowers(GlobalSearch request);
   Future<List<PublicBaseAccountResponse>> getFriends(GlobalSearch request);
+  Future<List<PublicBaseAccountResponse>> getGlobalUsers(GlobalSearch request);
+  Future<bool> follow(Follow request);
+  Future<bool> unfollow(Unfollow request);
   //get all versions
 
   Future<MyImageGroupResponse?> customUpdateAccountAvatar(CustomUpdateAccountAvatarRequest request);
@@ -27,6 +34,7 @@ abstract class AccountApi {
 class AccountApiImpl extends AccountApi {
   final Dio dio;
   final String controllerName = 'Account';
+  final String userControllerName = 'Users';
   CancelToken cancelToken = CancelToken();
   final ExceptionsService exceptionsService;
 
@@ -45,25 +53,77 @@ class AccountApiImpl extends AccountApi {
   }
 
   @override
+  Future<PublicFullAccountResponse?> getPublicFullAccount(String userId) async {
+    final fullUrl = '$userControllerName/public-full-account/$userId';
+    try {
+      var res = await dio.get(fullUrl);
+      return PublicFullAccountResponse.fromJson(res.data);
+    } on DioException catch (e) {
+      exceptionsService.httpError(e);
+      return null;
+    }
+  }
+
+  @override
   Future<List<PublicBaseAccountResponse>> getFollowers(GlobalSearch request) async {
     final fullUrl = '$controllerName/get-followers';
     try {
       var res = await dio.post(fullUrl, data: request.toJson());
-      return res.data.map((item) => PublicBaseAccountResponse.fromJson(item)).toList();
+      List<dynamic> data = res.data;
+      return data.map((item) => PublicBaseAccountResponse.fromJson(item)).toList();
     } on DioException catch (e) {
       exceptionsService.httpError(e);
       return [];
     }
   }
 
+  @override
   Future<List<PublicBaseAccountResponse>> getFriends(GlobalSearch request) async {
     final fullUrl = '$controllerName/get-friends';
     try {
       var res = await dio.post(fullUrl, data: request.toJson());
-      return res.data.map((item) => PublicBaseAccountResponse.fromJson(item)).toList();
+      List<dynamic> data = res.data;
+      return data.map((item) => PublicBaseAccountResponse.fromJson(item)).toList();
     } on DioException catch (e) {
       exceptionsService.httpError(e);
       return [];
+    }
+  }
+
+  @override
+  Future<List<PublicBaseAccountResponse>> getGlobalUsers(GlobalSearch request) async {
+    final fullUrl = '$userControllerName/get-global';
+    try {
+      var res = await dio.post(fullUrl, data: request.toJson());
+      List<dynamic> data = res.data;
+      return data.map((item) => PublicBaseAccountResponse.fromJson(item)).toList();
+    } on DioException catch (e) {
+      exceptionsService.httpError(e);
+      return [];
+    }
+  }
+
+  @override
+  Future<bool> follow(Follow request) async {
+    final fullUrl = '$userControllerName/follow';
+    try {
+      await dio.post(fullUrl, data: request.toJson());
+      return true;
+    } on DioException catch (e) {
+      exceptionsService.httpError(e);
+      return false;
+    }
+  }
+
+  @override
+  Future<bool> unfollow(Unfollow request) async {
+    final fullUrl = '$userControllerName/unfollow';
+    try {
+      await dio.post(fullUrl, data: request.toJson());
+      return true;
+    } on DioException catch (e) {
+      exceptionsService.httpError(e);
+      return false;
     }
   }
 

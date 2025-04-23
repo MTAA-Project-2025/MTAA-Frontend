@@ -22,6 +22,7 @@ class UserFullAccountResponse extends PublicFullAccountResponse {
     required this.likesCount,
   });
 
+  @override
   Map<String, dynamic> toJson() {
     return {
       'id': id,    

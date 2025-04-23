@@ -1,7 +1,6 @@
 import 'package:airplane_mode_checker/airplane_mode_checker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mtaa_frontend/core/constants/menu_buttons.dart';
 import 'package:mtaa_frontend/core/services/time_formating_service.dart';
 import 'package:mtaa_frontend/core/utils/app_injections.dart';
 import 'package:mtaa_frontend/features/locations/data/repositories/locations_repository.dart';
@@ -18,7 +17,6 @@ import 'package:mtaa_frontend/features/shared/presentation/widgets/airmode_error
 import 'package:mtaa_frontend/features/shared/presentation/widgets/customSearchInput.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/dotLoader.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/empty_data_notification_section.dart';
-import 'package:mtaa_frontend/features/shared/presentation/widgets/phone_bottom_menu.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/server_error_notification_section.dart';
 
 class PostsGlobalSearchScreen extends StatefulWidget {
@@ -39,11 +37,6 @@ class _PostsGlobalSearchScreenState extends State<PostsGlobalSearchScreen> {
 
   @override
   void initState() {
-    if (getIt.isRegistered<BuildContext>()) {
-      getIt.unregister<BuildContext>();
-    }
-    getIt.registerSingleton<BuildContext>(context);
-
     paginationScrollController.init(loadAction: () => loadPosts());
     super.initState();
 
@@ -77,7 +70,7 @@ class _PostsGlobalSearchScreenState extends State<PostsGlobalSearchScreen> {
   }
 
   Future<bool> loadPosts() async {
-    var res = await widget.repository.getGlobalPosts(new GetGLobalPostsRequest(filterStr: filterStr, pageParameters: paginationScrollController.pageParameters));
+    var res = await widget.repository.getGlobalPosts(GetGLobalPostsRequest(filterStr: filterStr, pageParameters: paginationScrollController.pageParameters));
     paginationScrollController.pageParameters.pageNumber++;
     if (res.length < paginationScrollController.pageParameters.pageSize) {
       paginationScrollController.stopLoading = true;
@@ -117,9 +110,7 @@ class _PostsGlobalSearchScreenState extends State<PostsGlobalSearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(),
-        body: BlocBuilder<ExceptionsBloc, ExceptionsState>(builder: (context, state) {
+    return BlocBuilder<ExceptionsBloc, ExceptionsState>(builder: (context, state) {
           return Column(children: [
             Expanded(
               child: ListView.builder(
@@ -184,7 +175,6 @@ class _PostsGlobalSearchScreenState extends State<PostsGlobalSearchScreen> {
               ),
             ),
           ]);
-        }),
-        bottomNavigationBar: PhoneBottomMenu(sellectedType: MenuButtons.Home));
+        });
   }
 }

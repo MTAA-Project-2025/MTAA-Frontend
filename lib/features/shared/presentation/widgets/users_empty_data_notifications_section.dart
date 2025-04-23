@@ -5,18 +5,16 @@ import 'package:mtaa_frontend/features/shared/bloc/exception_type.dart';
 import 'package:mtaa_frontend/features/shared/bloc/exceptions_bloc.dart';
 import 'package:mtaa_frontend/features/shared/bloc/exceptions_event.dart';
 
-class EmptyErrorNotificationSectionWidget extends StatelessWidget {
+class UsersEmptyErrorNotificationSectionWidget extends StatelessWidget {
   final void Function()? onPressed;
   final String title;
   final String imgPath;
-  final double aspectRatio;
 
-  const EmptyErrorNotificationSectionWidget({
+  const UsersEmptyErrorNotificationSectionWidget({
     super.key,
     required this.onPressed,
     required this.title,
-    this.imgPath = 'assets/svgs/kitsune_empty_array.svg',
-    this.aspectRatio = 1,
+    this.imgPath = 'assets/svgs/kitsune_empty_array.svg'
   });
 
   @override
@@ -26,10 +24,7 @@ class EmptyErrorNotificationSectionWidget extends StatelessWidget {
         const SizedBox(height: 10),
         Padding(
           padding: EdgeInsets.all(20),
-          child: AspectRatio(
-            aspectRatio: aspectRatio,
-            child: SvgPicture.asset(imgPath, fit: BoxFit.fitWidth),
-          ),
+          child: SvgPicture.asset(imgPath, fit: BoxFit.fitWidth),
         ),
         Text(title, style: Theme.of(context).textTheme.headlineLarge),
         const SizedBox(height: 10),

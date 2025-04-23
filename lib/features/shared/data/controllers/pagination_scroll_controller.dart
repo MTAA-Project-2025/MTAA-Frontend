@@ -14,6 +14,12 @@ class PaginationScrollController {
     if (pageParameters != null) {
       this.pageParameters = pageParameters;
     }
+    else {
+      this.pageParameters.pageNumber=0;
+    }
+    boundaryOffset=0.5;
+    isLoading = false;
+    stopLoading = false;
     if (initAction != null) {
       initAction();
     }

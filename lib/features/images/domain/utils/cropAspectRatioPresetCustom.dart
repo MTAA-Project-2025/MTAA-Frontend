@@ -10,7 +10,7 @@ class CropAspectRatioPresetCustom implements CropAspectRatioPresetData {
   @override
   (int, int)? get data => (width, height);
 
-  void set data((int, int)? value) {
+  set data((int, int)? value) {
     if (value != null) {
       width = value.$1;
       height = value.$2;

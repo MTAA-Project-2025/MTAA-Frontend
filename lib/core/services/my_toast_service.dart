@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mtaa_frontend/core/constants/colors.dart';
 import 'package:mtaa_frontend/core/utils/app_injections.dart';
@@ -102,7 +103,7 @@ class MyToastServiceImpl extends MyToastService {
       ),
       child: Row(
         children: [
-          Image.asset(
+          SvgPicture.asset(
             'assets/svgs/small_logo.svg',
             width: 65,
             height: 64,
