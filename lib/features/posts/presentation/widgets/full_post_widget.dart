@@ -12,7 +12,9 @@ import 'package:mtaa_frontend/core/services/time_formating_service.dart';
 import 'package:mtaa_frontend/core/utils/app_injections.dart';
 import 'package:mtaa_frontend/features/comments/presentation/widgets/post_comment_icon_widget.dart';
 import 'package:mtaa_frontend/features/images/data/models/responses/myImageResponse.dart';
+import 'package:mtaa_frontend/features/locations/data/repositories/locations_repository.dart';
 import 'package:mtaa_frontend/features/posts/data/models/responses/full_post_response.dart';
+import 'package:mtaa_frontend/features/posts/data/models/responses/location_post_response.dart';
 import 'package:mtaa_frontend/features/posts/data/repositories/posts_repository.dart';
 import 'package:mtaa_frontend/features/posts/presentation/widgets/post_like_widget.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -23,11 +25,9 @@ class FullPostWidget extends StatefulWidget {
   final TimeFormatingService timeFormatingService;
   final bool isFull;
   final PostsRepository repository;
+  final LocationsRepository locationsRepository;
 
-  const FullPostWidget({super.key, required this.post,
-  required this.timeFormatingService,
-  required this.isFull,
-  required this.repository});
+  const FullPostWidget({super.key, required this.post, required this.timeFormatingService, required this.isFull, required this.repository, required this.locationsRepository});
 
   @override
   State<FullPostWidget> createState() => _FullPostWidgetState();
@@ -40,7 +40,9 @@ class _FullPostWidgetState extends State<FullPostWidget> {
   bool isTextOpen = false;
   int currentPos = 0;
   late int maxPos;
-  late String userId='';
+  late String userId = '';
+
+  bool isSaved = false;
 
   @override
   void initState() {
@@ -51,19 +53,27 @@ class _FullPostWidgetState extends State<FullPostWidget> {
     maxPos = widget.post.images.length - 1;
     Future.microtask(() async {
       var uId = await TokenStorage.getUserId();
-      if(uId!=null){
+      if (!mounted) return;
+      if (uId != null) {
         userId = uId;
+      }
+      if (widget.post.locationId != null) {
+        bool isSavedRes = await widget.repository.isLocationPostSaved(widget.post.id);
+        if (!mounted) return;
+        setState(() {
+          isSaved = isSavedRes;
+        });
       }
     });
   }
 
-  ImageProvider<Object> getImage(MyImageResponse img){
-    if(!widget.post.isLocal){
+  ImageProvider<Object> getImage(MyImageResponse img) {
+    if (!widget.post.isLocal) {
       return NetworkImage(img.fullPath);
     }
     File file = File(img.localPath);
 
-    if(file.existsSync()){
+    if (file.existsSync()) {
       return FileImage(file);
     }
     return AssetImage('assets/images/kistune_server_error.png');
@@ -102,10 +112,9 @@ class _FullPostWidgetState extends State<FullPostWidget> {
                 PopupMenuButton<PostMenuElements>(
                   initialValue: null,
                   onSelected: (PostMenuElements item) {
-                    if(item==PostMenuElements.edit){
+                    if (item == PostMenuElements.edit) {
                       GoRouter.of(context).push(updatePostScreenRoute, extra: widget.post);
-                    }
-                    else if(item==PostMenuElements.delete){
+                    } else if (item == PostMenuElements.delete) {
                       //TODO: implement confirmation
                       widget.repository.deletePost(widget.post.id);
                     }
@@ -113,8 +122,8 @@ class _FullPostWidgetState extends State<FullPostWidget> {
                   },
                   itemBuilder: (BuildContext context) => <PopupMenuEntry<PostMenuElements>>[
                     PopupMenuItem<PostMenuElements>(value: PostMenuElements.share, child: Text('Share', style: Theme.of(context).textTheme.bodyMedium)),
-                    if(userId==widget.post.owner.id) PopupMenuItem<PostMenuElements>(value: PostMenuElements.edit, child: Text('Edit', style: Theme.of(context).textTheme.bodyMedium)),
-                    if(userId==widget.post.owner.id) PopupMenuItem<PostMenuElements>(value: PostMenuElements.delete, child: Text('Delete', style: Theme.of(context).textTheme.bodyMedium)),
+                    if (userId == widget.post.owner.id) PopupMenuItem<PostMenuElements>(value: PostMenuElements.edit, child: Text('Edit', style: Theme.of(context).textTheme.bodyMedium)),
+                    if (userId == widget.post.owner.id) PopupMenuItem<PostMenuElements>(value: PostMenuElements.delete, child: Text('Delete', style: Theme.of(context).textTheme.bodyMedium)),
                   ],
                 ),
               ],
@@ -195,13 +204,11 @@ class _FullPostWidgetState extends State<FullPostWidget> {
           ],
         ),
         Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Row(
               children: [
-                PostLikeWidget(
-                    repository: getIt<PostsRepository>(),
-                    numberFormatingService: getIt<NumberFormatingService>(),
-                    post: widget.post),
+                PostLikeWidget(repository: getIt<PostsRepository>(), numberFormatingService: getIt<NumberFormatingService>(), post: widget.post),
                 GestureDetector(
                     onTap: () {
                       if (widget.isFull) return;
@@ -211,9 +218,57 @@ class _FullPostWidgetState extends State<FullPostWidget> {
                       numberFormatingService: getIt<NumberFormatingService>(),
                       initialCommentsCount: widget.post.commentsCount,
                       postId: widget.post.id,
-                    ))
+                    )),
               ],
-            )
+            ),
+            if (widget.post.locationId != null)
+              Padding(
+                  padding: const EdgeInsets.only(right: 10),
+                  child: SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: IconButton(
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                        visualDensity: VisualDensity.compact,
+                        style: Theme.of(context).iconButtonTheme.style?.copyWith(
+                              iconColor: WidgetStateProperty.all(Theme.of(context).textTheme.bodySmall!.color),
+                            ),
+                        icon: Icon(
+                          isSaved ? Icons.bookmark_remove_outlined : Icons.bookmark_add_outlined,
+                          size: 24,
+                        ),
+                        onPressed: () async {
+                          if (!mounted) return;
+                          setState(() {
+                            isSaved = !isSaved;
+                          });
+
+                          bool res = false;
+
+                          if (isSaved) {
+                            LocationPostResponse? post = await widget.locationsRepository.getLocationPostById(widget.post.locationId!);
+
+                            if (post != null) {
+                              await widget.repository.saveLocationPost(post);
+                              res = true;
+                            }
+                          } else {
+                            LocationPostResponse? post = await widget.locationsRepository.getLocationPostById(widget.post.locationId!);
+
+                            if (post != null) {
+                              await widget.repository.removeLocationPost(post);
+                              res = true;
+                            }
+                          }
+                          if (!res) {
+                            if (!mounted) return;
+                            setState(() {
+                              isSaved = !isSaved;
+                            });
+                          }
+                        },
+                      ))),
           ],
         ),
         Padding(

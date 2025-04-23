@@ -40,7 +40,6 @@ Future<void> main() async {
   Hive.registerAdapter(UserPositionHiveAdapter());
   Hive.registerAdapter(SimplePointHiveAdapter());
 
-
   await Hive.openBox(currentUserDataBox);
   await Hive.openBox<List>(postsDataBox);
   await Hive.openBox<List>(locationPointsDataBox);

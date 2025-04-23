@@ -14,7 +14,6 @@ import 'package:mtaa_frontend/features/shared/bloc/exceptions_state.dart';
 import 'package:mtaa_frontend/features/shared/data/controllers/pagination_scroll_controller.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/airmode_error_notification_section.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/dotLoader.dart';
-import 'package:mtaa_frontend/features/shared/presentation/widgets/empty_data_notification_section.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/server_error_notification_section.dart';
 
 class AccountPostListWidget extends StatefulWidget {

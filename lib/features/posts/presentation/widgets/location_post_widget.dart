@@ -1,7 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:mtaa_frontend/core/constants/route_constants.dart';
 import 'package:mtaa_frontend/core/services/time_formating_service.dart';
 import 'package:mtaa_frontend/features/images/data/models/responses/myImageResponse.dart';
 import 'package:mtaa_frontend/features/locations/data/repositories/locations_repository.dart';
@@ -49,13 +51,18 @@ class _LocationPostWidgetState extends State<LocationPostWidget> {
           Container(
             width: 116,
             height: 116,
-            child: ClipRRect(
+            child: InkWell(
+              onTap:(){
+                GoRouter.of(context).push("$fullPostScreenRoute/${widget.post.id}");
+              },
+              child: ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: Image(
                 image: getImage(widget.post.smallFirstImage),
                 fit: BoxFit.cover,
               ),
             ),
+            )
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -69,11 +76,12 @@ class _LocationPostWidgetState extends State<LocationPostWidget> {
                     child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    //GPT
                     Text(DateFormat('E, MMM d · h:mm a').format(widget.post.eventTime), style: Theme.of(context).textTheme.labelSmall),
                     Text(widget.post.ownerDisplayName, style: Theme.of(context).textTheme.bodySmall!.copyWith(fontWeight: FontWeight.bold, fontSize: 16)),
                     Text(widget.post.description, style: Theme.of(context).textTheme.bodySmall, maxLines: 1, overflow: TextOverflow.ellipsis),
                     const SizedBox(height: 5),
-                    Text("${widget.post.point.latitude} ${widget.post.point.longitude}", style: Theme.of(context).textTheme.labelSmall),
+                    Text("${double.parse((widget.post.point.latitude).toStringAsFixed(7))} ${double.parse((widget.post.point.longitude).toStringAsFixed(7))}", style: Theme.of(context).textTheme.labelSmall),
                   ],
                 )),
                 PostLocationSaveSection(

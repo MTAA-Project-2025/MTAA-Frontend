@@ -35,11 +35,6 @@ class _AddPostLocationScreenState extends State<AddPostLocationScreen> {
   void initState() {
     super.initState();
 
-    if (getIt.isRegistered<BuildContext>()) {
-      getIt.unregister<BuildContext>();
-    }
-    getIt.registerSingleton<BuildContext>(context);
-
     if (widget.addLocationRequest.latitude > -200) {
       selectedLocationPoint = SimpleLocationPointResponse(
           childCount: 0,

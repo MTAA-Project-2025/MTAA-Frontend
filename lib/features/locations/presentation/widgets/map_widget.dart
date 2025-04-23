@@ -33,6 +33,7 @@ class MapWidget extends StatefulWidget {
   final void Function(Position)? onDispose;
   final Position? initialUserPos;
   final bool isDisplaySavedLocations;
+  final bool isUserPos;
 
   const MapWidget(
       {super.key,
@@ -46,7 +47,8 @@ class MapWidget extends StatefulWidget {
       this.onDispose,
       this.onTap,
       this.initialUserPos,
-      this.isDisplaySavedLocations = true});
+      this.isDisplaySavedLocations = true,
+      this.isUserPos = true});
 
   @override
   State<MapWidget> createState() => _MapWidgetState();
@@ -69,12 +71,6 @@ class _MapWidgetState extends State<MapWidget> {
   @override
   void initState() {
     super.initState();
-
-    if (getIt.isRegistered<BuildContext>()) {
-      getIt.unregister<BuildContext>();
-    }
-    getIt.registerSingleton<BuildContext>(context);
-
     listener = AppLifecycleListener(
       onResume: () async {
         if (!mounted) return;
@@ -104,6 +100,7 @@ class _MapWidgetState extends State<MapWidget> {
   }
 
   Future initLocation() async {
+    if(!widget.isUserPos)return;
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
@@ -251,10 +248,11 @@ class _MapWidgetState extends State<MapWidget> {
                           ))
                       .toList(),
                 ),
-                CurrentLocationLayer(
-                  alignPositionOnUpdate: AlignOnUpdate.once,
-                  positionStream: userLocationStream,
-                ),
+                if (widget.isUserPos)
+                  CurrentLocationLayer(
+                    alignPositionOnUpdate: AlignOnUpdate.once,
+                    positionStream: userLocationStream,
+                  ),
               ],
             ),
             if (widget.isLoading)
@@ -290,25 +288,27 @@ class _MapWidgetState extends State<MapWidget> {
                   )),
           ],
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () async {
-            if (!isGPSEnabled) {
-              switch (OpenSettingsPlus.shared) {
-                case OpenSettingsPlusAndroid settings:
-                  settings.locationSource();
-                  break;
-                case OpenSettingsPlusIOS settings:
-                  settings.locationServices();
-                  break;
-                default:
-                  throw Exception('Platform not supported');
-              }
-            }
+        floatingActionButton: !widget.isUserPos
+            ? null
+            : FloatingActionButton(
+                onPressed: () async {
+                  if (!isGPSEnabled) {
+                    switch (OpenSettingsPlus.shared) {
+                      case OpenSettingsPlusAndroid settings:
+                        settings.locationSource();
+                        break;
+                      case OpenSettingsPlusIOS settings:
+                        settings.locationServices();
+                        break;
+                      default:
+                        throw Exception('Platform not supported');
+                    }
+                  }
 
-            moveToCurrentUserPosition();
-          },
-          child: Icon(Icons.my_location),
-        ));
+                  moveToCurrentUserPosition();
+                },
+                child: Icon(Icons.my_location),
+              ));
   }
 
   Widget buildPoint(SimpleLocationPointResponse point) {

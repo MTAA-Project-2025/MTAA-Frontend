@@ -32,7 +32,11 @@ class AddPostRequest {
     }
 
     formData.fields.add(MapEntry('description', description));
-    if (location != null) formData.fields.add(MapEntry('location', location.toString()));
+    if (location != null) {
+      formData.fields.add(MapEntry('location.latitude', location!.latitude.toString()));
+      formData.fields.add(MapEntry('location.longitude', location!.longitude.toString()));
+      formData.fields.add(MapEntry('location.eventTime', location!.eventTime.toIso8601String()));
+    }
 
     return formData;
   }

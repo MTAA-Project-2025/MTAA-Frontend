@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mtaa_frontend/core/constants/menu_buttons.dart';
 import 'package:mtaa_frontend/core/services/time_formating_service.dart';
 import 'package:mtaa_frontend/core/utils/app_injections.dart';
+import 'package:mtaa_frontend/features/locations/data/repositories/locations_repository.dart';
 import 'package:mtaa_frontend/features/posts/data/models/requests/get_global_posts_request.dart';
 import 'package:mtaa_frontend/features/posts/data/models/responses/full_post_response.dart';
 import 'package:mtaa_frontend/features/posts/data/repositories/posts_repository.dart';
@@ -82,6 +83,7 @@ class _PostsGlobalSearchScreenState extends State<PostsGlobalSearchScreen> {
       paginationScrollController.stopLoading = true;
     }
     if (res.isNotEmpty) {
+      if(!mounted) return false;
       setState(() {
         posts.addAll(res);
       });
@@ -142,6 +144,7 @@ class _PostsGlobalSearchScreenState extends State<PostsGlobalSearchScreen> {
                       timeFormatingService: getIt<TimeFormatingService>(),
                       isFull: false,
                       repository: widget.repository,
+                      locationsRepository: getIt<LocationsRepository>(),
                     );
                   }
                   if (paginationScrollController.isLoading) {

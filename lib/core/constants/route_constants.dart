@@ -24,4 +24,5 @@ const String addPostScreenRoute = "/addPostScreen";
 const String updatePostScreenRoute = "/updatePostScreen";
 const String locationClusterPointsScreenRoute = "/locationClusterPointsScreen";
 const String savedLocationsScreenRoute = "/savedLocationsScreenRoute";
-const String addPostLocationScreenRoute = "/AddPostLocationScreen";
+const String addPostLocationScreenRoute = "/addPostLocationScreen";
+const String onePointScreenRoute = "/onePointScreen";

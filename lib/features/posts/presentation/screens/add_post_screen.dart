@@ -107,6 +107,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
   }
 
   void deleteImg(int pos) {
+    if(!mounted) return;
     setState(() {
       var addImgDTO = addImagesDTOs[pos];
       if (addImgDTO.isLocal) {
@@ -146,6 +147,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
   }
 
   void uploadImg(XFile orig, File cropped) {
+    if(!mounted) return;
     setState(() {
       AddPostImageScreenDTO newImage = AddPostImageScreenDTO(position: images.length);
       newImage.originalImage = orig;
@@ -171,6 +173,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
     if (aspectRatio == null) {
       return;
     }
+    if(!mounted) return;
     setState(() {
       images[pos].image = Image(image: FileImage(cropped), fit: BoxFit.fitHeight);
 
@@ -189,10 +192,12 @@ class _AddPostScreenState extends State<AddPostScreen> {
       if (!((img.aspectRatioPreset.width.toDouble() / img.aspectRatioPreset.height.toDouble() - firstImg.aspectRatioPreset.width.toDouble() / firstImg.aspectRatioPreset.height.toDouble()).abs() <=
           0.01)) {
         flag = true;
+        if(!mounted) return;
         setState(() {
           img.isAspectRatioError = true;
         });
       } else {
+        if(!mounted) return;
         setState(() {
           img.isAspectRatioError = false;
         });
@@ -205,6 +210,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
         });
       }
     }
+    if(!mounted) return;
     setState(() {
       if (flag) {
         isAspectRatioError = true;
@@ -309,6 +315,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                           if (addLocationRequest.latitude > -200)
                             IconButton(
                                 onPressed: () {
+                                  if(!mounted) return;
                                   setState(() {
                                     addLocationRequest.latitude = -200;
                                     addLocationRequest.longitude = -200;
@@ -336,6 +343,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                                 return;
                               }
                               if (formKey.currentState!.validate()) {
+                                if(!mounted) return;
                                 setState(() => isLoading = true);
                                 List<AddImageRequest> addImageRequests = [];
                                 for (int i = 0; i < addImagesDTOs.length; i++) {

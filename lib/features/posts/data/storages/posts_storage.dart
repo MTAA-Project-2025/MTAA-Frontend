@@ -205,14 +205,18 @@ class PostsStorageImpl extends PostsStorage {
       return;
     }
 
-    if (post.smallFirstImage.localPath == '') {
+    final imageExists = await (dbContext.select(dbContext.myImages)..where((tbl) => tbl.id.equals(post.smallFirstImage.id))).getSingleOrNull();
+
+    if (imageExists == null && post.smallFirstImage.localPath == '') {
       var uint8List = await imageStorage.urlToUint8List(post.smallFirstImage.fullPath);
       if (uint8List != null) {
-        var path = await imageStorage.saveTempImage(uint8List, 'postLocationImg_${post.smallFirstImage.type.index}_${post.smallFirstImage.id}');
+        var path = await imageStorage.saveTempImage(
+          uint8List,
+          'postLocationImg_${post.smallFirstImage.type.index}_${post.smallFirstImage.id}',
+        );
         post.smallFirstImage.localPath = path;
       }
     }
-
     await dbContext.transaction(() async {
       var userId = await TokenStorage.getUserId();
 
@@ -239,19 +243,25 @@ class PostsStorageImpl extends PostsStorage {
             currentUser: Value(userId ?? ''),
           ));
 
-      await dbContext.into(dbContext.myImages).insert(MyImagesCompanion(
-            id: Value(post.smallFirstImage.id),
-            myImageGroupId: Value(post.smallFirstImage.id),
-            shortPath: Value(post.smallFirstImage.shortPath),
-            fullPath: Value(post.smallFirstImage.fullPath),
-            fileType: Value(post.smallFirstImage.fileType),
-            height: Value(post.smallFirstImage.height),
-            width: Value(post.smallFirstImage.width),
-            aspectRatio: Value(post.smallFirstImage.aspectRatio),
-            type: Value(post.smallFirstImage.type.index),
-            localFullPath: Value(post.smallFirstImage.localPath),
-            locationPostId: Value(post.id.uuid),
-          ));
+      if (imageExists == null) {
+        await dbContext.into(dbContext.myImages).insert(MyImagesCompanion(
+              id: Value(post.smallFirstImage.id),
+              myImageGroupId: Value(post.smallFirstImage.id),
+              shortPath: Value(post.smallFirstImage.shortPath),
+              fullPath: Value(post.smallFirstImage.fullPath),
+              fileType: Value(post.smallFirstImage.fileType),
+              height: Value(post.smallFirstImage.height),
+              width: Value(post.smallFirstImage.width),
+              aspectRatio: Value(post.smallFirstImage.aspectRatio),
+              type: Value(post.smallFirstImage.type.index),
+              localFullPath: Value(post.smallFirstImage.localPath),
+              locationPostId: Value(post.id.uuid),
+            ));
+      } else {
+        await (dbContext.update(dbContext.myImages)..where((tbl) => tbl.id.equals(post.smallFirstImage.id))).write(MyImagesCompanion(
+          locationPostId: Value(post.id.uuid),
+        ));
+      }
     });
   }
 
@@ -277,11 +287,15 @@ class PostsStorageImpl extends PostsStorage {
   @override
   Future<List<LocationPostResponse>> getSavedLocationPosts(PageParameters pageParameteres) async {
     final postsSubquery = dbContext.selectOnly(dbContext.locationPosts)
-          ..addColumns([dbContext.locationPosts.id])
-          ..orderBy([OrderingTerm.desc(dbContext.locationPosts.dataCreationTime)])
-          ..limit(pageParameteres.pageSize, offset: pageParameteres.pageSize * pageParameteres.pageNumber);
+      ..addColumns([dbContext.locationPosts.id])
+      ..orderBy([OrderingTerm.desc(dbContext.locationPosts.dataCreationTime)])
+      ..limit(pageParameteres.pageSize, offset: pageParameteres.pageSize * pageParameteres.pageNumber);
 
     final postIds = await postsSubquery.map((row) => row.read(dbContext.locationPosts.id)).get();
+
+    if (postIds.isEmpty) {
+      return [];
+    }
 
     final query = dbContext.select(dbContext.locationPosts).join([
       leftOuterJoin(
@@ -292,7 +306,8 @@ class PostsStorageImpl extends PostsStorage {
         dbContext.myImages,
         dbContext.myImages.locationPostId.equalsExp(dbContext.locationPosts.id),
       ),
-    ])..where(dbContext.locationPosts.id.isIn(postIds.cast<String>()));
+    ])
+      ..where(dbContext.locationPosts.id.isIn(postIds.cast<String>()));
 
     final rows = await query.get();
 
@@ -321,6 +336,7 @@ class PostsStorageImpl extends PostsStorage {
         type: LocationPointType.values[pointTable.type],
         zoomLevel: pointTable.zoomLevel,
         childCount: pointTable.childCount,
+        image: image,
       );
 
       var post = LocationPostResponse(
@@ -357,7 +373,7 @@ class PostsStorageImpl extends PostsStorage {
     final rows = await query.getSingleOrNull();
 
     if (rows == null) {
-     return null;
+      return null;
     }
 
     var postTable = rows.readTable(dbContext.locationPosts);

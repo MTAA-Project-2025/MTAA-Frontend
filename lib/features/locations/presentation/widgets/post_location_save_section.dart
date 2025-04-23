@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:mtaa_frontend/core/constants/route_constants.dart';
 import 'package:mtaa_frontend/features/locations/data/repositories/locations_repository.dart';
 import 'package:mtaa_frontend/features/posts/data/models/responses/full_post_response.dart';
 import 'package:mtaa_frontend/features/posts/data/models/responses/location_post_response.dart';
@@ -58,7 +60,18 @@ class _PostLocationSaveSectionState extends State<PostLocationSaveSection> {
               Icons.location_on_outlined,
               size: 24,
             ),
-            onPressed: () async {},
+            onPressed: () async {
+              if (widget.locationPost != null) {
+                if (widget.locationPost != null) {
+                  GoRouter.of(context).push(onePointScreenRoute, extra: widget.locationPost!.point);
+                }
+                widget.locationPost!.isSaved = !widget.locationPost!.isSaved;
+              } else if (widget.post != null) {
+                if (widget.post!.locationId != null) {
+                  GoRouter.of(context).push('$onePointScreenRoute/${widget.post!.locationId!.uuid}');
+                }
+              }
+            },
           ),
         ),
         SizedBox(
