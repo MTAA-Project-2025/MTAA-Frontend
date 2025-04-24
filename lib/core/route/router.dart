@@ -12,6 +12,8 @@ import 'package:mtaa_frontend/features/locations/presentation/screens/location_c
 import 'package:mtaa_frontend/features/locations/presentation/screens/main_location_map_screen.dart';
 import 'package:mtaa_frontend/features/locations/presentation/screens/one_point_screen_widget.dart';
 import 'package:mtaa_frontend/features/locations/presentation/screens/saved_location_points_screen.dart';
+import 'package:mtaa_frontend/features/notifications/data/repositories/notificationsRepository.dart';
+import 'package:mtaa_frontend/features/notifications/presentation/screens/notificationsScreen.dart';
 import 'package:mtaa_frontend/features/posts/data/models/responses/full_post_response.dart';
 import 'package:mtaa_frontend/features/posts/data/repositories/posts_repository.dart';
 import 'package:mtaa_frontend/features/posts/presentation/screens/add_post_location_screen.dart';
@@ -190,9 +192,14 @@ class AppRouter {
         GoRoute(
           path: followersScreenRoute,
           builder: (context, state) => FollowersScreen(repository: getIt<AccountRepository>())
-        ),GoRoute(
+        ),
+        GoRoute(
           path: friendsScreenRoute,
           builder: (context, state) => FriendsScreen(repository: getIt<AccountRepository>())
+        ),
+        GoRoute(
+          path: notificationsScreenRoute,
+          builder: (context, state) => NotificationsScreen(repository: getIt<NotificationsRepository>())
         ),
       ],
     );

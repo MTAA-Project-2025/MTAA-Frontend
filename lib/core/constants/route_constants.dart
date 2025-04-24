@@ -35,3 +35,4 @@ const String updateAccountAvatarRoute = "/updateAccountAvatarScreen";
 const String followersScreenRoute = "/followersScreen";
 const String friendsScreenRoute = "/friendsScreen";
 
+const String notificationsScreenRoute = "/notificationsScreen";
