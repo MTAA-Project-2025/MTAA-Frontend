@@ -23,7 +23,7 @@ class NotificationsServiceImpl extends NotificationsService {
     var token = await TokenStorage.getToken();
     _subscription = SSEClient.subscribeToSSE(
       method: SSERequestType.GET,
-      url: '${AppConfig.config.baseUrl}/notifications/subscribe',
+      url: '${AppConfig.config.baseUrl}notifications/subscribe',
       header: {
         'Authorization': 'Bearer $token',
         "Accept": "text/event-stream"
