@@ -3,7 +3,6 @@ import 'package:mtaa_frontend/core/services/exceptions_service.dart';
 import 'package:mtaa_frontend/features/notifications/data/models/responses/notificationResponse.dart';
 import 'package:mtaa_frontend/features/notifications/data/models/shared/notificationType.dart';
 import 'package:mtaa_frontend/features/shared/data/models/page_parameters.dart';
-import 'package:uuid/uuid_value.dart';
 
 abstract class NotificationsApi {
   Future<List<NotificationResponse>> getNotifications(PageParameters pageParameters, NotificationType? type);

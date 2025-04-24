@@ -14,6 +14,7 @@ import 'package:mtaa_frontend/features/locations/data/network/locations_api.dart
 import 'package:mtaa_frontend/features/locations/data/repositories/locations_repository.dart';
 import 'package:mtaa_frontend/features/locations/data/storages/locations_storage.dart';
 import 'package:mtaa_frontend/features/notifications/data/network/notificationsApi.dart';
+import 'package:mtaa_frontend/features/notifications/data/network/notificationsService.dart';
 import 'package:mtaa_frontend/features/notifications/data/repositories/notificationsRepository.dart';
 import 'package:mtaa_frontend/features/posts/data/network/posts_api.dart';
 import 'package:mtaa_frontend/features/posts/data/repositories/posts_repository.dart';
@@ -90,5 +91,8 @@ void setupDependencies() {
   );
   getIt.registerSingleton<NotificationsRepository>(
     NotificationsRepositoryImpl(getIt<NotificationsApi>()),
+  );
+  getIt.registerSingleton<NotificationsService>(
+    NotificationsServiceImpl(getIt<MyToastService>()),
   );
 }

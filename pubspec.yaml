@@ -21,6 +21,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_bloc: ^9.0.0
+  flutter_client_sse: ^2.0.3
   flutter_map: ^8.1.1
   flutter_map_location_marker: ^10.1.0
   flutter_map_tile_caching: ^10.1.1
