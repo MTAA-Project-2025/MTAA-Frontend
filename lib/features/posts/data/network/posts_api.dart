@@ -13,6 +13,7 @@ abstract class PostsApi {
   Future<bool> updatePost(UpdatePostRequest request);
   Future<List<FullPostResponse>> getRecommendedPosts(PageParameters request);
   Future<List<FullPostResponse>> getGlobalPosts(GetGLobalPostsRequest request);
+  Future<List<FullPostResponse>> getLiked(PageParameters request);
   Future<FullPostResponse?> getFullPostById(UuidValue id);
   Future<List<SimplePostResponse>> getAccountPosts(String userId, PageParameters pageParameters);
   Future<bool> deletePost(UuidValue id);
@@ -68,6 +69,19 @@ class PostsApiImpl extends PostsApi {
   @override
   Future<List<FullPostResponse>> getGlobalPosts(GetGLobalPostsRequest request) async {
     final fullUrl = '$controllerName/get-global';
+    try {
+      var res = await dio.post(fullUrl,data: request.toJson());
+      List<dynamic> data = res.data;
+      return data.map((item) => FullPostResponse.fromJson(item)).toList();
+    } on DioException catch (e) {
+      exceptionsService.httpError(e);
+      return [];
+    }
+  }
+
+  @override
+  Future<List<FullPostResponse>> getLiked(PageParameters request) async {
+    final fullUrl = '$controllerName/get-liked';
     try {
       var res = await dio.post(fullUrl,data: request.toJson());
       List<dynamic> data = res.data;

@@ -29,6 +29,8 @@ abstract class PostsRepository {
   Future setPreviousRecommendedPosts(List<FullPostResponse> posts);
 
   Future<List<FullPostResponse>> getGlobalPosts(GetGLobalPostsRequest request);
+  Future<List<FullPostResponse>> getLikedPosts(PageParameters pageParameters);
+  
   Future<FullPostResponse?> getFullPostById(UuidValue id);
   Future<List<SimplePostResponse>> getAccountPosts(String userId, PageParameters pageParameters);
   Future<bool> deletePost(UuidValue id);
@@ -115,6 +117,19 @@ class PostsRepositoryImpl extends PostsRepository {
       }
     }
     return await postsApi.getGlobalPosts(request);
+  }
+
+  @override
+  Future<List<FullPostResponse>> getLikedPosts(PageParameters pageParameters) async {
+    final status = await AirplaneModeChecker.instance.checkAirplaneMode();
+    if (status == AirplaneModeStatus.on) {
+      if (getIt.isRegistered<BuildContext>()) {
+        var context = getIt.get<BuildContext>();
+        context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: true, exceptionType: ExceptionTypes.flightMode, message: 'Flight mode is enabled'));
+        return [];
+      }
+    }
+    return await postsApi.getLiked(pageParameters);
   }
 
   @override

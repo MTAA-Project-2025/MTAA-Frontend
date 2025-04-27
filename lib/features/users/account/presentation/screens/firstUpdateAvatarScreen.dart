@@ -13,6 +13,8 @@ import 'package:mtaa_frontend/core/utils/app_injections.dart';
 import 'package:mtaa_frontend/features/images/data/models/responses/myImageGroupResponse.dart';
 import 'package:mtaa_frontend/features/images/data/network/preset_avatar_images_api.dart';
 import 'package:mtaa_frontend/features/images/presentation/widgets/preset-images-list.dart';
+import 'package:mtaa_frontend/features/users/account/bloc/account_bloc.dart';
+import 'package:mtaa_frontend/features/users/account/bloc/account_events.dart';
 import 'package:mtaa_frontend/features/users/account/data/models/requests/customUpdateAccountAvatarRequest.dart';
 import 'package:mtaa_frontend/features/users/account/data/models/requests/presetUpdateAccountAvatarRequest.dart';
 import 'package:mtaa_frontend/features/users/account/data/network/account_api.dart';
@@ -189,6 +191,9 @@ class _FirstUpdateAvatarScreenState extends State<FirstUpdateAvatarScreen> {
                             if (!mounted) return;
                             setState(() => isLoading = false);
                             if (res != null) {
+                              if (context.mounted) {
+                                context.read<AccountBloc>().add(ChangeAccountAvatarEvent(newImage: res));
+                              }
                               _navigateToGroupListScreen();
                             }
                           }
