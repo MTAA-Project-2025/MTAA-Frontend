@@ -2,11 +2,10 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:form_field_validator/form_field_validator.dart';
-import 'package:image_cropper/image_cropper.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mtaa_frontend/core/constants/colors.dart';
 import 'package:mtaa_frontend/core/constants/menu_buttons.dart';
-import 'package:mtaa_frontend/core/constants/validators.dart';
+import 'package:mtaa_frontend/core/constants/route_constants.dart';
 import 'package:mtaa_frontend/core/services/my_toast_service.dart';
 import 'package:mtaa_frontend/core/utils/app_injections.dart';
 import 'package:mtaa_frontend/features/images/data/models/responses/myImageResponse.dart';
@@ -33,7 +32,6 @@ class _UpdateAccountScreenState extends State<UpdateAccountScreen> {
   bool isLoading = false;
   PublicFullAccountResponse? user;
   final AccountRepository repository = getIt<AccountRepository>();
-  XFile? _pickedFile;
   File? selectedCustomImage;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   DateTime? selectedDate;
@@ -205,8 +203,6 @@ class _UpdateAccountScreenState extends State<UpdateAccountScreen> {
     final birthDate = "";
     final phoneNumber = "";
 
-    final avatarImage = getImage(user?.avatar?.images.first);
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 30),
       child: Column(
@@ -220,38 +216,53 @@ class _UpdateAccountScreenState extends State<UpdateAccountScreen> {
                 child: Stack(
                   children: [
                     Positioned.fill(
-                      child: ClipOval(
-                        child: Image(
-                          image: FileImage(selectedCustomImage!) as ImageProvider,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
+                     child: ClipOval(
+                       child: Image(
+                         image: user!.avatar != null
+                             ? NetworkImage(
+                                 user!.avatar!.images
+                                     .firstWhere(
+                                       (item) => item.width == 300,
+                                       orElse: () => user!.avatar!.images.first,
+                                     )
+                                     .fullPath,
+                               )
+                             : const AssetImage('assets/images/kitsune_server_error.png'),
+                         fit: BoxFit.cover,
+                       ),
+                     ),
+                   ),
                     Positioned(
-                      top: 10,
-                      right: 10,
-                      child: IconButton(
-                        icon: Icon(Icons.add, color: whiteColor),
-                        style: Theme.of(context).textButtonTheme.style!.copyWith(
-                              padding: WidgetStateProperty.all<EdgeInsetsGeometry>(const EdgeInsets.all(8)),
-                              minimumSize: WidgetStateProperty.all(Size(0, 0)),
-                              shape: WidgetStateProperty.all<OutlinedBorder>(
-                                RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(1000),
-                                ),
-                              ),
-                            ),
-                        onPressed: () {
-                          _uploadImage(context);
-                        },
-                      ),
-                    ),
+                     top: 10,
+                     right: 10,
+                     child: IconButton(
+                       icon: Icon(Icons.add, color: whiteColor),
+                       style: Theme.of(context).textButtonTheme.style!.copyWith(
+                             padding: WidgetStateProperty.all<EdgeInsetsGeometry>(const EdgeInsets.all(8)),
+                             minimumSize: WidgetStateProperty.all(Size(0, 0)),
+                             shape: WidgetStateProperty.all<OutlinedBorder>(
+                               RoundedRectangleBorder(
+                                 borderRadius: BorderRadius.circular(1000),
+                               ),
+                             ),
+                           ),
+                       onPressed: () {
+                         GoRouter.of(context).push(updateAccountAvatarRoute);
+                       },
+                     ),
+                   ),
                   ],
                 ),
               ),
           ),
-          const SizedBox(height: 20),
-          const Divider(),
+          // Divider
+           const Padding(
+             padding: EdgeInsets.only(top: 20),
+             child: Divider(
+               color: Color(0xFFE0E0E0),
+               thickness: 1,
+             ),
+           ),
 
           // Fields
           _buildEditableField(Icons.person, "Username", username,
@@ -285,70 +296,6 @@ class _UpdateAccountScreenState extends State<UpdateAccountScreen> {
         ],
       ),
     );
-  }
-
-  Future<void> _uploadImage(BuildContext context) async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      if (!isImage(pickedFile)) {
-        if (context.mounted && mounted) {
-          await widget.toastService.showErrorWithContext('Image is not valid', context);
-        }
-        return;
-      }
-
-      if (!mounted) return;
-      setState(() {
-        _pickedFile = pickedFile;
-        _cropImage(context);
-      });
-    }
-  }
-
-  Future<void> _cropImage(BuildContext context) async {
-    if (_pickedFile != null) {
-      final croppedFile = await ImageCropper().cropImage(
-        sourcePath: _pickedFile!.path,
-        compressFormat: ImageCompressFormat.jpg,
-        compressQuality: 100,
-        uiSettings: [
-          AndroidUiSettings(
-            toolbarTitle: 'Cropper',
-            toolbarColor: Theme.of(context).appBarTheme.backgroundColor,
-            toolbarWidgetColor: Theme.of(context).appBarTheme.foregroundColor,
-            initAspectRatio: CropAspectRatioPreset.square,
-            lockAspectRatio: true,
-            aspectRatioPresets: [
-              CropAspectRatioPreset.square,
-            ],
-          ),
-          IOSUiSettings(
-            title: 'Cropper',
-            aspectRatioLockEnabled: true,
-            aspectRatioPresets: [
-              CropAspectRatioPreset.original,
-              CropAspectRatioPreset.square,
-            ],
-          ),
-          WebUiSettings(
-            context: context,
-            presentStyle: WebPresentStyle.dialog,
-            initialAspectRatio: 1,
-            size: const CropperSize(
-              width: 300,
-              height: 300,
-            ),
-          ),
-        ],
-      );
-      if (croppedFile != null) {
-        if(!mounted)return;
-        setState(() {
-          selectedCustomImage = File(croppedFile.path);
-          _pickedFile = null;
-        });
-      }
-    }
   }
 
   Widget _buildEditableField(IconData icon, String label, String value, VoidCallback onEdit) {
