@@ -27,6 +27,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mtaa_frontend/themes/bloc/theme_state.dart';
 import 'package:mtaa_frontend/core/route/router.dart' as router;
 
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 Future<void> main() async {
   await Hive.initFlutter();
   Hive.registerAdapter(FullPostHiveAdapter());
@@ -67,22 +70,24 @@ Future<void> main() async {
         create: (_) => ExceptionsBloc(),
       ),
     ],
-    child: MyApp(initialRoute: initialRoute,),
+    child: MyApp(
+      initialRoute: initialRoute,
+    ),
   ));
 }
 
-  Future<bool> isAuthorized() async {
-    final token = await TokenStorage.getToken();
-    return token != null && token.isNotEmpty;
-  }
+Future<bool> isAuthorized() async {
+  final token = await TokenStorage.getToken();
+  return token != null && token.isNotEmpty;
+}
 
-  Future<String> getInitialRoute() async {
-    var res = await isAuthorized();
-    if (res) {
-      return userRecommendationsScreenRoute;
-    }
-    return '/';
+Future<String> getInitialRoute() async {
+  var res = await isAuthorized();
+  if (res) {
+    return userRecommendationsScreenRoute;
   }
+  return '/';
+}
 
 class MyApp extends StatefulWidget {
   final String initialRoute;
@@ -105,7 +110,6 @@ class _MyAppState extends State<MyApp> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ThemeBloc, ThemeState>(
@@ -117,7 +121,7 @@ class _MyAppState extends State<MyApp> {
           themeMode: state.themeMode,
           routerConfig: router.AppRouter.createRouter(widget.initialRoute),
         );
-      }, 
+      },
     );
   }
 }

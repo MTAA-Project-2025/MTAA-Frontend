@@ -11,6 +11,7 @@ import 'package:mtaa_frontend/core/services/number_formating_service.dart';
 import 'package:mtaa_frontend/core/services/time_formating_service.dart';
 import 'package:mtaa_frontend/core/utils/app_injections.dart';
 import 'package:mtaa_frontend/features/comments/presentation/widgets/post_comment_icon_widget.dart';
+import 'package:mtaa_frontend/features/images/data/models/responses/myImageGroupResponse.dart';
 import 'package:mtaa_frontend/features/images/data/models/responses/myImageResponse.dart';
 import 'package:mtaa_frontend/features/locations/data/repositories/locations_repository.dart';
 import 'package:mtaa_frontend/features/posts/data/models/responses/full_post_response.dart';
@@ -44,6 +45,8 @@ class _FullPostWidgetState extends State<FullPostWidget> {
 
   bool isSaved = false;
 
+  List<MyImageGroupResponse> images = [];
+
   @override
   void initState() {
     super.initState();
@@ -51,6 +54,7 @@ class _FullPostWidgetState extends State<FullPostWidget> {
       isNextImageAllowed = true;
     }
     maxPos = widget.post.images.length - 1;
+    images = widget.post.images;
     Future.microtask(() async {
       var uId = await TokenStorage.getUserId();
       if (!mounted) return;
@@ -96,11 +100,14 @@ class _FullPostWidgetState extends State<FullPostWidget> {
                   child: Row(
                     children: [
                       if (widget.post.owner.avatar != null)
+                      ClipOval(
+                        child: 
                         Image(
                           image: getImage(widget.post.owner.avatar!.images.firstWhere((element) => element.type == ImageSizeType.small)),
                           width: 31,
                           height: 31,
                         ),
+                      ),
                       const SizedBox(width: 5),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -148,7 +155,7 @@ class _FullPostWidgetState extends State<FullPostWidget> {
                 GoRouter.of(context).push("$fullPostScreenRoute/${widget.post.id}", extra: widget.post);
               },
               child: CarouselSlider(
-                  items: [for (var image in widget.post.images) Image(fit: BoxFit.fitWidth, image: getImage(image.images.firstWhere((element) => element.type == ImageSizeType.middle)))],
+                  items: [for (var image in images) Image(fit: BoxFit.fitWidth, image: getImage(image.images.firstWhere((element) => element.type == ImageSizeType.middle)))],
                   carouselController: carouselController,
                   disableGesture: false,
                   options: CarouselOptions(
@@ -242,7 +249,7 @@ class _FullPostWidgetState extends State<FullPostWidget> {
                         constraints: const BoxConstraints(),
                         visualDensity: VisualDensity.compact,
                         style: Theme.of(context).iconButtonTheme.style?.copyWith(
-                              iconColor: WidgetStateProperty.all(Theme.of(context).textTheme.bodySmall!.color),
+                              iconColor: isSaved ? WidgetStateProperty.all(Theme.of(context).textTheme.titleMedium!.color) : WidgetStateProperty.all(Theme.of(context).textTheme.bodySmall!.color),
                             ),
                         icon: Icon(
                           isSaved ? Icons.bookmark_remove_outlined : Icons.bookmark_add_outlined,

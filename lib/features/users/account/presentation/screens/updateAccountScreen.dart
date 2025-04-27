@@ -205,8 +205,6 @@ class _UpdateAccountScreenState extends State<UpdateAccountScreen> {
     final birthDate = "";
     final phoneNumber = "";
 
-    final avatarImage = getImage(user?.avatar?.images.first);
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 30),
       child: Column(

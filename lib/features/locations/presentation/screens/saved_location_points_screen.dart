@@ -79,7 +79,10 @@ class _SavedLocationsPointsScreenState extends State<SavedLocationsPointsScreen>
     if(!mounted)return;
     paginationScrollController.pageParameters.pageNumber++;
     if (res.length < paginationScrollController.pageParameters.pageSize) {
-      paginationScrollController.stopLoading = true;
+      if (!mounted) return false;
+      setState(() {
+        paginationScrollController.stopLoading = true;
+      });
     }
     if (res.isNotEmpty) {
       if(!mounted)return;

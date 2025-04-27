@@ -64,7 +64,7 @@ class _CreateAccountState extends State<CreateAccountScreen> {
         child: Center(child: Column(
           children: [
             Text(
-              'Enter phone or email',
+              'Create account',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.headlineLarge,
             ),

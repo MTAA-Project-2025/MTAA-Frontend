@@ -8,6 +8,8 @@ import 'package:mtaa_frontend/core/services/my_toast_service.dart';
 import 'package:mtaa_frontend/core/services/number_formating_service.dart';
 import 'package:mtaa_frontend/core/services/time_formating_service.dart';
 import 'package:mtaa_frontend/domain/entities/my_db_context.dart';
+import 'package:mtaa_frontend/features/comments/data/networks/comments_api.dart';
+import 'package:mtaa_frontend/features/comments/data/repositories/comments_repository.dart';
 import 'package:mtaa_frontend/features/images/data/network/preset_avatar_images_api.dart';
 import 'package:mtaa_frontend/features/images/data/storages/my_image_storage.dart';
 import 'package:mtaa_frontend/features/locations/data/network/locations_api.dart';
@@ -82,5 +84,13 @@ void setupDependencies() {
   );
   getIt.registerSingleton<AccountRepository>(
     AccountRepositoryImpl(getIt<AccountApi>()),
+  );
+
+  
+  getIt.registerSingleton<CommentsApi>(
+    CommentsApiImpl(getIt<Dio>(), getIt<ExceptionsService>()),
+  );
+  getIt.registerSingleton<CommentsRepository>(
+    CommentsRepositoryImpl(getIt<CommentsApi>()),
   );
 }
