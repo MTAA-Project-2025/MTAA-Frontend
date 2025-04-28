@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:mtaa_frontend/core/constants/colors.dart';
 
 class TabNavigation extends StatelessWidget {
-  final String activeTab;
-  final Function(String) onTabChange;
+  final AccountTabType activeTab;
+  final Function(AccountTabType) onTabChange;
 
   const TabNavigation({
     Key? key,
@@ -18,15 +18,15 @@ class TabNavigation extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _buildTab('photos', context),
-          _buildTab('bookmarks', context),
-          _buildTab('likes', context),
+          _buildTab(AccountTabType.Posts, context),
+          _buildTab(AccountTabType.SavedPosts, context),
+          _buildTab(AccountTabType.LikedPosts, context),
         ],
       ),
     );
   }
 
-  Widget _buildTab(String tabId, BuildContext context) {
+  Widget _buildTab(AccountTabType tabId, BuildContext context) {
     return GestureDetector(
       onTap: () => onTabChange(tabId),
       child: Column(
@@ -35,9 +35,9 @@ class TabNavigation extends StatelessWidget {
             width: 24,
             height: 24,
             child: Icon(
-              tabId == 'photos' 
+              tabId == AccountTabType.Posts
                 ? Icons.photo_library 
-                : tabId == 'bookmarks' 
+                : tabId == AccountTabType.SavedPosts 
                   ? Icons.bookmark 
                   : Icons.favorite,
               color: activeTab == tabId ? secondary1InvincibleColor : Theme.of(context).textTheme.bodyMedium!.color,
@@ -57,4 +57,10 @@ class TabNavigation extends StatelessWidget {
       ),
     );
   }
+}
+
+enum AccountTabType{
+  Posts,
+  SavedPosts,
+  LikedPosts,
 }

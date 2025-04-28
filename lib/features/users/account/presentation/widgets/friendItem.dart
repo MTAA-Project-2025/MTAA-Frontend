@@ -6,6 +6,7 @@ import 'package:mtaa_frontend/features/users/account/data/models/requests/follow
 import 'package:mtaa_frontend/features/users/account/data/models/requests/unfollow.dart';
 import 'package:mtaa_frontend/features/users/account/data/models/responses/publicBaseAccountResponse.dart';
 import 'package:mtaa_frontend/features/users/account/data/repositories/account_repository.dart';
+import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
 
 class FriendItem extends StatefulWidget {
   final PublicBaseAccountResponse friend;
@@ -22,9 +23,20 @@ class FriendItem extends StatefulWidget {
 }
 
 class _FriendItemState extends State<FriendItem> {
+
+  String userId = '';
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
+    Future.microtask(() async {
+      if (!mounted) return;
+      String? res = await TokenStorage.getUserId();
+      if(res== null || !mounted) return;
+      setState(() {
+        userId = res;
+      });
+    });
 
     return Container(
       height: 80,
@@ -34,10 +46,15 @@ class _FriendItemState extends State<FriendItem> {
         children: [
           GestureDetector(
             onTap: () {
-              GoRouter.of(context).push(
-                publicAccountInformationScreenRoute,
-                extra: widget.friend.id,
-              );
+              if(userId== widget.friend.id) {
+                GoRouter.of(context).push(accountProfileScreenRoute);
+              }
+              else {
+                GoRouter.of(context).push(
+                  publicAccountInformationScreenRoute,
+                  extra: widget.friend.id,
+                );
+              }
             },
             child: Row(
               children: [
@@ -83,7 +100,7 @@ class _FriendItemState extends State<FriendItem> {
               ],
             ),
           ),
-          if (widget.friend.isFollowing)
+          if (widget.friend.isFollowing && (userId != widget.friend.id && userId != ''))
             TextButton(
               onPressed:() async{
                 if(!mounted) return;
@@ -105,7 +122,7 @@ class _FriendItemState extends State<FriendItem> {
               ),
               child: const Text("Unfollow"),
             ),
-          if (!widget.friend.isFollowing)
+          if (!widget.friend.isFollowing && (userId != widget.friend.id && userId != ''))
             TextButton(
               onPressed:() async{
                 if(!mounted) return;

@@ -71,5 +71,11 @@ final descriptionValidator = MultiValidator([
   MaxLengthValidator(3000, errorText: 'Description must be at most 3000 digits long')
 ]);
 
+final commentValidator = MultiValidator([
+  RequiredValidator(errorText: 'Comment cannot be empty'),
+  MaxLengthValidator(2000, errorText: 'Name must be at most 2000 digits long')
+]);
+
+
 final double minPostImageAspectRatio = 0.5;
 final double maxPostImageAspectRatio = 2;

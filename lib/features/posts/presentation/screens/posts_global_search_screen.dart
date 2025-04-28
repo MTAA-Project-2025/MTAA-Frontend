@@ -73,7 +73,10 @@ class _PostsGlobalSearchScreenState extends State<PostsGlobalSearchScreen> {
     var res = await widget.repository.getGlobalPosts(GetGLobalPostsRequest(filterStr: filterStr, pageParameters: paginationScrollController.pageParameters));
     paginationScrollController.pageParameters.pageNumber++;
     if (res.length < paginationScrollController.pageParameters.pageSize) {
-      paginationScrollController.stopLoading = true;
+      if (!mounted) return false;
+      setState(() {
+        paginationScrollController.stopLoading = true;
+      });
     }
     if (res.isNotEmpty) {
       if (!mounted) return false;
@@ -145,6 +148,7 @@ class _PostsGlobalSearchScreenState extends State<PostsGlobalSearchScreen> {
                       children: [
                         const SizedBox(height: 20),
                         DotLoader(),
+                        const SizedBox(height: 20),
                       ],
                     );
                   }

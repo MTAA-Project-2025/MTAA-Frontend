@@ -6,6 +6,7 @@ import 'package:mtaa_frontend/features/users/account/data/models/requests/follow
 import 'package:mtaa_frontend/features/users/account/data/models/requests/unfollow.dart';
 import 'package:mtaa_frontend/features/users/account/data/models/responses/publicBaseAccountResponse.dart';
 import 'package:mtaa_frontend/features/users/account/data/repositories/account_repository.dart';
+import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
 
 class FollowerItem extends StatefulWidget {
   final PublicBaseAccountResponse follower;
@@ -22,11 +23,21 @@ class FollowerItem extends StatefulWidget {
 }
 
 class _FollowerItemState extends State<FollowerItem> {
+
+  String userId = '';
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
     final colorScheme = theme.colorScheme;
+    Future.microtask(() async {
+      if (!mounted) return;
+      String? res = await TokenStorage.getUserId();
+      if(res== null || !mounted) return;
+      setState(() {
+        userId = res;
+      });
+    });
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
@@ -35,10 +46,15 @@ class _FollowerItemState extends State<FollowerItem> {
         children: [
           GestureDetector(
             onTap: () {
-              GoRouter.of(context).push(
-                publicAccountInformationScreenRoute,
-                extra: widget.follower.id,
-              );
+              if(userId== widget.follower.id) {
+                GoRouter.of(context).push(accountProfileScreenRoute);
+              }
+              else {
+                GoRouter.of(context).push(
+                  publicAccountInformationScreenRoute,
+                  extra: widget.follower.id,
+                );
+              }
             },
             child: Row(
               children: [
@@ -91,6 +107,7 @@ class _FollowerItemState extends State<FollowerItem> {
               ],
             ),
           ),
+          if(userId != widget.follower.id && userId != '')
           PopupMenuButton<FollowerMenuAction>(
             icon: Icon(Icons.more_vert, color: theme.iconTheme.color),
             onSelected: (action) async {

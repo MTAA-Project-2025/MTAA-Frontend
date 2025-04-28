@@ -70,7 +70,10 @@ class _UsersGlobalSearchState extends State<UsersGlobalSearch> {
     var res = await widget.repository.getGlobalUsers(GlobalSearch(filterStr: filterStr, pageParameters: paginationScrollController.pageParameters));
     paginationScrollController.pageParameters.pageNumber++;
     if (res.length < paginationScrollController.pageParameters.pageSize) {
-      paginationScrollController.stopLoading = true;
+      if (!mounted) return false;
+      setState(() {
+        paginationScrollController.stopLoading = true;
+      });
     }
     if (res.isNotEmpty) {
       setState(() {
@@ -93,10 +96,12 @@ class _UsersGlobalSearchState extends State<UsersGlobalSearch> {
     paginationScrollController.dispose();
     paginationScrollController.init(loadAction: () => loadUsers());
 
+    if (!mounted) return;
     setState(() {
       paginationScrollController.isLoading = true;
     });
     await loadUsers();
+    if(!mounted) return;
     setState(() {
       paginationScrollController.isLoading = false;
     });
@@ -115,7 +120,7 @@ class _UsersGlobalSearchState extends State<UsersGlobalSearch> {
                 itemBuilder: (context, index) {
                   if (index == 0) {
                     return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
                       child: CustomSearchInput(
                         controller: searchController,
                         textInputType: TextInputType.text,
