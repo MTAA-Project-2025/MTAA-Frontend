@@ -71,7 +71,7 @@ class _FirstUpdateDisplayNameScreenState extends State<FirstUpdateDisplayNameScr
                     children: [
                       TextButton(
                         onPressed: () {
-                          GoRouter.of(context).goNamed(userGroupListScreenRoute);
+                          GoRouter.of(context).goNamed(userRecommendationsScreenRoute);
                         },
                         style: TextButton.styleFrom(
                           foregroundColor: Theme.of(context).colorScheme.secondary,

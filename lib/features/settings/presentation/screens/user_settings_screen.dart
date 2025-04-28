@@ -7,6 +7,7 @@ import 'package:mtaa_frontend/features/shared/presentation/widgets/phone_bottom_
 import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
 import 'package:mtaa_frontend/themes/bloc/theme_bloc.dart';
 import 'package:mtaa_frontend/themes/bloc/theme_event.dart';
+import 'package:mtaa_frontend/themes/bloc/theme_state.dart';
 
 class UserSettingsScreen extends StatefulWidget {
   const UserSettingsScreen({super.key});
@@ -16,6 +17,10 @@ class UserSettingsScreen extends StatefulWidget {
 }
 
 class _UserSettingsScreenState extends State<UserSettingsScreen> {
+  void _changeTheme(AppThemeMode mode) {
+    context.read<ThemeBloc>().add(ChangeThemeEvent(mode));
+  }
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -64,6 +69,36 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
                   ),
                 ),
               ),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconButton(
+                  tooltip: 'Light Theme',icon: Icon(
+                    Icons.light_mode,
+                    color: Theme.of(context).iconTheme.color,
+                    size: Theme.of(context).iconTheme.size,
+                  ),
+                  onPressed: () => _changeTheme(AppThemeMode.light),
+                ),
+                IconButton(
+                  tooltip: 'Dark Theme',icon: Icon(
+                    Icons.dark_mode,
+                    color: Theme.of(context).iconTheme.color,
+                    size: Theme.of(context).iconTheme.size,
+                  ),
+                  onPressed: () => _changeTheme(AppThemeMode.dark),
+                ),
+                IconButton(
+                  tooltip: 'Inclusive Theme',icon: Icon(
+                    Icons.color_lens,
+                    color: Theme.of(context).iconTheme.color,
+                    size: Theme.of(context).iconTheme.size,
+                  ),
+                  onPressed: () => _changeTheme(AppThemeMode.inclusive),
+                ),
+              ],
             ),
           ],
         ),
