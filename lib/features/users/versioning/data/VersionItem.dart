@@ -5,4 +5,11 @@ class VersionItem {
   final int version;
 
   VersionItem({required this.type, required this.version});
+
+  factory VersionItem.fromJson(Map<String, dynamic> json) {
+    return VersionItem(
+      type: VersionItemTypes.values[json['type']],
+      version: json['version'],
+    );
+  }
 }

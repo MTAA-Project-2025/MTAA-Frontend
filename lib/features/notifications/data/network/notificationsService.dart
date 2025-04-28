@@ -5,6 +5,7 @@ import 'package:flutter_client_sse/flutter_client_sse.dart';
 import 'package:mtaa_frontend/core/config/app_config.dart';
 import 'package:mtaa_frontend/core/services/my_toast_service.dart';
 import 'package:mtaa_frontend/features/notifications/data/models/responses/notificationResponse.dart';
+import 'package:mtaa_frontend/features/synchronization/synchronization_service.dart';
 import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
 
 abstract class NotificationsService {
@@ -15,8 +16,10 @@ abstract class NotificationsService {
 class NotificationsServiceImpl extends NotificationsService {
   StreamSubscription<SSEModel>? _subscription;
   final MyToastService toastService;
+  final SynchronizationService synchronizationService;
 
-  NotificationsServiceImpl(this.toastService);
+  NotificationsServiceImpl(this.toastService,
+      this.synchronizationService);
 
   @override
   Future startSSE() async{
@@ -31,10 +34,21 @@ class NotificationsServiceImpl extends NotificationsService {
     ).listen((event) {
       if (event.data != null) {
         try {
-          final data = jsonDecode(event.data!);
-          final notification = NotificationResponse.fromJson(data);
-
-          toastService.showMsg("You have new notification!");
+          switch (event.event) {
+            case 'notification':
+                final data = jsonDecode(event.data!);
+                final notification = NotificationResponse.fromJson(data);
+                toastService.showMsg("You have new notification!");
+              break;
+            case 'error':
+              print('Error event received: ${event.data}');
+              break;
+            case 'version':
+              synchronizationService.synchronizePosts();
+              break;
+            default:
+              print('Unknown event type: ${event.event}');
+          }
         } catch (e) {
           print('Failed to decode SSE data: $e');
         }

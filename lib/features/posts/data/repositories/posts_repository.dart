@@ -18,6 +18,7 @@ import 'package:mtaa_frontend/features/shared/bloc/exception_type.dart';
 import 'package:mtaa_frontend/features/shared/bloc/exceptions_bloc.dart';
 import 'package:mtaa_frontend/features/shared/bloc/exceptions_event.dart';
 import 'package:mtaa_frontend/features/shared/data/models/page_parameters.dart';
+import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
 import 'package:uuid/uuid.dart';
 
 abstract class PostsRepository {
@@ -147,14 +148,6 @@ class PostsRepositoryImpl extends PostsRepository {
 
   @override
   Future<List<SimplePostResponse>> getAccountPosts(String userId, PageParameters pageParameters) async {
-    if (false) {
-      //implement versioning system
-      var posts = await postsStorage.getAccountPosts(userId, pageParameters);
-      if (posts.isNotEmpty) {
-        return posts;
-      }
-    }
-
     final status = await AirplaneModeChecker.instance.checkAirplaneMode();
     if (status == AirplaneModeStatus.on) {
       if (getIt.isRegistered<BuildContext>()) {
@@ -163,11 +156,11 @@ class PostsRepositoryImpl extends PostsRepository {
         return [];
       }
     }
-    var posts = await postsApi.getAccountPosts(userId, pageParameters);
-    for (var post in posts) {
-      await postsStorage.saveSimple(userId, post);
+    if(userId==await TokenStorage.getUserId()) {
+      return await postsStorage.getAccountPosts(pageParameters);
     }
-    return posts;
+    
+    return await postsApi.getAccountPosts(userId, pageParameters);
   }
 
   @override

@@ -12,7 +12,7 @@ class LocationPosts extends Table{
   TextColumn get smallFirstImageId => text().references(MyImages, #id)();
   DateTimeColumn get dataCreationTime => dateTime()();
 
-  TextColumn get currentUser => text()();
+  IntColumn get version => integer()();
 
   @override
   Set<Column> get primaryKey => {id};

@@ -20,6 +20,7 @@ import 'package:mtaa_frontend/features/posts/data/models/responses/simple_post_r
 import 'package:mtaa_frontend/features/posts/presentation/screens/add_post_screen.dart';
 import 'package:mtaa_frontend/features/posts/presentation/widgets/add_post_form.dart';
 import 'package:mtaa_frontend/features/shared/data/models/page_parameters.dart';
+import 'package:mtaa_frontend/features/synchronization/data/version_post_item_response.dart';
 import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
 import 'package:uuid/uuid.dart';
 
@@ -37,8 +38,13 @@ abstract class PostsStorage {
   Future<LocationPostResponse?> getSavedLocationPostById(UuidValue id);
   Future<bool> isLocationPostSaved(UuidValue postId);
 
-  Future saveSimple(String ownerId, SimplePostResponse post);
-  Future<List<SimplePostResponse>> getAccountPosts(String userId, PageParameters pageParameters);
+  Future saveSimple(SimplePostResponse post, int version);
+  Future<DateTime?> getSimplePostDateTime(UuidValue id);
+  Future<List<SimplePostResponse>> getAccountPosts(PageParameters pageParameters);
+
+  Future<List<VersionPostItemResponse>> getVersionPostItems(PageParameters pageParameters);
+  Future<int> updatePost(FullPostResponse newPost, LocationPostResponse? locationPost, int newVersion);
+  Future deletePost(UuidValue id);
 }
 
 class PostsStorageImpl extends PostsStorage {
@@ -152,20 +158,25 @@ class PostsStorageImpl extends PostsStorage {
   }
 
   @override
-  Future<List<SimplePostResponse>> getAccountPosts(String userId, PageParameters pageParameters) async {
-    final postsSubquery = Subquery(
-        dbContext.select(dbContext.posts)
-          ..where((e) => e.ownerId.equals(userId))
-          ..orderBy([(row) => OrderingTerm.desc(row.dataCreationTime)])
-          ..limit(pageParameters.pageSize, offset: pageParameters.pageSize * pageParameters.pageNumber),
-        's');
+  Future<List<SimplePostResponse>> getAccountPosts(PageParameters pageParameters) async {
+    final postsSubquery = dbContext.selectOnly(dbContext.posts)
+      ..addColumns([dbContext.posts.id])
+      ..orderBy([OrderingTerm.desc(dbContext.posts.dataCreationTime)])
+      ..limit(pageParameters.pageSize, offset: pageParameters.pageSize * pageParameters.pageNumber);
 
-    final query = dbContext.select(postsSubquery).join([
+    final postIds = await postsSubquery.map((row) => row.read(dbContext.posts.id)).get();
+
+    if (postIds.isEmpty) {
+      return [];
+    }
+
+    final query = dbContext.select(dbContext.posts).join([
       leftOuterJoin(
         dbContext.myImages,
         dbContext.myImages.postId.equalsExp(dbContext.posts.id),
       ),
-    ]);
+    ])
+      ..where(dbContext.posts.id.isIn(postIds.cast<String>()));
 
     final rows = await query.get();
 
@@ -192,6 +203,142 @@ class PostsStorageImpl extends PostsStorage {
     }
 
     return posts;
+  }
+
+  @override
+  Future<List<VersionPostItemResponse>> getVersionPostItems(PageParameters pageParameters) async {
+    final posts = await dbContext.select(dbContext.posts).get();
+
+    return posts
+        .map((post) => VersionPostItemResponse(
+              id: UuidValue.fromString(post.id),
+              version: post.version,
+            ))
+        .toList();
+  }
+
+  @override
+  Future<int> updatePost(FullPostResponse newPost, LocationPostResponse? locationPost, int newVersion) async {
+    final oldPost = await (dbContext.select(dbContext.posts)..where((tbl) => tbl.id.equals(newPost.id.uuid))).getSingleOrNull();
+
+    if (oldPost == null) {
+      MyImageResponse firstImage = newPost.images.first.images.firstWhere((img) => img.type == ImageSizeType.small);
+
+      saveSimple(SimplePostResponse(id: newPost.id, smallFirstImage: firstImage, dataCreationTime: newPost.dataCreationTime), newVersion);
+      return newVersion;
+    }
+
+    final oldImages = await (dbContext.select(dbContext.myImages)..where((tbl) => tbl.postId.equals(newPost.id.uuid))).get();
+
+    final List<MyImage> newImages = newPost.images.map((img) {
+      var image = img.images.firstWhere((img) => img.type == ImageSizeType.small);
+
+      return MyImage(
+          id: image.id,
+          shortPath: image.shortPath,
+          fullPath: image.fullPath,
+          localFullPath: '',
+          fileType: image.fileType,
+          height: image.height,
+          width: image.width,
+          aspectRatio: image.aspectRatio,
+          type: image.type.index,
+          postId: newPost.id.uuid);
+    }).toList();
+
+    final List<MyImage> imagesToAdd = [];
+    final List<MyImage> imagesToDelete = [];
+
+    int oldVersion = oldPost.version;
+
+    final oldImageIds = oldImages.map((e) => e.id).toSet();
+    final newImageIds = newImages.map((e) => e.id).toSet();
+
+    final addedImageIds = newImageIds.difference(oldImageIds);
+    final removedImageIds = oldImageIds.difference(newImageIds);
+
+    for (final id in addedImageIds) {
+      final image = newImages.firstWhere((img) => img.id == id);
+      imagesToAdd.add(image);
+    }
+
+    for (final id in removedImageIds) {
+      final image = oldImages.firstWhere((img) => img.id == id);
+
+      if (image.locationPostId != null || image.simpleLocationPointId != null) {
+        await (dbContext.update(dbContext.myImages)..where((tbl) => tbl.id.equals(image.id))).write(MyImagesCompanion(
+          postId: const Value(null),
+        ));
+      } else {
+        MyImage img = MyImage(
+            id: image.id,
+            shortPath: image.shortPath,
+            fullPath: image.fullPath,
+            localFullPath: image.localFullPath,
+            fileType: image.fileType,
+            height: image.height,
+            width: image.width,
+            aspectRatio: image.aspectRatio,
+            type: image.type);
+        imagesToDelete.add(img);
+      }
+    }
+
+    for (final image in imagesToAdd) {
+      var uint8List = await imageStorage.urlToUint8List(image.fullPath);
+      if (uint8List == null) continue;
+      var path = await imageStorage.saveTempImage(uint8List, 'simplepostImg_${image.id}');
+      MyImage img = MyImage(
+          id: image.id,
+          shortPath: image.shortPath,
+          fullPath: image.fullPath,
+          localFullPath: path,
+          fileType: image.fileType,
+          height: image.height,
+          width: image.width,
+          aspectRatio: image.aspectRatio,
+          type: image.type);
+      await dbContext.into(dbContext.myImages).insert(img);
+    }
+
+    for (final image in imagesToDelete) {
+      await imageStorage.deleteImage(image.localFullPath);
+      await (dbContext.delete(dbContext.myImages)..where((tbl) => tbl.id.equals(image.id))).go();
+    }
+
+    final oldLocationPost = await (dbContext.select(dbContext.locationPosts)..where((tbl) => tbl.id.equals(newPost.id.uuid))).getSingleOrNull();
+    if (oldLocationPost != null) {
+      bool locationPostNeedsUpdate = false;
+      if (oldLocationPost.description != newPost.description ||
+          oldLocationPost.eventTime != locationPost!.eventTime ||
+          oldLocationPost.ownerDisplayName != locationPost.ownerDisplayName ||
+          oldLocationPost.smallFirstImageId != locationPost.smallFirstImage.id ||
+          oldLocationPost.pointId != locationPost.point.id.uuid) {
+        locationPostNeedsUpdate = true;
+      }
+
+      if (locationPostNeedsUpdate) {
+        await (dbContext.update(dbContext.locationPosts)..where((tbl) => tbl.id.equals(oldLocationPost.id))).write(LocationPostsCompanion(
+          description: Value(newPost.description),
+          eventTime: Value(locationPost!.eventTime),
+          ownerDisplayName: Value(locationPost.ownerDisplayName),
+          smallFirstImageId: Value(locationPost.smallFirstImage.id),
+          version: Value(newVersion),
+        ));
+      }
+    }
+
+    await (dbContext.update(dbContext.posts)..where((tbl) => tbl.id.equals(oldPost.id))).write(PostsCompanion(
+      version: Value(newVersion),
+    ));
+
+    for (var image in imagesToAdd) {
+      await (dbContext.update(dbContext.myImages)..where((tbl) => tbl.id.equals(image.id))).write(MyImagesCompanion(
+        postId: Value(newPost.id.uuid),
+      ));
+    }
+
+    return newVersion - oldVersion;
   }
 
   @override
@@ -228,8 +375,8 @@ class PostsStorageImpl extends PostsStorage {
             ownerDisplayName: Value(post.ownerDisplayName),
             pointId: Value(post.point.id.uuid),
             dataCreationTime: Value(post.dataCreationTime),
-            currentUser: Value(userId ?? ''),
             smallFirstImageId: Value(post.smallFirstImage.id),
+            version: Value(0),
           ));
 
       await dbContext.into(dbContext.simpleLocationPoints).insert(SimpleLocationPointsCompanion(
@@ -246,7 +393,6 @@ class PostsStorageImpl extends PostsStorage {
       if (imageExists == null) {
         await dbContext.into(dbContext.myImages).insert(MyImagesCompanion(
               id: Value(post.smallFirstImage.id),
-              myImageGroupId: Value(post.smallFirstImage.id),
               shortPath: Value(post.smallFirstImage.shortPath),
               fullPath: Value(post.smallFirstImage.fullPath),
               fileType: Value(post.smallFirstImage.fileType),
@@ -275,12 +421,23 @@ class PostsStorageImpl extends PostsStorage {
       return;
     }
 
-    await imageStorage.deleteImage(post.smallFirstImage.localPath);
+    final imageExists = await (dbContext.select(dbContext.myImages)..where((tbl) => tbl.id.equals(post.smallFirstImage.id))).getSingleOrNull();
+
+    if (imageExists != null && imageExists.postId == null) {
+      await imageStorage.deleteImage(post.smallFirstImage.localPath);
+    }
 
     await dbContext.transaction(() async {
       await dbContext.delete(dbContext.locationPosts).delete(LocationPostsCompanion(id: Value(post.id.uuid)));
       await dbContext.delete(dbContext.simpleLocationPoints).delete(SimpleLocationPointsCompanion(id: Value(post.point.id.uuid)));
-      await dbContext.delete(dbContext.myImages).delete(MyImagesCompanion(id: Value(post.smallFirstImage.id)));
+
+      if (imageExists != null && imageExists.postId == null) {
+        await dbContext.delete(dbContext.myImages).delete(MyImagesCompanion(id: Value(post.smallFirstImage.id)));
+      } else {
+        await (dbContext.update(dbContext.myImages)..where((tbl) => tbl.id.equals(post.smallFirstImage.id))).write(MyImagesCompanion(
+          locationPostId: Value(null),
+        ));
+      }
     });
   }
 
@@ -422,7 +579,7 @@ class PostsStorageImpl extends PostsStorage {
   }
 
   @override
-  Future saveSimple(String ownerId, SimplePostResponse post) async {
+  Future saveSimple(SimplePostResponse post, int version) async {
     final query = dbContext.selectOnly(dbContext.posts)
       ..addColumns([dbContext.posts.id])
       ..where(dbContext.posts.id.equals(post.id.uuid));
@@ -432,28 +589,108 @@ class PostsStorageImpl extends PostsStorage {
     if (isPostExist) {
       return;
     }
-    await dbContext.transaction(() async {
-      var userId = await TokenStorage.getUserId();
 
+    final imageExists = await (dbContext.select(dbContext.myImages)..where((tbl) => tbl.id.equals(post.smallFirstImage.id))).getSingleOrNull();
+
+    if (imageExists == null && post.smallFirstImage.localPath == '') {
+      var uint8List = await imageStorage.urlToUint8List(post.smallFirstImage.fullPath);
+      if (uint8List != null) {
+        var path = await imageStorage.saveTempImage(
+          uint8List,
+          'postSimpleImg_${post.smallFirstImage.type.index}_${post.smallFirstImage.id}',
+        );
+        post.smallFirstImage.localPath = path;
+      }
+    }
+
+    final String? ownerId = await TokenStorage.getUserId();
+    if (ownerId == null) return;
+
+    await dbContext.transaction(() async {
       await dbContext.into(dbContext.posts).insert(PostsCompanion(
             id: Value(post.id.uuid),
             ownerId: Value(ownerId),
             dataCreationTime: Value(post.dataCreationTime),
-            currentUser: Value(userId ?? ''),
+            version: Value(version),
           ));
 
-      await dbContext.into(dbContext.myImages).insert(MyImagesCompanion(
-            id: Value(post.smallFirstImage.id),
-            myImageGroupId: Value(post.smallFirstImage.id),
-            shortPath: Value(post.smallFirstImage.shortPath),
-            fullPath: Value(post.smallFirstImage.fullPath),
-            fileType: Value(post.smallFirstImage.fileType),
-            height: Value(post.smallFirstImage.height),
-            width: Value(post.smallFirstImage.width),
-            aspectRatio: Value(post.smallFirstImage.aspectRatio),
-            type: Value(post.smallFirstImage.type.index),
-            localFullPath: Value(post.smallFirstImage.localPath),
-          ));
+      if (imageExists == null) {
+        await dbContext.into(dbContext.myImages).insert(MyImagesCompanion(
+              id: Value(post.smallFirstImage.id),
+              shortPath: Value(post.smallFirstImage.shortPath),
+              fullPath: Value(post.smallFirstImage.fullPath),
+              fileType: Value(post.smallFirstImage.fileType),
+              height: Value(post.smallFirstImage.height),
+              width: Value(post.smallFirstImage.width),
+              aspectRatio: Value(post.smallFirstImage.aspectRatio),
+              type: Value(post.smallFirstImage.type.index),
+              localFullPath: Value(post.smallFirstImage.localPath),
+              postId: Value(post.id.uuid),
+            ));
+      } else {
+        await (dbContext.update(dbContext.myImages)..where((tbl) => tbl.id.equals(post.smallFirstImage.id))).write(MyImagesCompanion(
+          postId: Value(post.id.uuid),
+        ));
+      }
     });
+  }
+
+  @override
+  Future deletePost(UuidValue id) async {
+    final query = dbContext.select(dbContext.posts)..where((e) => dbContext.posts.id.equals(id.uuid));
+
+    final row = await query.getSingleOrNull();
+
+    if (row == null) {
+      return null;
+    }
+
+    final query2 = dbContext.select(dbContext.posts).join([
+      leftOuterJoin(
+        dbContext.myImages,
+        dbContext.myImages.postId.equalsExp(dbContext.posts.id),
+      ),
+    ])
+      ..where(dbContext.posts.id.equals(row.id));
+
+    final rows = await query2.getSingleOrNull();
+    if (rows == null) return null;
+    var image = rows.readTableOrNull(dbContext.myImages);
+
+    if (image != null && image.locationPostId == null) {
+      await imageStorage.deleteImage(image.localFullPath);
+    }
+
+    await dbContext.transaction(() async {
+      await dbContext.delete(dbContext.posts).delete(PostsCompanion(id: Value(id.uuid)));
+
+      if (image != null && image.locationPostId == null) {
+        await dbContext.delete(dbContext.myImages).delete(MyImagesCompanion(id: Value(image.id)));
+      } else if (image != null) {
+        await (dbContext.update(dbContext.myImages)..where((tbl) => tbl.id.equals(image!.id))).write(MyImagesCompanion(
+          postId: Value(null),
+        ));
+      }
+    });
+    if(image!=null && image.locationPostId!=null){
+      var locPost = await getSavedLocationPostById(UuidValue.fromString(image.locationPostId!));
+      if(locPost!=null){
+        removeLocationPost(locPost);
+      }
+    }
+  }
+
+  @override
+  Future<DateTime?> getSimplePostDateTime(UuidValue id) async {
+    final query = dbContext.selectOnly(dbContext.posts)
+      ..addColumns([dbContext.posts.dataCreationTime])
+      ..where(dbContext.posts.id.equals(id.uuid));
+
+    final row = await query.getSingleOrNull();
+
+    if (row == null) {
+      return null;
+    }
+    return row.read(dbContext.posts.dataCreationTime);
   }
 }

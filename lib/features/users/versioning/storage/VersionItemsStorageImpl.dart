@@ -1,30 +1,22 @@
+import 'package:hive/hive.dart';
+import 'package:mtaa_frontend/core/constants/storages/storage_boxes.dart';
 import 'package:mtaa_frontend/features/users/versioning/data/VersionItem.dart';
 import 'package:mtaa_frontend/features/users/versioning/shared/VersionItemTypes.dart';
 import 'package:mtaa_frontend/features/users/versioning/storage/VersionItemsStorage.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class VersionItemsStorageImpl implements VersionItemsStorage {
-  final SharedPreferences prefs;
-
-  VersionItemsStorageImpl(this.prefs);
-
+  
   @override
-  Future<void> saveVersionItem(VersionItem item) async {
-    await prefs.setInt('${item.type.toString()}_version', item.version);
+  Future saveVersionItem(VersionItem item) async {
+    var box = Hive.box(currentUserDataBox);
+    await box.put("version_${item.type.index}", item.version);
   }
-
+  
   @override
-  Future<int?> getVersionItem(VersionItemTypes type) async {
-    return prefs.getInt('${type.toString()}_version');
-  }
-
-  @override
-  Future<void> saveCurrentVersion(VersionItemTypes type, int version) async {
-    await prefs.setInt('${type.toString()}_current_version', version);
-  }
-
-  @override
-  Future<int?> getCurrentVersion(VersionItemTypes type) async {
-    return prefs.getInt('${type.toString()}_current_version');
+  Future<int> getVersionItem(VersionItemTypes type) async {
+    var box = Hive.box(currentUserDataBox);
+    var data = box.get("version_${type.index}");
+    if(data==null)return 0;
+    return  data as int;
   }
 }

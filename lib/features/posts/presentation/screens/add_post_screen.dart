@@ -307,7 +307,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                               Icon(Icons.location_pin, color: Theme.of(context).textTheme.bodySmall!.color),
                               const SizedBox(width: 5),
                               Text(
-                                addLocationRequest.latitude > -200 ? '${addLocationRequest.latitude} ${addLocationRequest.longitude}' : 'Choose your location (optional)',
+                                addLocationRequest.latitude > -200 ? "${double.parse((addLocationRequest.latitude).toStringAsFixed(7))} ${double.parse((addLocationRequest.longitude).toStringAsFixed(7))}" : 'Choose your location (optional)',
                                 style: Theme.of(context).textTheme.labelSmall,
                               ),
                             ],

@@ -21,9 +21,14 @@ import 'package:mtaa_frontend/features/notifications/data/repositories/notificat
 import 'package:mtaa_frontend/features/posts/data/network/posts_api.dart';
 import 'package:mtaa_frontend/features/posts/data/repositories/posts_repository.dart';
 import 'package:mtaa_frontend/features/posts/data/storages/posts_storage.dart';
+import 'package:mtaa_frontend/features/synchronization/synchronization_service.dart';
 import 'package:mtaa_frontend/features/users/account/data/network/account_api.dart';
 import 'package:mtaa_frontend/features/users/account/data/repositories/account_repository.dart';
 import 'package:mtaa_frontend/features/users/authentication/shared/data/network/identity_api.dart';
+import 'package:mtaa_frontend/features/users/versioning/api/VersionItemsApi.dart';
+import 'package:mtaa_frontend/features/users/versioning/api/VersionItemsApiImpl.dart';
+import 'package:mtaa_frontend/features/users/versioning/storage/VersionItemsStorage.dart';
+import 'package:mtaa_frontend/features/users/versioning/storage/VersionItemsStorageImpl.dart';
 
 final GetIt getIt = GetIt.instance;
 
@@ -95,9 +100,28 @@ void setupDependencies() {
   getIt.registerSingleton<NotificationsRepository>(
     NotificationsRepositoryImpl(getIt<NotificationsApi>()),
   );
+
+  getIt.registerSingleton<VersionItemsApi>(
+    VersionItemsApiImpl(getIt<Dio>(), getIt<ExceptionsService>()),
+  );
+
+  getIt.registerSingleton<VersionItemsStorage>(
+    VersionItemsStorageImpl(),
+  );
+
+  getIt.registerSingleton<SynchronizationService>(
+    SynchronizationServiceImpl(getIt<PostsApi>(),
+        getIt<LocationsApi>(),
+        getIt<PostsStorage>(),
+        getIt<VersionItemsApi>(),
+        getIt<VersionItemsStorage>()),
+  );
+
   getIt.registerSingleton<NotificationsService>(
-    NotificationsServiceImpl(getIt<MyToastService>()),
-  
+    NotificationsServiceImpl(getIt<MyToastService>(),
+        getIt<SynchronizationService>()),
+  );
+
   getIt.registerSingleton<CommentsApi>(
     CommentsApiImpl(getIt<Dio>(), getIt<ExceptionsService>()),
   );
