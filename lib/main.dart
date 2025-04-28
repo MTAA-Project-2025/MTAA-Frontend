@@ -19,6 +19,7 @@ import 'package:mtaa_frontend/domain/hive_data/posts/my_image_group_hive.dart';
 import 'package:mtaa_frontend/domain/hive_data/posts/my_image_hive.dart';
 import 'package:mtaa_frontend/domain/hive_data/posts/simple_user_hive.dart';
 import 'package:mtaa_frontend/features/shared/bloc/exceptions_bloc.dart';
+import 'package:mtaa_frontend/features/users/account/bloc/account_bloc.dart';
 import 'package:mtaa_frontend/features/users/authentication/shared/blocs/verification_email_phone_bloc.dart';
 import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
 import 'package:mtaa_frontend/themes/app_theme.dart';
@@ -26,6 +27,8 @@ import 'package:mtaa_frontend/themes/bloc/theme_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mtaa_frontend/themes/bloc/theme_state.dart';
 import 'package:mtaa_frontend/core/route/router.dart' as router;
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
   await Hive.initFlutter();
@@ -66,23 +69,28 @@ Future<void> main() async {
       BlocProvider<ExceptionsBloc>(
         create: (_) => ExceptionsBloc(),
       ),
+      BlocProvider<AccountBloc>(
+        create: (_) => AccountBloc(),
+      ),
     ],
-    child: MyApp(initialRoute: initialRoute,),
+    child: MyApp(
+      initialRoute: initialRoute,
+    ),
   ));
 }
 
-  Future<bool> isAuthorized() async {
-    final token = await TokenStorage.getToken();
-    return token != null && token.isNotEmpty;
-  }
+Future<bool> isAuthorized() async {
+  final token = await TokenStorage.getToken();
+  return token != null && token.isNotEmpty;
+}
 
-  Future<String> getInitialRoute() async {
-    var res = await isAuthorized();
-    if (res) {
-      return userRecommendationsScreenRoute;
-    }
-    return '/';
+Future<String> getInitialRoute() async {
+  var res = await isAuthorized();
+  if (res) {
+    return userRecommendationsScreenRoute;
   }
+  return '/';
+}
 
 class MyApp extends StatefulWidget {
   final String initialRoute;
@@ -105,20 +113,17 @@ class _MyAppState extends State<MyApp> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ThemeBloc, ThemeState>(
-      builder: (context, state) {
-        return MaterialApp.router(
-          title: 'Likely',
-          theme: AppTheme.lightTheme(context),
-          darkTheme: AppTheme.darkTheme(context),
-          themeMode: state.themeMode,
-          routerConfig: router.AppRouter.createRouter(widget.initialRoute),
-        );
-      }, 
-    );
+    return BlocBuilder<ThemeBloc, ThemeState>(builder: (context, state) {
+      return MaterialApp.router(
+        title: 'Likely',
+        theme: AppTheme.lightTheme(context),
+        darkTheme: AppTheme.darkTheme(context),
+        themeMode: state.themeMode,
+        routerConfig: router.AppRouter.createRouter(widget.initialRoute),
+      );
+    });
   }
 }
 

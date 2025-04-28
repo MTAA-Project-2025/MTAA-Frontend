@@ -2,10 +2,10 @@ import 'package:mtaa_frontend/features/images/data/models/responses/myImageGroup
 import 'package:mtaa_frontend/features/users/account/data/models/responses/publicFullAccountResponse.dart';
 
 class UserFullAccountResponse extends PublicFullAccountResponse {
-  final DateTime? birthDate;
-  final String? email;
-  final String? phoneNumber;
-  final int likesCount;
+  DateTime? birthDate;
+  String? email;
+  String? phoneNumber;
+  int likesCount;
 
   UserFullAccountResponse({
     required super.id,

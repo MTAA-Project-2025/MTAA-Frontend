@@ -82,7 +82,7 @@ class _PostLocationSaveSectionState extends State<PostLocationSaveSection> {
               constraints: const BoxConstraints(),
               visualDensity: VisualDensity.compact,
               style: Theme.of(context).iconButtonTheme.style?.copyWith(
-                    iconColor: WidgetStateProperty.all(Theme.of(context).textTheme.bodySmall!.color),
+                    iconColor: isSaved ? WidgetStateProperty.all(Theme.of(context).textTheme.titleMedium!.color) : WidgetStateProperty.all(Theme.of(context).textTheme.bodySmall!.color),
                   ),
               icon: Icon(
                 isSaved ? Icons.bookmark_remove_outlined : Icons.bookmark_add_outlined,

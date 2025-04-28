@@ -76,7 +76,10 @@ class _AccountPostListWidgetState extends State<AccountPostListWidget> {
     var res = await widget.repository.getAccountPosts(widget.userId, paginationScrollController.pageParameters);
     paginationScrollController.pageParameters.pageNumber++;
     if (res.length < paginationScrollController.pageParameters.pageSize) {
-      paginationScrollController.stopLoading = true;
+      if (!mounted) return false;
+      setState(() {
+        paginationScrollController.stopLoading = true;
+      });
     }
     if (res.isNotEmpty) {
       if (!mounted) return;

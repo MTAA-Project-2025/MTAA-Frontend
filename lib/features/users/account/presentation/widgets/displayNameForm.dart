@@ -23,7 +23,7 @@ class DisplayNameForm extends StatelessWidget {
             constraints: const BoxConstraints.tightFor(width: 300),
             child: CustomTextInput(
                 placeholder: 'Display Name',
-                validator: usernameValidator,
+                validator: abstractNameValidator,
                 textInputType: TextInputType.name,
                 controller: displayNameController),
           ),

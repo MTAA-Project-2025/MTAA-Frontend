@@ -324,7 +324,7 @@ class _MapWidgetState extends State<MapWidget> {
               border: Border.all(color: whiteColor, width: 2),
             ),
             child: Center(
-              child: Text('${point.childCount + 1}',
+              child: Text('${point.childCount}',
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
                         color: whiteColor,
                       )),

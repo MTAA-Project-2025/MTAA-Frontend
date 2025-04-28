@@ -10,6 +10,9 @@ import 'package:mtaa_frontend/core/constants/route_constants.dart';
 import 'package:mtaa_frontend/core/services/my_toast_service.dart';
 import 'package:mtaa_frontend/core/services/time_formating_service.dart';
 import 'package:mtaa_frontend/core/utils/app_injections.dart';
+import 'package:mtaa_frontend/features/comments/bloc/comments_bloc.dart';
+import 'package:mtaa_frontend/features/comments/data/repositories/comments_repository.dart';
+import 'package:mtaa_frontend/features/comments/presentation/widgets/comments_main_list.dart';
 import 'package:mtaa_frontend/features/locations/data/models/responses/location_point_type.dart';
 import 'package:mtaa_frontend/features/locations/data/models/responses/simple_location_point_response.dart';
 import 'package:mtaa_frontend/features/locations/data/repositories/locations_repository.dart';
@@ -168,7 +171,7 @@ class _FullPostScreenScreenState extends State<FullPostScreen> {
                             )),
                       ),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
                         child: Column(children: [
                           Row(
                             children: [
@@ -208,7 +211,25 @@ class _FullPostScreenScreenState extends State<FullPostScreen> {
                         ]),
                       ),
                     ],
-                  )
+                  ),
+                if (post != null)
+                BlocProvider(
+        create: (_) => CommentsBloc(),
+        child:
+                  Padding(
+                      padding: const EdgeInsets.only(right: 10, left: 10, top: 20, bottom: 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text('Comments', style: Theme.of(context).textTheme.headlineLarge),
+                          const SizedBox(height: 10),
+                          CommentsMainList(
+                            commentsRepository: getIt<CommentsRepository>(),
+                            postId: post!.id,
+                            postOwnerId: post!.owner.id,
+                          ),
+                        ],
+                      )))
               ],
             ),
           );
