@@ -104,7 +104,7 @@ class ProfileInfoWidget extends StatelessWidget {
               _buildButton(
                 context,
                 'Notifications',
-                () {},
+                () => GoRouter.of(context).push(notificationsScreenRoute),
               ),
             ],
           ),

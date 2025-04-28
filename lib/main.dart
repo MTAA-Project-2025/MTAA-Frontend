@@ -18,6 +18,7 @@ import 'package:mtaa_frontend/domain/hive_data/posts/full_post_hive.dart';
 import 'package:mtaa_frontend/domain/hive_data/posts/my_image_group_hive.dart';
 import 'package:mtaa_frontend/domain/hive_data/posts/my_image_hive.dart';
 import 'package:mtaa_frontend/domain/hive_data/posts/simple_user_hive.dart';
+import 'package:mtaa_frontend/features/notifications/data/network/notificationsService.dart';
 import 'package:mtaa_frontend/features/shared/bloc/exceptions_bloc.dart';
 import 'package:mtaa_frontend/features/users/account/bloc/account_bloc.dart';
 import 'package:mtaa_frontend/features/users/authentication/shared/blocs/verification_email_phone_bloc.dart';
@@ -57,6 +58,8 @@ Future<void> main() async {
 
   await FMTCObjectBoxBackend().initialise();
   await FMTCStore(tilesBox).manage.create();
+  var sse = getIt<NotificationsService>();
+  await sse.startSSE();
 
   runApp(MultiBlocProvider(
     providers: [
