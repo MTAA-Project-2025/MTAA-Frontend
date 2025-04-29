@@ -121,10 +121,9 @@ void setupDependencies() {
   );
 
   getIt.registerSingleton<NotificationsService>(
-    NotificationsServiceImpl(getIt<MyToastService>(),
+  NotificationsServiceImpl(getIt<MyToastService>(),
         getIt<SynchronizationService>()),
   );
-
   getIt.registerSingleton<CommentsApi>(
     CommentsApiImpl(getIt<Dio>(), getIt<ExceptionsService>()),
   );

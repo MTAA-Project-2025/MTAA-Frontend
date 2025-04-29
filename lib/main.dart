@@ -118,16 +118,30 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ThemeBloc, ThemeState>(builder: (context, state) {
-      return MaterialApp.router(
-        title: 'Likely',
-        theme: AppTheme.lightTheme(context),
-        darkTheme: AppTheme.darkTheme(context),
-        themeMode: state.themeMode,
-        routerConfig: router.AppRouter.createRouter(widget.initialRoute),
-      );
-    });
+    return BlocBuilder<ThemeBloc, ThemeState>(
+      builder: (context, state) {
+        ThemeData themeData;
+        switch (state.appThemeMode) {
+          case AppThemeMode.dark:
+            themeData = AppTheme.darkTheme(context);
+            break;
+          case AppThemeMode.inclusive:
+            themeData = AppTheme.inclusiveTheme(context);
+            break;
+          case AppThemeMode.light:
+          default:
+            themeData = AppTheme.lightTheme(context);
+            break;
+        }
+        return MaterialApp.router(
+          title: 'Likely',
+          theme: themeData,
+          routerConfig: router.AppRouter.createRouter(widget.initialRoute),
+        );
+      },
+    );
   }
+
 }
 
 class MyHttpOverrides extends HttpOverrides {
