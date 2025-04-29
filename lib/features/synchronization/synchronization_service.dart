@@ -12,17 +12,23 @@ import 'package:mtaa_frontend/features/shared/bloc/exceptions_bloc.dart';
 import 'package:mtaa_frontend/features/shared/bloc/exceptions_event.dart';
 import 'package:mtaa_frontend/features/shared/data/models/page_parameters.dart';
 import 'package:mtaa_frontend/features/synchronization/data/version_post_item_response.dart';
+import 'package:mtaa_frontend/features/users/account/bloc/account_bloc.dart';
+import 'package:mtaa_frontend/features/users/account/bloc/account_events.dart';
+import 'package:mtaa_frontend/features/users/account/data/network/account_api.dart';
 import 'package:mtaa_frontend/features/users/versioning/api/VersionItemsApi.dart';
 import 'package:mtaa_frontend/features/users/versioning/data/VersionItem.dart';
 import 'package:mtaa_frontend/features/users/versioning/shared/VersionItemTypes.dart';
 import 'package:mtaa_frontend/features/users/versioning/storage/VersionItemsStorage.dart';
 
-abstract class  SynchronizationService {
-  Future synchronizePosts();
+abstract class SynchronizationService {
+  Future synchronizePosts(int versionDifferency, int newVersion);
+  Future synchronizeAccount(int newFollowersVersion, int newFriendsVersion, int newAccountVersion, int newLikedPostsVersion);
+  Future synchronize();
 }
 
-class SynchronizationServiceImpl extends  SynchronizationService {
+class SynchronizationServiceImpl extends SynchronizationService {
   final PostsApi postsApi;
+  final AccountApi accountApi;
   final LocationsApi locationsApi;
   final PostsStorage postsStorage;
   final VersionItemsApi versionItemsApi;
@@ -30,74 +36,130 @@ class SynchronizationServiceImpl extends  SynchronizationService {
 
   bool isPostsSynchronizing = false;
 
-  SynchronizationServiceImpl(this.postsApi,
-  this.locationsApi,
-  this.postsStorage,
-  this.versionItemsApi,
-  this.versionItemsStorage);
+  SynchronizationServiceImpl(this.postsApi, this.locationsApi, this.postsStorage, this.versionItemsApi, this.versionItemsStorage, this.accountApi);
 
-  @override
-  Future synchronizePosts() async {
-    if(isPostsSynchronizing)return;
-    isPostsSynchronizing=true;
-
-    final status = await AirplaneModeChecker.instance.checkAirplaneMode();
-    if (status == AirplaneModeStatus.on) {
-      if (getIt.isRegistered<BuildContext>()) {
-        var context = getIt.get<BuildContext>();
-        context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: true, exceptionType: ExceptionTypes.flightMode, message: 'Flight mode is enabled'));
-        return;
+  Future synchronize() async {
+    try {
+      var newVersions = await versionItemsApi.getVersionItems();
+      var oldPostsVersion = await versionItemsStorage.getVersionItem(VersionItemTypes.AccountPosts);
+      var oldAccountVersion = await versionItemsStorage.getVersionItem(VersionItemTypes.Account);
+      var oldFriendsVersion = await versionItemsStorage.getVersionItem(VersionItemTypes.Friends);
+      var oldFollowersVersion = await versionItemsStorage.getVersionItem(VersionItemTypes.Followers);
+      var oldLikedPostsVersion = await versionItemsStorage.getVersionItem(VersionItemTypes.LikedPosts);
+      
+      VersionItem newPostsVersionItem = newVersions.firstWhere((element) => element.type == VersionItemTypes.AccountPosts);
+      int postsVersionDifferency = newPostsVersionItem.version - oldPostsVersion;
+      if (postsVersionDifferency > 0) {
+        synchronizePosts(postsVersionDifferency, newPostsVersionItem.version);
       }
-    }
-    var newVersions = await versionItemsApi.getVersionItems();
-    var oldVersion = await versionItemsStorage.getVersionItem(VersionItemTypes.AccountPosts);
 
-    VersionItem newVersionItem = newVersions.firstWhere((element) => element.type == VersionItemTypes.AccountPosts);
+      VersionItem newFollowersVersionItem = newVersions.firstWhere((element) => element.type == VersionItemTypes.Followers);
+      int followersVersionDifferency = newFollowersVersionItem.version - oldFollowersVersion;
+      
+      VersionItem newFriendsVersionItem = newVersions.firstWhere((element) => element.type == VersionItemTypes.Friends);
+      int friendsVersionDifferency = newFriendsVersionItem.version - oldFriendsVersion;
 
-    int versionDifferency = newVersionItem.version - oldVersion;
-    if(versionDifferency<=0){
-      isPostsSynchronizing=false;
+      VersionItem newAccountVersionItem = newVersions.firstWhere((element) => element.type == VersionItemTypes.Account);
+      int accountVersionDifferency = newAccountVersionItem.version - oldAccountVersion;
+
+      VersionItem newLikedPostsVersionItem = newVersions.firstWhere((element) => element.type == VersionItemTypes.LikedPosts);
+      int accountLikedPostsDifferency = newLikedPostsVersionItem.version - oldLikedPostsVersion;
+
+      synchronizeAccount(followersVersionDifferency, friendsVersionDifferency, accountVersionDifferency, accountLikedPostsDifferency);
+    } catch (e) {
+      print('Error while synchronization: $e');
       return;
     }
+  }
 
-    var pageParameters = PageParameters(pageNumber: 0, pageSize: 100);
-    var oldPosts = await postsStorage.getVersionPostItems(pageParameters);
-    
-    while(versionDifferency>0){
-      var newPosts = await postsApi.getVersionPostItems(pageParameters);
-      if(newPosts.isEmpty)break;
-      FullPostResponse? lastPost = await postsApi.getFullPostById(newPosts.last.id);
-      if(newPosts.isEmpty)break;
-      for (var post in newPosts) {
-        VersionPostItemResponse? resp = oldPosts.where((e)=>e.id==post.id).firstOrNull;
-        if(resp==null || resp.version<post.version){
-          FullPostResponse? fullPost = await postsApi.getFullPostById(post.id);
-          
-          if(fullPost!=null){
-            LocationPostResponse? locationPost;
-            if(fullPost.locationId!=null){
-              locationPost = await locationsApi.getLocationPostById(fullPost.locationId!);
-            }
-            versionDifferency-=(await postsStorage.updatePost(fullPost, locationPost, post.version)+1);
-          }
-        }
-      }
-      for(var oldPost in oldPosts){
-        VersionPostItemResponse? resp = newPosts.where((e)=>e.id==oldPost.id).firstOrNull;
-        if(resp==null){
-          DateTime? dateTime = await postsStorage.getSimplePostDateTime(oldPost.id);
-          if(dateTime!=null && lastPost!=null){
-            await postsStorage.deletePost(oldPost.id);
-            versionDifferency--;
-          }
-        }
-      }
-      pageParameters.pageNumber++;
+  @override
+  Future synchronizeAccount(int newFollowersVersion, int newFriendsVersion, int newAccountVersion, int newLikedPostsVersion) async {
+    try {
+      if (!getIt.isRegistered<BuildContext>()) return;
+      var context = getIt.get<BuildContext>();
+      var account = await accountApi.getFullAccount();
+      if (account == null) return;
+      if (!context.mounted) return;
+      context.read<AccountBloc>().add(LoadAccountEvent(account: account));
+
+      await versionItemsStorage.saveVersionItem(VersionItem(
+        type: VersionItemTypes.Account,
+        version: newAccountVersion,
+      ));
+      await versionItemsStorage.saveVersionItem(VersionItem(
+        type: VersionItemTypes.Followers,
+        version: newFollowersVersion,
+      ));
+      await versionItemsStorage.saveVersionItem(VersionItem(
+        type: VersionItemTypes.Friends,
+        version: newFriendsVersion,
+      ));
+      await versionItemsStorage.saveVersionItem(VersionItem(
+        type: VersionItemTypes.LikedPosts,
+        version: newLikedPostsVersion,
+      ));
+    } catch (e) {
+      print('Error while synchronization: ');
     }
-    await versionItemsStorage.saveVersionItem(VersionItem(
-      type: VersionItemTypes.AccountPosts,
-      version: newVersionItem.version,
-    ));
-    isPostsSynchronizing=false;
+  }
+
+  @override
+  Future synchronizePosts(int versionDifferency, int newVersion) async {
+    try {
+      if (isPostsSynchronizing) return;
+      isPostsSynchronizing = true;
+
+      final status = await AirplaneModeChecker.instance.checkAirplaneMode();
+      if (status == AirplaneModeStatus.on) {
+        if (getIt.isRegistered<BuildContext>()) {
+          var context = getIt.get<BuildContext>();
+          context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: true, exceptionType: ExceptionTypes.flightMode, message: 'Flight mode is enabled'));
+          return;
+        }
+      }
+
+      var pageParameters = PageParameters(pageNumber: 0, pageSize: 100);
+      var oldPosts = await postsStorage.getVersionPostItems(pageParameters);
+
+      while (versionDifferency > 0) {
+        var newPosts = await postsApi.getVersionPostItems(pageParameters);
+        if (newPosts.isEmpty) break;
+        FullPostResponse? lastPost = await postsApi.getFullPostById(newPosts.last.id);
+        if (newPosts.isEmpty) break;
+        for (var post in newPosts) {
+          VersionPostItemResponse? resp = oldPosts.where((e) => e.id == post.id).firstOrNull;
+          if (resp == null || resp.version < post.version) {
+            FullPostResponse? fullPost = await postsApi.getFullPostById(post.id);
+
+            if (fullPost != null) {
+              LocationPostResponse? locationPost;
+              if (fullPost.locationId != null) {
+                locationPost = await locationsApi.getLocationPostById(fullPost.locationId!);
+              }
+              versionDifferency -= (await postsStorage.updatePost(fullPost, locationPost, post.version) + 1);
+            }
+          }
+        }
+        for (var oldPost in oldPosts) {
+          VersionPostItemResponse? resp = newPosts.where((e) => e.id == oldPost.id).firstOrNull;
+          if (resp == null) {
+            DateTime? dateTime = await postsStorage.getSimplePostDateTime(oldPost.id);
+            if (dateTime != null && lastPost != null) {
+              await postsStorage.deletePost(oldPost.id);
+              versionDifferency--;
+            }
+          }
+        }
+        pageParameters.pageNumber++;
+      }
+      await versionItemsStorage.saveVersionItem(VersionItem(
+        type: VersionItemTypes.AccountPosts,
+        version: newVersion,
+      ));
+      isPostsSynchronizing = false;
+    } catch (e) {
+      print('Error while synchronization: $e');
+      return;
+    }
   }
 }

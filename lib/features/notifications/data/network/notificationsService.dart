@@ -44,7 +44,7 @@ class NotificationsServiceImpl extends NotificationsService {
               print('Error event received: ${event.data}');
               break;
             case 'version':
-              synchronizationService.synchronizePosts();
+              synchronizationService.synchronize();
               break;
             default:
               print('Unknown event type: ${event.event}');

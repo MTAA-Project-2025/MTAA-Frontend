@@ -114,7 +114,8 @@ void setupDependencies() {
         getIt<LocationsApi>(),
         getIt<PostsStorage>(),
         getIt<VersionItemsApi>(),
-        getIt<VersionItemsStorage>()),
+        getIt<VersionItemsStorage>(),
+        getIt<AccountApi>()),
   );
 
   getIt.registerSingleton<NotificationsService>(
