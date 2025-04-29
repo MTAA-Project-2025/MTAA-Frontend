@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:mtaa_frontend/features/notifications/data/network/notificationsService.dart';
 import 'package:mtaa_frontend/features/users/authentication/log-in/data/models/requests/logInRequest.dart';
 import 'package:mtaa_frontend/features/users/authentication/shared/data/models/token.dart';
 import 'package:mtaa_frontend/features/users/authentication/sign-up/data/models/requests/StartSignUpEmailVerificationRequest.dart';
@@ -46,6 +47,7 @@ class IdentityImplApi extends IdentityApi {
             fontSize: 16.0
           );
         }
+
         return false;
       } else {
         print(e);
@@ -142,6 +144,7 @@ class IdentityImplApi extends IdentityApi {
             fontSize: 16.0
           );
         }
+        
         return null;
       } else {
         print(e);

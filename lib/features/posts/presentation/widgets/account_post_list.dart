@@ -1,10 +1,14 @@
+import 'dart:io';
+
 import 'package:airplane_mode_checker/airplane_mode_checker.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mtaa_frontend/core/constants/colors.dart';
 import 'package:mtaa_frontend/core/constants/route_constants.dart';
 import 'package:mtaa_frontend/core/utils/app_injections.dart';
+import 'package:mtaa_frontend/features/images/data/models/responses/myImageResponse.dart';
 import 'package:mtaa_frontend/features/posts/data/models/responses/simple_post_response.dart';
 import 'package:mtaa_frontend/features/posts/data/repositories/posts_repository.dart';
 import 'package:mtaa_frontend/features/shared/bloc/exception_type.dart';
@@ -103,15 +107,31 @@ class _AccountPostListWidgetState extends State<AccountPostListWidget> {
     paginationScrollController.dispose();
     paginationScrollController.init(loadAction: () => loadPosts());
 
-    if(!mounted)return;
+    if (!mounted) return;
     setState(() {
       paginationScrollController.isLoading = true;
     });
     await loadPosts();
-    if(!mounted)return;
+    if (!mounted) return;
     setState(() {
       paginationScrollController.isLoading = false;
     });
+  }
+
+  Widget getImage(MyImageResponse img) {
+    if (!widget.isOwner) {
+      return CachedNetworkImage(
+        imageUrl: img.fullPath,
+        errorWidget: (context, url, error) => Image(image: AssetImage('assets/images/kistune_server_error.png')),
+        fit: BoxFit.cover,
+      );
+    }
+    File file = File(img.localPath);
+
+    if (file.existsSync()) {
+      return Image(image: FileImage(file));
+    }
+    return Image(image: AssetImage('assets/images/kistune_server_error.png'));
   }
 
   @override
@@ -155,7 +175,7 @@ class _AccountPostListWidgetState extends State<AccountPostListWidget> {
                   onTap: () {
                     GoRouter.of(context).push('$fullPostScreenRoute/${posts[index - (widget.isOwner ? 1 : 0)].id}');
                   },
-                  child: Image(image: NetworkImage(posts[index - (widget.isOwner ? 1 : 0)].smallFirstImage.fullPath)),
+                  child: getImage(posts[index - (widget.isOwner ? 1 : 0)].smallFirstImage),
                 );
               },
             ),

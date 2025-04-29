@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mtaa_frontend/core/constants/colors.dart';
 import 'package:mtaa_frontend/core/constants/images/image_size_type.dart';
 import 'package:mtaa_frontend/core/constants/route_constants.dart';
+import 'package:mtaa_frontend/core/services/my_toast_service.dart';
 import 'package:mtaa_frontend/core/services/number_formating_service.dart';
 import 'package:mtaa_frontend/core/services/time_formating_service.dart';
 import 'package:mtaa_frontend/core/utils/app_injections.dart';
@@ -19,6 +20,7 @@ import 'package:mtaa_frontend/features/posts/data/models/responses/location_post
 import 'package:mtaa_frontend/features/posts/data/repositories/posts_repository.dart';
 import 'package:mtaa_frontend/features/posts/presentation/widgets/post_like_widget.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:mtaa_frontend/features/shared/presentation/widgets/dotLoader.dart';
 import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
 
 class FullPostWidget extends StatefulWidget {
@@ -27,8 +29,9 @@ class FullPostWidget extends StatefulWidget {
   final bool isFull;
   final PostsRepository repository;
   final LocationsRepository locationsRepository;
+  final MyToastService toaster;
 
-  const FullPostWidget({super.key, required this.post, required this.timeFormatingService, required this.isFull, required this.repository, required this.locationsRepository});
+  const FullPostWidget({super.key, required this.post, required this.timeFormatingService, required this.isFull, required this.repository, required this.locationsRepository, required this.toaster});
 
   @override
   State<FullPostWidget> createState() => _FullPostWidgetState();
@@ -83,6 +86,26 @@ class _FullPostWidgetState extends State<FullPostWidget> {
     return AssetImage('assets/images/kistune_server_error.png');
   }
 
+  var isDeleteLoading = false;
+  Future deleteMicrotask() async {
+    if (!mounted) return;
+    setState(() {
+      isDeleteLoading = true;
+    });
+    if (!mounted) return;
+    var res = await widget.repository.deletePost(widget.post.id);
+    if (!mounted) return;
+    setState(() {
+      isDeleteLoading = false;
+    });
+    if (res) {
+      if (!mounted) return;
+      widget.toaster.showMsg('Post deleted successfully');
+      if (!mounted || !context.mounted) return;
+      GoRouter.of(context).go(userRecommendationsScreenRoute);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -100,14 +123,13 @@ class _FullPostWidgetState extends State<FullPostWidget> {
                   child: Row(
                     children: [
                       if (widget.post.owner.avatar != null)
-                      ClipOval(
-                        child: 
-                        Image(
-                          image: getImage(widget.post.owner.avatar!.images.firstWhere((element) => element.type == ImageSizeType.small)),
-                          width: 31,
-                          height: 31,
+                        ClipOval(
+                          child: Image(
+                            image: getImage(widget.post.owner.avatar!.images.firstWhere((element) => element.type == ImageSizeType.small)),
+                            width: 31,
+                            height: 31,
+                          ),
                         ),
-                      ),
                       const SizedBox(width: 5),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -131,16 +153,16 @@ class _FullPostWidgetState extends State<FullPostWidget> {
                     if (item == PostMenuElements.edit) {
                       GoRouter.of(context).push(updatePostScreenRoute, extra: widget.post);
                     } else if (item == PostMenuElements.delete) {
-                      //TODO: implement confirmation
-                      widget.repository.deletePost(widget.post.id);
+                      deleteMicrotask();
                     }
-                    if(!mounted)return;
+                    if (!mounted) return;
                     setState(() {});
                   },
                   itemBuilder: (BuildContext context) => <PopupMenuEntry<PostMenuElements>>[
                     PopupMenuItem<PostMenuElements>(value: PostMenuElements.share, child: Text('Share', style: Theme.of(context).textTheme.bodyMedium)),
                     if (userId == widget.post.owner.id) PopupMenuItem<PostMenuElements>(value: PostMenuElements.edit, child: Text('Edit', style: Theme.of(context).textTheme.bodyMedium)),
-                    if (userId == widget.post.owner.id) PopupMenuItem<PostMenuElements>(value: PostMenuElements.delete, child: Text('Delete', style: Theme.of(context).textTheme.bodyMedium)),
+                    if (userId == widget.post.owner.id)
+                      PopupMenuItem<PostMenuElements>(value: PostMenuElements.delete, child: isDeleteLoading ? DotLoader() : Text('Delete', style: Theme.of(context).textTheme.bodyMedium)),
                   ],
                 ),
               ],

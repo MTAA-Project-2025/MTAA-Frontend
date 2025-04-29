@@ -8,6 +8,7 @@ class TokenStorage {
 
   static Future<void> saveToken(String token) async {
     var box = Hive.box(currentUserDataBox);
+
     await box.put(tokenKey, token);
   }
 

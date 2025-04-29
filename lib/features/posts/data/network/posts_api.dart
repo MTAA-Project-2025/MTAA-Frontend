@@ -6,6 +6,7 @@ import 'package:mtaa_frontend/features/posts/data/models/requests/update_post_re
 import 'package:mtaa_frontend/features/posts/data/models/responses/full_post_response.dart';
 import 'package:mtaa_frontend/features/posts/data/models/responses/simple_post_response.dart';
 import 'package:mtaa_frontend/features/shared/data/models/page_parameters.dart';
+import 'package:mtaa_frontend/features/synchronization/data/version_post_item_response.dart';
 import 'package:uuid/uuid.dart';
 
 abstract class PostsApi {
@@ -19,6 +20,8 @@ abstract class PostsApi {
   Future<bool> deletePost(UuidValue id);
   Future<bool> likePost(UuidValue id);
   Future<bool> removePostLike(UuidValue id);
+
+  Future<List<VersionPostItemResponse>> getVersionPostItems(PageParameters pageParameters);
 }
 
 class PostsApiImpl extends PostsApi {
@@ -111,6 +114,19 @@ class PostsApiImpl extends PostsApi {
       var res = await dio.post(fullUrl,data:pageParameters.toJson());
       List<dynamic> data = res.data;
       return data.map((item) => SimplePostResponse.fromJson(item)).toList();
+    } on DioException catch (e) {
+      exceptionsService.httpError(e);
+      return [];
+    }
+  }
+
+  @override
+  Future<List<VersionPostItemResponse>> getVersionPostItems(PageParameters pageParameters) async{
+    final fullUrl = '$controllerName/get-post-version-items';
+    try {
+      var res = await dio.post(fullUrl,data:pageParameters.toJson());
+      List<dynamic> data = res.data;
+      return data.map((item) => VersionPostItemResponse.fromJson(item)).toList();
     } on DioException catch (e) {
       exceptionsService.httpError(e);
       return [];

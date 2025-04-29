@@ -141,6 +141,7 @@ class _FullPostScreenScreenState extends State<FullPostScreen> {
                     isFull: true,
                     repository: widget.repository,
                     locationsRepository: widget.locationsRepository,
+                    toaster: getIt<MyToastService>(),
                   ),
                 if (locationPoint != null)
                   Column(

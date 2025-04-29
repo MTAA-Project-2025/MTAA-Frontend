@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mtaa_frontend/core/constants/route_constants.dart';
+import 'package:mtaa_frontend/features/notifications/data/network/notificationsService.dart';
 import 'package:mtaa_frontend/features/users/authentication/shared/data/models/token.dart';
 import 'package:mtaa_frontend/features/users/authentication/shared/data/network/identity_api.dart';
 import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
@@ -13,8 +14,9 @@ import 'package:mtaa_frontend/themes/bloc/theme_event.dart';
 
 class LogInScreen extends StatefulWidget {
   final IdentityApi identityApi;
+  final NotificationsService notificationsService;
 
-  const LogInScreen({super.key, required this.identityApi});
+  const LogInScreen({super.key, required this.identityApi, required this.notificationsService});
 
   @override
   State<LogInScreen> createState() => _LogInScreenState();
@@ -34,7 +36,9 @@ class _LogInScreenState extends State<LogInScreen> {
   }
 
   void _navigateToMainScreen() {
-    Future.microtask(() {
+    Future.microtask(() async{
+      if(!mounted) return;
+      await widget.notificationsService.startSSE();
       if (!mounted) return;
       GoRouter.of(context).go(userRecommendationsScreenRoute);
     });

@@ -207,6 +207,9 @@ class _AddPostFormState extends State<AddPostForm> {
             return;
           }
         }
+        else{
+          originalPath = widget.images[currentPos].originalPath;
+        }
       }
 
       if (!mounted) return;

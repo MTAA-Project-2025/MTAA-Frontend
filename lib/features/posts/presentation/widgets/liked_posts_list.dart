@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:airplane_mode_checker/airplane_mode_checker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mtaa_frontend/core/services/my_toast_service.dart';
 import 'package:mtaa_frontend/core/services/time_formating_service.dart';
 import 'package:mtaa_frontend/core/utils/app_injections.dart';
 import 'package:mtaa_frontend/features/locations/data/repositories/locations_repository.dart';
@@ -126,6 +127,7 @@ class _LikedPostsListState extends State<LikedPostsList> {
                 isFull: false,
                 repository: widget.repository,
                 locationsRepository: getIt<LocationsRepository>(),
+                toaster: getIt<MyToastService>(),
               );
             }
             if (paginationScrollController.isLoading) {

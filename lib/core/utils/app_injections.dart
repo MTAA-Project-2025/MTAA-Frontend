@@ -21,9 +21,14 @@ import 'package:mtaa_frontend/features/notifications/data/repositories/notificat
 import 'package:mtaa_frontend/features/posts/data/network/posts_api.dart';
 import 'package:mtaa_frontend/features/posts/data/repositories/posts_repository.dart';
 import 'package:mtaa_frontend/features/posts/data/storages/posts_storage.dart';
+import 'package:mtaa_frontend/features/synchronization/synchronization_service.dart';
 import 'package:mtaa_frontend/features/users/account/data/network/account_api.dart';
 import 'package:mtaa_frontend/features/users/account/data/repositories/account_repository.dart';
 import 'package:mtaa_frontend/features/users/authentication/shared/data/network/identity_api.dart';
+import 'package:mtaa_frontend/features/users/versioning/api/VersionItemsApi.dart';
+import 'package:mtaa_frontend/features/users/versioning/api/VersionItemsApiImpl.dart';
+import 'package:mtaa_frontend/features/users/versioning/storage/VersionItemsStorage.dart';
+import 'package:mtaa_frontend/features/users/versioning/storage/VersionItemsStorageImpl.dart';
 
 final GetIt getIt = GetIt.instance;
 
@@ -69,7 +74,7 @@ void setupDependencies() {
     PostsApiImpl(getIt<Dio>(), getIt<ExceptionsService>()),
   );
   getIt.registerSingleton<PostsStorage>(
-    PostsStorageImpl(getIt<MyDbContext>(), getIt<MyImageStorage>(), getIt<Dio>()),
+    PostsStorageImpl(getIt<MyDbContext>(), getIt<MyImageStorage>(), getIt<Dio>(), getIt<NotificationsService>()),
   );
   getIt.registerSingleton<PostsRepository>(
     PostsRepositoryImpl(getIt<PostsApi>(), getIt<PostsStorage>()),
@@ -79,7 +84,9 @@ void setupDependencies() {
     LocationsStorageImpl(),
   );
   getIt.registerSingleton<LocationsRepository>(
-    LocationsRepositoryImpl(getIt<LocationsApi>(), getIt<PostsStorage>(),getIt<LocationsStorage>()),
+    LocationsRepositoryImpl(getIt<LocationsApi>(),
+    getIt<PostsStorage>(),
+    getIt<LocationsStorage>()),
   );
 
   getIt.registerSingleton<AccountApi>(
@@ -95,10 +102,28 @@ void setupDependencies() {
   getIt.registerSingleton<NotificationsRepository>(
     NotificationsRepositoryImpl(getIt<NotificationsApi>()),
   );
-  getIt.registerSingleton<NotificationsService>(
-    NotificationsServiceImpl(getIt<MyToastService>()),
+
+  getIt.registerSingleton<VersionItemsApi>(
+    VersionItemsApiImpl(getIt<Dio>(), getIt<ExceptionsService>()),
   );
-  
+
+  getIt.registerSingleton<VersionItemsStorage>(
+    VersionItemsStorageImpl(),
+  );
+
+  getIt.registerSingleton<SynchronizationService>(
+    SynchronizationServiceImpl(getIt<PostsApi>(),
+        getIt<LocationsApi>(),
+        getIt<PostsStorage>(),
+        getIt<VersionItemsApi>(),
+        getIt<VersionItemsStorage>(),
+        getIt<AccountApi>()),
+  );
+
+  getIt.registerSingleton<NotificationsService>(
+  NotificationsServiceImpl(getIt<MyToastService>(),
+        getIt<SynchronizationService>()),
+  );
   getIt.registerSingleton<CommentsApi>(
     CommentsApiImpl(getIt<Dio>(), getIt<ExceptionsService>()),
   );
