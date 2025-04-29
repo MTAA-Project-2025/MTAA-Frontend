@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
+enum AppThemeMode { light, dark, inclusive }
 
 class ThemeState {
-  final ThemeMode themeMode;
+  final AppThemeMode appThemeMode;
 
-  ThemeState({required this.themeMode});
+  ThemeState({required this.appThemeMode});
 }

@@ -86,7 +86,7 @@ class _AccountInformationScreenState extends State<AccountInformationScreen> {
                       }))
             ],
           ),
-          body: isLoading
+          body: (isLoading || accountState.account==null)
               ? Padding(padding: const EdgeInsets.all(16.0), child: DotLoader())
               : Column(
                   children: [

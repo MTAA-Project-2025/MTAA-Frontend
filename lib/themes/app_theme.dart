@@ -84,4 +84,56 @@ class AppTheme {
       ),
     );
   }
+
+  static ThemeData inclusiveTheme(BuildContext context) {
+  return ThemeData(
+    brightness: Brightness.light,
+    fontFamily: "Almarai",
+    primaryColor: Colors.black,
+    secondaryHeaderColor: Colors.white,
+    scaffoldBackgroundColor: Colors.white,
+    iconTheme: const IconThemeData(color: Colors.black),
+    colorScheme: const ColorScheme.light(
+      primary: Colors.black,
+      secondary: Colors.blueAccent,
+      tertiary: Colors.deepOrangeAccent,
+    ),
+    textTheme: const TextTheme(
+      bodyMedium: TextStyle(color: Colors.black, fontSize: 22),
+      bodySmall: TextStyle(color: Colors.black, fontSize: 16),
+      displaySmall: TextStyle(color: Colors.black, fontSize: 14),
+      headlineLarge: TextStyle(color: Colors.black, fontSize: 40, fontWeight: FontWeight.bold),
+      headlineMedium: TextStyle(color: Colors.black, fontSize: 30, fontWeight: FontWeight.bold),
+      labelSmall: TextStyle(color: Colors.black, fontSize: 24, fontWeight: FontWeight.normal),
+      labelLarge: TextStyle(color: Colors.black, fontSize: 40, fontWeight: FontWeight.bold),
+      labelMedium: TextStyle(color: Colors.black, fontSize: 30, fontWeight: FontWeight.normal),
+      titleMedium: TextStyle(color: Colors.black, fontSize: 36, fontWeight: FontWeight.bold),
+    ),
+    textButtonTheme: specialTextButtonThemeData,
+    iconButtonTheme: IconButtonThemeData(
+      style: IconButton.styleFrom(foregroundColor: Colors.black),
+    ),
+    appBarTheme: AppBarTheme(
+      backgroundColor: Colors.black,
+      foregroundColor: Colors.white,
+      elevation: 0,
+      iconTheme: const IconThemeData(color: Colors.white, size: 28),
+      titleTextStyle: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+    ),
+    bottomAppBarTheme: BottomAppBarTheme(
+      color: Colors.black,
+      surfaceTintColor: Colors.black,
+      elevation: 0,
+      height: 100,
+    ),
+    floatingActionButtonTheme: FloatingActionButtonThemeData(
+      foregroundColor: Colors.white,
+      backgroundColor: Colors.black,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+    ),
+  );
+}
+
 }
