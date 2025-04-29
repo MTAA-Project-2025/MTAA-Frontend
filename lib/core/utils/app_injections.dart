@@ -74,7 +74,7 @@ void setupDependencies() {
     PostsApiImpl(getIt<Dio>(), getIt<ExceptionsService>()),
   );
   getIt.registerSingleton<PostsStorage>(
-    PostsStorageImpl(getIt<MyDbContext>(), getIt<MyImageStorage>(), getIt<Dio>()),
+    PostsStorageImpl(getIt<MyDbContext>(), getIt<MyImageStorage>(), getIt<Dio>(), getIt<NotificationsService>()),
   );
   getIt.registerSingleton<PostsRepository>(
     PostsRepositoryImpl(getIt<PostsApi>(), getIt<PostsStorage>()),
@@ -84,7 +84,9 @@ void setupDependencies() {
     LocationsStorageImpl(),
   );
   getIt.registerSingleton<LocationsRepository>(
-    LocationsRepositoryImpl(getIt<LocationsApi>(), getIt<PostsStorage>(),getIt<LocationsStorage>()),
+    LocationsRepositoryImpl(getIt<LocationsApi>(),
+    getIt<PostsStorage>(),
+    getIt<LocationsStorage>()),
   );
 
   getIt.registerSingleton<AccountApi>(

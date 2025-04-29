@@ -1338,6 +1338,12 @@ class $LocationPostsTable extends LocationPosts
   late final GeneratedColumn<DateTime> dataCreationTime =
       GeneratedColumn<DateTime>('data_creation_time', aliasedName, false,
           type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _notificationIdMeta =
+      const VerificationMeta('notificationId');
+  @override
+  late final GeneratedColumn<int> notificationId = GeneratedColumn<int>(
+      'notification_id', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
   static const VerificationMeta _versionMeta =
       const VerificationMeta('version');
   @override
@@ -1354,6 +1360,7 @@ class $LocationPostsTable extends LocationPosts
         pointId,
         smallFirstImageId,
         dataCreationTime,
+        notificationId,
         version
       ];
   @override
@@ -1421,6 +1428,14 @@ class $LocationPostsTable extends LocationPosts
     } else if (isInserting) {
       context.missing(_dataCreationTimeMeta);
     }
+    if (data.containsKey('notification_id')) {
+      context.handle(
+          _notificationIdMeta,
+          notificationId.isAcceptableOrUnknown(
+              data['notification_id']!, _notificationIdMeta));
+    } else if (isInserting) {
+      context.missing(_notificationIdMeta);
+    }
     if (data.containsKey('version')) {
       context.handle(_versionMeta,
           version.isAcceptableOrUnknown(data['version']!, _versionMeta));
@@ -1452,6 +1467,8 @@ class $LocationPostsTable extends LocationPosts
           DriftSqlType.string, data['${effectivePrefix}small_first_image_id'])!,
       dataCreationTime: attachedDatabase.typeMapping.read(
           DriftSqlType.dateTime, data['${effectivePrefix}data_creation_time'])!,
+      notificationId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}notification_id'])!,
       version: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}version'])!,
     );
@@ -1472,6 +1489,7 @@ class LocationPost extends DataClass implements Insertable<LocationPost> {
   final String pointId;
   final String smallFirstImageId;
   final DateTime dataCreationTime;
+  final int notificationId;
   final int version;
   const LocationPost(
       {required this.id,
@@ -1482,6 +1500,7 @@ class LocationPost extends DataClass implements Insertable<LocationPost> {
       required this.pointId,
       required this.smallFirstImageId,
       required this.dataCreationTime,
+      required this.notificationId,
       required this.version});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1496,6 +1515,7 @@ class LocationPost extends DataClass implements Insertable<LocationPost> {
     map['point_id'] = Variable<String>(pointId);
     map['small_first_image_id'] = Variable<String>(smallFirstImageId);
     map['data_creation_time'] = Variable<DateTime>(dataCreationTime);
+    map['notification_id'] = Variable<int>(notificationId);
     map['version'] = Variable<int>(version);
     return map;
   }
@@ -1512,6 +1532,7 @@ class LocationPost extends DataClass implements Insertable<LocationPost> {
       pointId: Value(pointId),
       smallFirstImageId: Value(smallFirstImageId),
       dataCreationTime: Value(dataCreationTime),
+      notificationId: Value(notificationId),
       version: Value(version),
     );
   }
@@ -1528,6 +1549,7 @@ class LocationPost extends DataClass implements Insertable<LocationPost> {
       pointId: serializer.fromJson<String>(json['pointId']),
       smallFirstImageId: serializer.fromJson<String>(json['smallFirstImageId']),
       dataCreationTime: serializer.fromJson<DateTime>(json['dataCreationTime']),
+      notificationId: serializer.fromJson<int>(json['notificationId']),
       version: serializer.fromJson<int>(json['version']),
     );
   }
@@ -1543,6 +1565,7 @@ class LocationPost extends DataClass implements Insertable<LocationPost> {
       'pointId': serializer.toJson<String>(pointId),
       'smallFirstImageId': serializer.toJson<String>(smallFirstImageId),
       'dataCreationTime': serializer.toJson<DateTime>(dataCreationTime),
+      'notificationId': serializer.toJson<int>(notificationId),
       'version': serializer.toJson<int>(version),
     };
   }
@@ -1556,6 +1579,7 @@ class LocationPost extends DataClass implements Insertable<LocationPost> {
           String? pointId,
           String? smallFirstImageId,
           DateTime? dataCreationTime,
+          int? notificationId,
           int? version}) =>
       LocationPost(
         id: id ?? this.id,
@@ -1566,6 +1590,7 @@ class LocationPost extends DataClass implements Insertable<LocationPost> {
         pointId: pointId ?? this.pointId,
         smallFirstImageId: smallFirstImageId ?? this.smallFirstImageId,
         dataCreationTime: dataCreationTime ?? this.dataCreationTime,
+        notificationId: notificationId ?? this.notificationId,
         version: version ?? this.version,
       );
   LocationPost copyWithCompanion(LocationPostsCompanion data) {
@@ -1586,6 +1611,9 @@ class LocationPost extends DataClass implements Insertable<LocationPost> {
       dataCreationTime: data.dataCreationTime.present
           ? data.dataCreationTime.value
           : this.dataCreationTime,
+      notificationId: data.notificationId.present
+          ? data.notificationId.value
+          : this.notificationId,
       version: data.version.present ? data.version.value : this.version,
     );
   }
@@ -1601,14 +1629,24 @@ class LocationPost extends DataClass implements Insertable<LocationPost> {
           ..write('pointId: $pointId, ')
           ..write('smallFirstImageId: $smallFirstImageId, ')
           ..write('dataCreationTime: $dataCreationTime, ')
+          ..write('notificationId: $notificationId, ')
           ..write('version: $version')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, locationId, eventTime, description,
-      ownerDisplayName, pointId, smallFirstImageId, dataCreationTime, version);
+  int get hashCode => Object.hash(
+      id,
+      locationId,
+      eventTime,
+      description,
+      ownerDisplayName,
+      pointId,
+      smallFirstImageId,
+      dataCreationTime,
+      notificationId,
+      version);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1621,6 +1659,7 @@ class LocationPost extends DataClass implements Insertable<LocationPost> {
           other.pointId == this.pointId &&
           other.smallFirstImageId == this.smallFirstImageId &&
           other.dataCreationTime == this.dataCreationTime &&
+          other.notificationId == this.notificationId &&
           other.version == this.version);
 }
 
@@ -1633,6 +1672,7 @@ class LocationPostsCompanion extends UpdateCompanion<LocationPost> {
   final Value<String> pointId;
   final Value<String> smallFirstImageId;
   final Value<DateTime> dataCreationTime;
+  final Value<int> notificationId;
   final Value<int> version;
   final Value<int> rowid;
   const LocationPostsCompanion({
@@ -1644,6 +1684,7 @@ class LocationPostsCompanion extends UpdateCompanion<LocationPost> {
     this.pointId = const Value.absent(),
     this.smallFirstImageId = const Value.absent(),
     this.dataCreationTime = const Value.absent(),
+    this.notificationId = const Value.absent(),
     this.version = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -1656,6 +1697,7 @@ class LocationPostsCompanion extends UpdateCompanion<LocationPost> {
     required String pointId,
     required String smallFirstImageId,
     required DateTime dataCreationTime,
+    required int notificationId,
     required int version,
     this.rowid = const Value.absent(),
   })  : id = Value(id),
@@ -1665,6 +1707,7 @@ class LocationPostsCompanion extends UpdateCompanion<LocationPost> {
         pointId = Value(pointId),
         smallFirstImageId = Value(smallFirstImageId),
         dataCreationTime = Value(dataCreationTime),
+        notificationId = Value(notificationId),
         version = Value(version);
   static Insertable<LocationPost> custom({
     Expression<String>? id,
@@ -1675,6 +1718,7 @@ class LocationPostsCompanion extends UpdateCompanion<LocationPost> {
     Expression<String>? pointId,
     Expression<String>? smallFirstImageId,
     Expression<DateTime>? dataCreationTime,
+    Expression<int>? notificationId,
     Expression<int>? version,
     Expression<int>? rowid,
   }) {
@@ -1687,6 +1731,7 @@ class LocationPostsCompanion extends UpdateCompanion<LocationPost> {
       if (pointId != null) 'point_id': pointId,
       if (smallFirstImageId != null) 'small_first_image_id': smallFirstImageId,
       if (dataCreationTime != null) 'data_creation_time': dataCreationTime,
+      if (notificationId != null) 'notification_id': notificationId,
       if (version != null) 'version': version,
       if (rowid != null) 'rowid': rowid,
     });
@@ -1701,6 +1746,7 @@ class LocationPostsCompanion extends UpdateCompanion<LocationPost> {
       Value<String>? pointId,
       Value<String>? smallFirstImageId,
       Value<DateTime>? dataCreationTime,
+      Value<int>? notificationId,
       Value<int>? version,
       Value<int>? rowid}) {
     return LocationPostsCompanion(
@@ -1712,6 +1758,7 @@ class LocationPostsCompanion extends UpdateCompanion<LocationPost> {
       pointId: pointId ?? this.pointId,
       smallFirstImageId: smallFirstImageId ?? this.smallFirstImageId,
       dataCreationTime: dataCreationTime ?? this.dataCreationTime,
+      notificationId: notificationId ?? this.notificationId,
       version: version ?? this.version,
       rowid: rowid ?? this.rowid,
     );
@@ -1744,6 +1791,9 @@ class LocationPostsCompanion extends UpdateCompanion<LocationPost> {
     if (dataCreationTime.present) {
       map['data_creation_time'] = Variable<DateTime>(dataCreationTime.value);
     }
+    if (notificationId.present) {
+      map['notification_id'] = Variable<int>(notificationId.value);
+    }
     if (version.present) {
       map['version'] = Variable<int>(version.value);
     }
@@ -1764,6 +1814,7 @@ class LocationPostsCompanion extends UpdateCompanion<LocationPost> {
           ..write('pointId: $pointId, ')
           ..write('smallFirstImageId: $smallFirstImageId, ')
           ..write('dataCreationTime: $dataCreationTime, ')
+          ..write('notificationId: $notificationId, ')
           ..write('version: $version, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -3464,6 +3515,7 @@ typedef $$LocationPostsTableCreateCompanionBuilder = LocationPostsCompanion
   required String pointId,
   required String smallFirstImageId,
   required DateTime dataCreationTime,
+  required int notificationId,
   required int version,
   Value<int> rowid,
 });
@@ -3477,6 +3529,7 @@ typedef $$LocationPostsTableUpdateCompanionBuilder = LocationPostsCompanion
   Value<String> pointId,
   Value<String> smallFirstImageId,
   Value<DateTime> dataCreationTime,
+  Value<int> notificationId,
   Value<int> version,
   Value<int> rowid,
 });
@@ -3549,6 +3602,10 @@ class $$LocationPostsTableFilterComposer
 
   ColumnFilters<DateTime> get dataCreationTime => $composableBuilder(
       column: $table.dataCreationTime,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get notificationId => $composableBuilder(
+      column: $table.notificationId,
       builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get version => $composableBuilder(
@@ -3629,6 +3686,10 @@ class $$LocationPostsTableOrderingComposer
       column: $table.dataCreationTime,
       builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<int> get notificationId => $composableBuilder(
+      column: $table.notificationId,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<int> get version => $composableBuilder(
       column: $table.version, builder: (column) => ColumnOrderings(column));
 
@@ -3683,6 +3744,9 @@ class $$LocationPostsTableAnnotationComposer
 
   GeneratedColumn<DateTime> get dataCreationTime => $composableBuilder(
       column: $table.dataCreationTime, builder: (column) => column);
+
+  GeneratedColumn<int> get notificationId => $composableBuilder(
+      column: $table.notificationId, builder: (column) => column);
 
   GeneratedColumn<int> get version =>
       $composableBuilder(column: $table.version, builder: (column) => column);
@@ -3761,6 +3825,7 @@ class $$LocationPostsTableTableManager extends RootTableManager<
             Value<String> pointId = const Value.absent(),
             Value<String> smallFirstImageId = const Value.absent(),
             Value<DateTime> dataCreationTime = const Value.absent(),
+            Value<int> notificationId = const Value.absent(),
             Value<int> version = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
@@ -3773,6 +3838,7 @@ class $$LocationPostsTableTableManager extends RootTableManager<
             pointId: pointId,
             smallFirstImageId: smallFirstImageId,
             dataCreationTime: dataCreationTime,
+            notificationId: notificationId,
             version: version,
             rowid: rowid,
           ),
@@ -3785,6 +3851,7 @@ class $$LocationPostsTableTableManager extends RootTableManager<
             required String pointId,
             required String smallFirstImageId,
             required DateTime dataCreationTime,
+            required int notificationId,
             required int version,
             Value<int> rowid = const Value.absent(),
           }) =>
@@ -3797,6 +3864,7 @@ class $$LocationPostsTableTableManager extends RootTableManager<
             pointId: pointId,
             smallFirstImageId: smallFirstImageId,
             dataCreationTime: dataCreationTime,
+            notificationId: notificationId,
             version: version,
             rowid: rowid,
           ),

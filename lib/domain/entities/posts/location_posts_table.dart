@@ -12,6 +12,8 @@ class LocationPosts extends Table{
   TextColumn get smallFirstImageId => text().references(MyImages, #id)();
   DateTimeColumn get dataCreationTime => dateTime()();
 
+  IntColumn get notificationId => integer()();
+
   IntColumn get version => integer()();
 
   @override

@@ -14,6 +14,7 @@ import 'package:mtaa_frontend/features/images/data/storages/my_image_storage.dar
 import 'package:mtaa_frontend/features/locations/data/models/requests/add_location_request.dart';
 import 'package:mtaa_frontend/features/locations/data/models/responses/location_point_type.dart';
 import 'package:mtaa_frontend/features/locations/data/models/responses/simple_location_point_response.dart';
+import 'package:mtaa_frontend/features/notifications/data/network/notificationsService.dart';
 import 'package:mtaa_frontend/features/posts/data/models/responses/full_post_response.dart';
 import 'package:mtaa_frontend/features/posts/data/models/responses/location_post_response.dart';
 import 'package:mtaa_frontend/features/posts/data/models/responses/simple_post_response.dart';
@@ -53,8 +54,9 @@ class PostsStorageImpl extends PostsStorage {
   final MyDbContext dbContext;
   final MyImageStorage imageStorage;
   final Dio dio;
+  final NotificationsService notificationsService;
 
-  PostsStorageImpl(this.dbContext, this.imageStorage, this.dio);
+  PostsStorageImpl(this.dbContext, this.imageStorage, this.dio, this.notificationsService);
 
   @override
   Future<List<FullPostResponse>> getRecommended() async {
@@ -364,6 +366,8 @@ class PostsStorageImpl extends PostsStorage {
         post.smallFirstImage.localPath = path;
       }
     }
+    int locationId = await notificationsService.scheduleNotification("One hour to event", post.description, post.eventTime);
+
     await dbContext.transaction(() async {
       var userId = await TokenStorage.getUserId();
 
@@ -377,6 +381,7 @@ class PostsStorageImpl extends PostsStorage {
             dataCreationTime: Value(post.dataCreationTime),
             smallFirstImageId: Value(post.smallFirstImage.id),
             version: Value(0),
+            notificationId: Value(locationId),
           ));
 
       await dbContext.into(dbContext.simpleLocationPoints).insert(SimpleLocationPointsCompanion(
@@ -415,9 +420,10 @@ class PostsStorageImpl extends PostsStorage {
   Future removeLocationPost(LocationPostResponse post) async {
     final query = dbContext.selectOnly(dbContext.locationPosts)
       ..addColumns([dbContext.locationPosts.id])
+      ..addColumns([dbContext.locationPosts.notificationId])
       ..where(dbContext.locationPosts.id.equals(post.id.uuid));
-    final isPostExist = await query.getSingleOrNull() != null;
-    if (!isPostExist) {
+    final isPostExist = await query.getSingleOrNull();
+    if (isPostExist==null) {
       return;
     }
 
@@ -426,6 +432,8 @@ class PostsStorageImpl extends PostsStorage {
     if (imageExists != null && imageExists.postId == null) {
       await imageStorage.deleteImage(post.smallFirstImage.localPath);
     }
+
+    await notificationsService.removeNotification(isPostExist.read(dbContext.locationPosts.notificationId)!);
 
     await dbContext.transaction(() async {
       await dbContext.delete(dbContext.locationPosts).delete(LocationPostsCompanion(id: Value(post.id.uuid)));

@@ -12,6 +12,7 @@ import 'package:mtaa_frontend/features/locations/presentation/screens/location_c
 import 'package:mtaa_frontend/features/locations/presentation/screens/main_location_map_screen.dart';
 import 'package:mtaa_frontend/features/locations/presentation/screens/one_point_screen_widget.dart';
 import 'package:mtaa_frontend/features/locations/presentation/screens/saved_location_points_screen.dart';
+import 'package:mtaa_frontend/features/notifications/data/network/notificationsService.dart';
 import 'package:mtaa_frontend/features/notifications/data/repositories/notificationsRepository.dart';
 import 'package:mtaa_frontend/features/notifications/presentation/screens/notificationsScreen.dart';
 import 'package:mtaa_frontend/features/posts/data/models/responses/full_post_response.dart';
@@ -63,7 +64,7 @@ class AppRouter {
         ),
         GoRoute(
           path: createAccountScreenRoute,
-          builder: (context, state) => CreateAccountScreen(identityApi: getIt<IdentityApi>()),
+          builder: (context, state) => CreateAccountScreen(identityApi: getIt<IdentityApi>(), notificationsService: getIt<NotificationsService>()),
         ),
         GoRoute(
           path: firstUpdateDisplayNameScreenRoute,
@@ -79,11 +80,11 @@ class AppRouter {
         ),
         GoRoute(
           path: userGroupListScreenRoute,
-          builder: (context, state) => UserGroupListScreen(identityApi: getIt<IdentityApi>()),
+          builder: (context, state) => UserGroupListScreen(identityApi: getIt<IdentityApi>(), notificationsService: getIt<NotificationsService>()),
         ),
         GoRoute(
           path: userGroupListScreenRoute,
-          builder: (context, state) => UserGroupListScreen(identityApi: getIt<IdentityApi>()),
+          builder: (context, state) => UserGroupListScreen(identityApi: getIt<IdentityApi>(), notificationsService: getIt<NotificationsService>()),
         ),
         GoRoute(
           path: userRecommendationsScreenRoute,
@@ -184,6 +185,7 @@ class AppRouter {
           path: logInScreenRoute,
           builder: (context, state) => LogInScreen(
             identityApi: getIt<IdentityApi>(),
+            notificationsService: getIt<NotificationsService>(),
           ),
         ),
         GoRoute(

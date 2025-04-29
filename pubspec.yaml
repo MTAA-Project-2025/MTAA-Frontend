@@ -25,6 +25,7 @@ dependencies:
   flutter_client_sse: ^2.0.3
   flutter_exif_rotation: ^0.5.2
   flutter_launcher_icons: ^0.14.3
+  flutter_local_notifications: ^19.1.0
   flutter_map: ^8.1.1
   flutter_map_location_marker: ^10.1.0
   flutter_map_tile_caching: ^10.1.1
@@ -49,6 +50,7 @@ dependencies:
   path: ^1.9.0
   path_provider: ^2.1.5
   sqlite3_flutter_libs: ^0.5.29+1
+  timezone: ^0.10.1
   uuid: ^4.5.1
 
 dev_dependencies:

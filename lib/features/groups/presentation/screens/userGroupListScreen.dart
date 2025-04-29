@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mtaa_frontend/core/constants/route_constants.dart';
+import 'package:mtaa_frontend/features/notifications/data/network/notificationsService.dart';
 import 'package:mtaa_frontend/features/users/authentication/shared/blocs/verification_email_phone_bloc.dart';
 import 'package:mtaa_frontend/features/users/authentication/shared/blocs/verification_email_phone_state.dart';
 import 'package:mtaa_frontend/features/users/authentication/shared/data/models/token.dart';
@@ -15,8 +16,9 @@ import 'package:mtaa_frontend/themes/bloc/theme_event.dart';
 
 class UserGroupListScreen extends StatefulWidget {
   final IdentityApi identityApi;
+  final NotificationsService notificationsService;
 
-  const UserGroupListScreen({super.key, required this.identityApi});
+  const UserGroupListScreen({super.key, required this.identityApi, required this.notificationsService});
 
   @override
   State<UserGroupListScreen> createState() => _UserGroupListScreenState();
@@ -36,7 +38,9 @@ class _UserGroupListScreenState extends State<UserGroupListScreen> {
   }
 
   void _navigateToFirstUpdateDisplayNameScreenRoute() {
-    Future.microtask(() {
+    Future.microtask(() async{
+      if(!mounted) return;
+      await widget.notificationsService.startSSE();
       if (!mounted) return;
       GoRouter.of(context).push(firstUpdateDisplayNameScreenRoute);
     });
@@ -90,6 +94,7 @@ class _UserGroupListScreenState extends State<UserGroupListScreen> {
                         if(res != null)
                         {
                           TokenStorage.saveToken(res.token);
+                          
                           _navigateToFirstUpdateDisplayNameScreenRoute();
                         }
                       }
