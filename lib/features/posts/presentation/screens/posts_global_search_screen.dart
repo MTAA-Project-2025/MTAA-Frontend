@@ -19,11 +19,13 @@ import 'package:mtaa_frontend/features/shared/presentation/widgets/customSearchI
 import 'package:mtaa_frontend/features/shared/presentation/widgets/dotLoader.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/empty_data_notification_section.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/server_error_notification_section.dart';
+import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
 
 class PostsGlobalSearchScreen extends StatefulWidget {
   final PostsRepository repository;
+  final TokenStorage tokenStorage;
 
-  const PostsGlobalSearchScreen({super.key, required this.repository});
+  const PostsGlobalSearchScreen({super.key, required this.repository, required this.tokenStorage});
 
   @override
   State<PostsGlobalSearchScreen> createState() => _PostsGlobalSearchScreenState();
@@ -143,6 +145,7 @@ class _PostsGlobalSearchScreenState extends State<PostsGlobalSearchScreen> {
                       repository: widget.repository,
                       locationsRepository: getIt<LocationsRepository>(),
                       toaster: getIt<MyToastService>(),
+                      tokenStorage: widget.tokenStorage,
                     );
                   }
                   if (paginationScrollController.isLoading) {

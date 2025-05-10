@@ -34,7 +34,7 @@ class _FirstUpdateBirthDateScreenState extends State<FirstUpdateBirthDateScreen>
   void _navigateToGroupListScreen() {
     Future.microtask(() {
       if (!mounted) return;
-      GoRouter.of(context).push(userGroupListScreenRoute);
+      GoRouter.of(context).push(firstUpdateAvatarScreenRoute);
     });
   }
 
@@ -88,7 +88,7 @@ class _FirstUpdateBirthDateScreenState extends State<FirstUpdateBirthDateScreen>
                     children: [
                       TextButton(
                         onPressed: () {
-                          GoRouter.of(context).goNamed(userGroupListScreenRoute);
+                          GoRouter.of(context).goNamed(userRecommendationsScreenRoute);
                         },
                         style: TextButton.styleFrom(
                           foregroundColor: Theme.of(context).colorScheme.secondary,

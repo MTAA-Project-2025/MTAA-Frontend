@@ -1,3 +1,4 @@
+import 'package:mtaa_frontend/core/services/internet_checker.dart';
 import 'package:mtaa_frontend/features/comments/data/models/requests/add_comment_request.dart';
 import 'package:mtaa_frontend/features/comments/data/models/requests/update_comment_request.dart';
 import 'package:mtaa_frontend/features/comments/data/models/responses/full_comment_response.dart';
@@ -25,46 +26,55 @@ class CommentsRepositoryImpl extends CommentsRepository {
 
   @override
   Future<UuidValue?> addComment(AddCommentRequest request) async {
+    if(await InternetChecker.fullIsFlightMode()) return null;
     return await api.addComment(request);
   }
 
   @override
   Future<bool> updateComment(UpdateCommentRequest request) async {
+    if(await InternetChecker.fullIsFlightMode()) return false;
     return await api.updateComment(request);
   }
 
   @override
   Future<bool> deleteComment(UuidValue id) async {
+    if(await InternetChecker.fullIsFlightMode()) return false;
     return await api.deleteComment(id);
   }
 
   @override
   Future<bool> likeComment(UuidValue id) async {
+    if(await InternetChecker.fullIsFlightMode()) return false;
     return await api.likeComment(id);
   }
 
   @override
   Future<bool> dislikeComment(UuidValue id) async {
+    if(await InternetChecker.fullIsFlightMode()) return false;
     return await api.dislikeComment(id);
   }
 
   @override
   Future<bool> setInteractionToNone(UuidValue id) async {
+    if(await InternetChecker.fullIsFlightMode()) return false;
     return await api.setInteractionToNone(id);
   }
 
   @override
   Future<FullCommentResponse?> getCommentById(UuidValue id) async {
+    if(await InternetChecker.fullIsFlightMode()) return null;
     return await api.getCommentById(id);
   }
 
   @override
   Future<List<FullCommentResponse>> getPostComments(UuidValue postId, PageParameters pageParameters) async {
+    if(await InternetChecker.fullIsFlightMode()) return [];
     return await api.getPostComments(postId, pageParameters);
   }
 
   @override
   Future<List<FullCommentResponse>> getChildComments(UuidValue parentCommentId, PageParameters pageParameters) async {
+    if(await InternetChecker.fullIsFlightMode()) return [];
     return await api.getChildComments(parentCommentId, pageParameters);
   }
 }

@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:mtaa_frontend/core/services/internet_checker.dart';
 import 'package:mtaa_frontend/features/images/data/models/responses/myImageGroupResponse.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -16,6 +17,7 @@ class PresetAvatarImagesApiImpl extends PresetAvatarImagesApi {
 
   @override
   Future<List<MyImageGroupResponse>> getAllPresetImages() async {
+    if(await InternetChecker.fullIsFlightMode()) return [];
     final fullUrl = '$controllerName/get-all';
     try {
       var res = await dio.get(fullUrl);

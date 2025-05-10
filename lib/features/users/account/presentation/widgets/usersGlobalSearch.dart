@@ -15,11 +15,14 @@ import 'package:mtaa_frontend/features/shared/presentation/widgets/users_empty_d
 import 'package:mtaa_frontend/features/users/account/data/models/responses/publicBaseAccountResponse.dart';
 import 'package:mtaa_frontend/features/users/account/data/repositories/account_repository.dart';
 import 'package:mtaa_frontend/features/users/account/presentation/widgets/friendItem.dart';
+import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
 
 class UsersGlobalSearch extends StatefulWidget {
   final AccountRepository repository;
+  final TokenStorage tokenStorage;
 
-  const UsersGlobalSearch({super.key, required this.repository});
+  const UsersGlobalSearch({super.key, required this.repository,
+  required this.tokenStorage});
 
   @override
   State<UsersGlobalSearch> createState() => _UsersGlobalSearchState();
@@ -135,6 +138,7 @@ class _UsersGlobalSearchState extends State<UsersGlobalSearch> {
                     return FriendItem(
                       friend: users[index - 1],
                       repository: widget.repository,
+                      tokenStorage: widget.tokenStorage,
                     );
                   }
                   if (paginationScrollController.isLoading) {

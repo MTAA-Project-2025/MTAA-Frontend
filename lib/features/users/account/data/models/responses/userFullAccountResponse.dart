@@ -1,3 +1,4 @@
+import 'package:mtaa_frontend/domain/hive_data/users/user_full_account_hive.dart';
 import 'package:mtaa_frontend/features/images/data/models/responses/myImageGroupResponse.dart';
 import 'package:mtaa_frontend/features/users/account/data/models/responses/publicFullAccountResponse.dart';
 
@@ -59,5 +60,20 @@ class UserFullAccountResponse extends PublicFullAccountResponse {
       phoneNumber: json['phoneNumber'],
       likesCount: json['likesCount'],
     );
+  }
+
+  factory UserFullAccountResponse.fromHive(UserFullAccountHive hive){
+    return UserFullAccountResponse(id: hive.id,
+      username: hive.username,
+      displayName: hive.displayName,
+      isFollowing: hive.isFollowing,
+      dataCreationTime: hive.dataCreationTime,
+      followersCount: hive.followersCount,
+      likesCount: hive.likesCount,
+      friendsCount: hive.friendsCount,
+      avatar: hive.avatar!=null? MyImageGroupResponse.fromHive(hive.avatar!) : null,
+      birthDate: hive.birthDate,
+      email: hive.email,
+      phoneNumber: hive.phoneNumber);
   }
 }

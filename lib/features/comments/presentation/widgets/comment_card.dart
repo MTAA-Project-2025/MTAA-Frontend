@@ -33,6 +33,7 @@ class CommentCardWidget extends StatefulWidget {
   final FullCommentResponse? mainParent;
   final CommentController? parentCommentController;
   final double depth;
+  final TokenStorage tokenStorage;
 
   const CommentCardWidget(
       {super.key,
@@ -45,7 +46,8 @@ class CommentCardWidget extends StatefulWidget {
       required this.parentCommentId,
       required this.mainParent,
       required this.depth,
-      this.parentCommentController});
+      this.parentCommentController,
+      required this.tokenStorage});
 
   @override
   State<CommentCardWidget> createState() => _CommentCardWidgetState();
@@ -83,7 +85,7 @@ class _CommentCardWidgetState extends State<CommentCardWidget> {
     }
 
     Future.microtask(() async {
-      var uId = await TokenStorage.getUserId();
+      var uId = await widget.tokenStorage.getUserId();
       if (!mounted) return;
       if (uId != null) {
         userId = uId;
@@ -302,10 +304,11 @@ class _CommentCardWidgetState extends State<CommentCardWidget> {
                 } else if (item == CommentMenuElement.delete) {
                   if (!mounted || !context.mounted) return;
                   context.read<CommentsBloc>().add(RemoveCommentEvent(comment: widget.comment));
+                  widget.commentsRepository.deleteComment(widget.comment.id);
                 }
               },
               itemBuilder: (BuildContext context) => <PopupMenuEntry<CommentMenuElement>>[
-                if (userId == widget.comment.owner.id || userId == widget.postOwnerId)
+                if (userId == widget.comment.owner.id)
                   PopupMenuItem<CommentMenuElement>(value: CommentMenuElement.edit, child: Text('Edit', style: Theme.of(context).textTheme.bodyMedium)),
                 if (userId == widget.comment.owner.id || userId == widget.postOwnerId)
                   PopupMenuItem<CommentMenuElement>(value: CommentMenuElement.delete, child: Text('Delete', style: Theme.of(context).textTheme.bodyMedium)),
@@ -397,7 +400,8 @@ class _CommentCardWidgetState extends State<CommentCardWidget> {
                 parentCommentId: widget.comment.id,
                 mainParent: widget.mainParent,
                 depth: widget.depth,
-                commentController: commentController),
+                commentController: commentController,
+                tokenStorage: widget.tokenStorage),
         ])
       ],
     );

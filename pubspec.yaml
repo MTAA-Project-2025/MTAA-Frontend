@@ -24,6 +24,7 @@ dependencies:
   flutter_bloc: ^9.0.0
   flutter_client_sse: ^2.0.3
   flutter_exif_rotation: ^0.5.2
+  flutter_image_compress: ^2.4.0
   flutter_launcher_icons: ^0.14.3
   flutter_local_notifications: ^19.1.0
   flutter_map: ^8.1.1

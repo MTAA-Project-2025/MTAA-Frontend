@@ -113,54 +113,54 @@ class _SavedLocationsPointsListState extends State<SavedLocationsPointsList> {
   @override
   Widget build(BuildContext contex) {
     return BlocBuilder<ExceptionsBloc, ExceptionsState>(builder: (context, state) {
-      return Expanded(
-          child: ListView.builder(
-            cacheExtent: 9999,
-            itemCount: points.length + 1,
-            controller: paginationScrollController.scrollController,
-            itemBuilder: (context, index) {
-              if (index < points.length) {
-                return LocationPostWidget(
-                  post: points[index],
-                  timeFormatingService: getIt<TimeFormatingService>(),
-                  postsRepository: widget.repository,
-                  locationsRepository: getIt<LocationsRepository>(),
-                );
-              }
-              if (paginationScrollController.isLoading) {
-                return Column(
-                  children: [
-                    const SizedBox(height: 20),
-                    DotLoader(),
-                  ],
-                );
-              }
-              if (state.isException && state.exceptionType == ExceptionTypes.flightMode) {
-                return AirModeErrorNotificationSectionWidget(
-                  onPressed: () {
-                    loadFirst();
-                  },
-                );
-              }
-              if (state.isException && state.exceptionType == ExceptionTypes.serverError) {
-                return ServerErrorNotificationSectionWidget(
-                  onPressed: () {
-                    loadFirst();
-                  },
-                );
-              }
-              if (points.isEmpty) {
-                return EmptyErrorNotificationSectionWidget(
-                  onPressed: null,
-                  title: 'No saved locations found',
-                  imgPath: 'assets/svgs/kitsune_with_book.svg',
-                  aspectRatio: 0.9078,
-                );
-              }
-              return null;
-            },
-          ),
-        );
+      return ListView.builder(
+        cacheExtent: 9999,
+        itemCount: points.length + 1,
+        controller: paginationScrollController.scrollController,
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemBuilder: (context, index) {
+          if (index < points.length) {
+            return LocationPostWidget(
+              post: points[index],
+              timeFormatingService: getIt<TimeFormatingService>(),
+              postsRepository: widget.repository,
+              locationsRepository: getIt<LocationsRepository>(),
+            );
+          }
+          if (paginationScrollController.isLoading) {
+            return Column(
+              children: [
+                const SizedBox(height: 20),
+                DotLoader(),
+              ],
+            );
+          }
+          if (state.isException && state.exceptionType == ExceptionTypes.flightMode) {
+            return AirModeErrorNotificationSectionWidget(
+              onPressed: () {
+                loadFirst();
+              },
+            );
+          }
+          if (state.isException && state.exceptionType == ExceptionTypes.serverError) {
+            return ServerErrorNotificationSectionWidget(
+              onPressed: () {
+                loadFirst();
+              },
+            );
+          }
+          if (points.isEmpty) {
+            return EmptyErrorNotificationSectionWidget(
+              onPressed: null,
+              title: 'No saved locations found',
+              imgPath: 'assets/svgs/kitsune_with_book.svg',
+              aspectRatio: 0.9078,
+            );
+          }
+          return null;
+        },
+      );
     });
   }
 }

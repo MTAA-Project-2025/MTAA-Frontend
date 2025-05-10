@@ -8,7 +8,7 @@ const String firstUpdateDisplayNameScreenRoute = "/firstUpdateDisplayNameScreen"
 const String firstUpdateBirthDateScreenRoute = "/firstUpdateBirthDateScreen";
 const String firstUpdateAvatarScreenRoute = "/firstUpdateAvatarScreen";
 
-const String userGroupListScreenRoute = "/userGroupListScreen";
+//const String userGroupListScreenRoute = "/userGroupListScreen";
 
 const String userRecommendationsScreenRoute = "/userRecommendationsScreen";
 

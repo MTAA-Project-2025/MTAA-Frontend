@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:mtaa_frontend/features/notifications/data/network/notificationsService.dart';
+import 'package:mtaa_frontend/core/services/exceptions_service.dart';
+import 'package:mtaa_frontend/core/services/internet_checker.dart';
 import 'package:mtaa_frontend/features/users/authentication/log-in/data/models/requests/logInRequest.dart';
 import 'package:mtaa_frontend/features/users/authentication/shared/data/models/token.dart';
 import 'package:mtaa_frontend/features/users/authentication/sign-up/data/models/requests/StartSignUpEmailVerificationRequest.dart';
@@ -15,141 +14,62 @@ abstract class IdentityApi {
   Future<Token?> logIn(LogInRequest request);
 }
 
-
 class IdentityImplApi extends IdentityApi {
   final Dio dio;
   final String controllerName = 'Identity';
   CancelToken cancelToken = CancelToken();
-
-  IdentityImplApi(this.dio);
+  final ExceptionsService exceptionsService;
+  IdentityImplApi(this.dio, this.exceptionsService);
 
   @override
   Future<bool> signUpStartEmailVerification(StartSignUpEmailVerificationRequest request) async {
+    if(await InternetChecker.fullIsFlightMode()) return false;
     final fullUrl = '$controllerName/sign-up-start-email-verification';
     try {
-      await dio.post(fullUrl,data: request.toJson());
+      await dio.post(fullUrl, data: request.toJson());
       return true;
     } on DioException catch (e) {
-      if (e.response != null) {
-        print(e.response?.data);
-        print(e.response?.headers);
-        print(e.response?.requestOptions);
-        String? msg = e.response?.data['Message'];
-
-        if(msg!=null){
-          Fluttertoast.showToast(
-            msg: msg,
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.CENTER,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 16.0
-          );
-        }
-
-        return false;
-      } else {
-        print(e);
-        return false;
-      }
+      exceptionsService.httpError(e);
+      return false;
     }
   }
 
   @override
   Future<bool> signUpVerifyEmail(SignUpVerifyEmailRequest request) async {
+    if(await InternetChecker.fullIsFlightMode()) return false;
     final fullUrl = '$controllerName/sign-up-verify-email';
     try {
-      var res = await dio.post(fullUrl,data: request.toJson());
+      var res = await dio.post(fullUrl, data: request.toJson());
       return res.data as bool;
     } on DioException catch (e) {
-      if (e.response != null) {
-        print(e.response?.data);
-        print(e.response?.headers);
-        print(e.response?.requestOptions);
-        String? msg = e.response?.data['Message'];
-
-        if(msg!=null){
-          Fluttertoast.showToast(
-            msg: msg,
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.CENTER,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 16.0
-          );
-        }
-        return false;
-      } else {
-        print(e);
-        return false;
-      }
+      exceptionsService.httpError(e);
+      return false;
     }
   }
 
   @override
   Future<Token?> signUpByEmail(SignUpByEmailRequest request) async {
+    if(await InternetChecker.fullIsFlightMode()) return null;
     final fullUrl = '$controllerName/sign-up-by-email';
     try {
-      var res = await dio.post(fullUrl,data: request.toJson());
+      var res = await dio.post(fullUrl, data: request.toJson());
       return Token.fromJson(res.data);
     } on DioException catch (e) {
-      if (e.response != null) {
-        print(e.response?.data);
-        print(e.response?.headers);
-        print(e.response?.requestOptions);
-        String? msg = e.response?.data['Message'];
-
-        if(msg!=null){
-          Fluttertoast.showToast(
-            msg: msg,
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.CENTER,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 16.0
-          );
-        }
-        return null;
-      } else {
-        print(e);
-        return null;
-      }
+      exceptionsService.httpError(e);
+      return null;
     }
   }
 
   @override
   Future<Token?> logIn(LogInRequest request) async {
+    if(await InternetChecker.fullIsFlightMode()) return null;
     final fullUrl = '$controllerName/log-in';
     try {
-      var res = await dio.post(fullUrl,data: request.toJson());
+      var res = await dio.post(fullUrl, data: request.toJson());
       return Token.fromJson(res.data);
     } on DioException catch (e) {
-      if (e.response != null) {
-        print(e.response?.data);
-        print(e.response?.headers);
-        print(e.response?.requestOptions);
-        String? msg = e.response?.data['Message'];
-
-        if(msg!=null){
-          Fluttertoast.showToast(
-            msg: msg,
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.CENTER,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 16.0
-          );
-        }
-        
-        return null;
-      } else {
-        print(e);
-        return null;
-      }
+      exceptionsService.httpError(e);
+      return null;
     }
   }
 }

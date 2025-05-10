@@ -27,6 +27,7 @@ import 'package:mtaa_frontend/features/shared/bloc/exceptions_event.dart';
 import 'package:mtaa_frontend/features/shared/bloc/exceptions_state.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/dotLoader.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/phone_bottom_menu.dart';
+import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
 import 'package:uuid/uuid_value.dart';
 
 class FullPostScreen extends StatefulWidget {
@@ -34,8 +35,9 @@ class FullPostScreen extends StatefulWidget {
   final LocationsRepository locationsRepository;
   final String? postId;
   final FullPostResponse? post;
+  final TokenStorage tokenStorage;
 
-  const FullPostScreen({super.key, required this.repository, required this.locationsRepository, this.postId, this.post});
+  const FullPostScreen({super.key, required this.repository, required this.locationsRepository, this.postId, this.post, required this.tokenStorage});
 
   @override
   State<FullPostScreen> createState() => _FullPostScreenScreenState();
@@ -49,11 +51,6 @@ class _FullPostScreenScreenState extends State<FullPostScreen> {
 
   @override
   void initState() {
-    if (getIt.isRegistered<BuildContext>()) {
-      getIt.unregister<BuildContext>();
-    }
-    getIt.registerSingleton<BuildContext>(context);
-
     super.initState();
 
     context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: false, exceptionType: ExceptionTypes.none, message: ''));
@@ -142,6 +139,7 @@ class _FullPostScreenScreenState extends State<FullPostScreen> {
                     repository: widget.repository,
                     locationsRepository: widget.locationsRepository,
                     toaster: getIt<MyToastService>(),
+                    tokenStorage: widget.tokenStorage,
                   ),
                 if (locationPoint != null)
                   Column(
@@ -228,6 +226,7 @@ class _FullPostScreenScreenState extends State<FullPostScreen> {
                             commentsRepository: getIt<CommentsRepository>(),
                             postId: post!.id,
                             postOwnerId: post!.owner.id,
+                            tokenStorage: widget.tokenStorage,
                           ),
                         ],
                       )))

@@ -2,7 +2,6 @@ import 'package:airplane_mode_checker/airplane_mode_checker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mtaa_frontend/core/constants/menu_buttons.dart';
-import 'package:mtaa_frontend/core/utils/app_injections.dart';
 import 'package:mtaa_frontend/features/shared/bloc/exception_type.dart';
 import 'package:mtaa_frontend/features/shared/bloc/exceptions_bloc.dart';
 import 'package:mtaa_frontend/features/shared/bloc/exceptions_event.dart';
@@ -18,11 +17,14 @@ import 'package:mtaa_frontend/features/shared/presentation/widgets/server_error_
 import 'package:mtaa_frontend/features/users/account/data/models/responses/publicBaseAccountResponse.dart';
 import 'package:mtaa_frontend/features/users/account/data/repositories/account_repository.dart';
 import 'package:mtaa_frontend/features/users/account/presentation/widgets/friendsList.dart';
+import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
 
 class FriendsScreen extends StatefulWidget {
   final AccountRepository repository;
+  final TokenStorage tokenStorage;
 
-  const FriendsScreen({super.key, required this.repository});
+  const FriendsScreen({super.key, required this.repository,
+    required this.tokenStorage});
 
   @override
   State<FriendsScreen> createState() => _FriendsScreenState();
@@ -38,12 +40,6 @@ class _FriendsScreenState extends State<FriendsScreen> {
   @override
   void initState() {
     super.initState();
-
-    if (getIt.isRegistered<BuildContext>()) {
-      getIt.unregister<BuildContext>();
-    }
-    getIt.registerSingleton<BuildContext>(context);
-
     context.read<ExceptionsBloc>().add(
       SetExceptionsEvent(
         isException: false,
@@ -182,6 +178,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
                             friends: friends,
                             searchQuery: filterStr,
                             repository: widget.repository,
+                            tokenStorage: widget.tokenStorage,
                           );
                         },
                       ),

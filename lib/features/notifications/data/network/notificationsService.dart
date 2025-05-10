@@ -1,40 +1,29 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:math';
 import 'package:flutter_client_sse/constants/sse_request_type_enum.dart';
 import 'package:flutter_client_sse/flutter_client_sse.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:mtaa_frontend/core/config/app_config.dart';
 import 'package:mtaa_frontend/core/services/my_toast_service.dart';
-import 'package:mtaa_frontend/features/notifications/data/models/responses/notificationResponse.dart' as custom;
 import 'package:mtaa_frontend/features/synchronization/synchronization_service.dart';
-import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
-import 'package:timezone/timezone.dart';
-import 'package:timezone/timezone.dart' as tz;
 
 abstract class NotificationsService {
-  Future startSSE();
+  Future startSSE(String token);
   void stopSSE();
-  Future<int> scheduleNotification(String title, String description, DateTime time);
-  Future removeNotification(int id);
 }
 
 class NotificationsServiceImpl extends NotificationsService {
   StreamSubscription<SSEModel>? _subscription;
   final MyToastService toastService;
   final SynchronizationService synchronizationService;
-  final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
   NotificationsServiceImpl(this.toastService, this.synchronizationService);
 
   bool isSSEStarted = false;
 
   @override
-  Future startSSE() async {
+  Future startSSE(String token) async {
     if (isSSEStarted) return;
     isSSEStarted = true;
-    
-    var token = await TokenStorage.getToken();
+
     _subscription = SSEClient.subscribeToSSE(
       method: SSERequestType.GET,
       url: '${AppConfig.config.baseUrl}notifications/subscribe',
@@ -44,8 +33,9 @@ class NotificationsServiceImpl extends NotificationsService {
         try {
           switch (event.event) {
             case 'notification':
-              final data = jsonDecode(event.data!);
-              final notification = custom.NotificationResponse.fromJson(data);
+              //final data = jsonDecode(event.data!);
+              //final lowerData = lowercaseKeys(data);
+              //final notification = custom.NotificationResponse.fromJson(lowerData);
               toastService.showMsg("You have new notification!");
               break;
             case 'error':
@@ -66,36 +56,25 @@ class NotificationsServiceImpl extends NotificationsService {
 
       Future.delayed(const Duration(seconds: 5), () {
         print('Reconnecting to SSE...');
-        startSSE();
+        startSSE(token);
       });
     });
   }
 
-  @override
-  Future removeNotification(int id) async {
-    await flutterLocalNotificationsPlugin.cancel(id);
-  }
+  //GPT
+  Map<String, dynamic> lowercaseKeys(Map<String, dynamic> input) {
+    final result = <String, dynamic>{};
 
-  @override
-  Future<int> scheduleNotification(String title, String description, DateTime time) async {
-    int id = generateRandomId();
-    await flutterLocalNotificationsPlugin.zonedSchedule(
-      id,
-      title,
-      description,
-      TZDateTime.from(time, tz.local),
-      const NotificationDetails(
-        android: AndroidNotificationDetails('channelId', 'channelName'),
-      ),
-      androidScheduleMode: AndroidScheduleMode.exact,
-    );
-    return id;
-  }
+    input.forEach((key, value) {
+      final lowercaseKey = key.substring(0, 1).toLowerCase() + key.substring(1);
+      if (value is Map<String, dynamic>) {
+        result[lowercaseKey] = lowercaseKeys(value);
+      } else {
+        result[lowercaseKey] = value;
+      }
+    });
 
-//GPT
-  final _random = Random();
-  int generateRandomId() {
-    return _random.nextInt(9999999);
+    return result;
   }
 
   @override

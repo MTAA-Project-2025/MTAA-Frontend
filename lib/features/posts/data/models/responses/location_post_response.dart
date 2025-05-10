@@ -20,7 +20,8 @@ class LocationPostResponse extends SimplePostResponse{
     required this.eventTime,
     required this.point,
     required this.description,
-    required this.ownerDisplayName
+    required this.ownerDisplayName,
+    super.isLocal = false,
   });
 
   factory LocationPostResponse.fromJson(Map<String, dynamic> json) {

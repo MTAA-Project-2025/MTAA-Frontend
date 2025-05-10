@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:airplane_mode_checker/airplane_mode_checker.dart';
 import 'package:mtaa_frontend/core/constants/colors.dart';
 import 'package:mtaa_frontend/core/constants/menu_buttons.dart';
-import 'package:mtaa_frontend/core/utils/app_injections.dart';
 import 'package:mtaa_frontend/features/notifications/data/models/responses/notificationResponse.dart';
 import 'package:mtaa_frontend/features/notifications/data/models/shared/notificationType.dart';
 import 'package:mtaa_frontend/features/notifications/data/repositories/notificationsRepository.dart';
@@ -45,11 +44,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   void initState() {
     super.initState();
     activeTab = tabs.keys.first;
-
-    if (getIt.isRegistered<BuildContext>()) {
-      getIt.unregister<BuildContext>();
-    }
-    getIt.registerSingleton<BuildContext>(context);
 
     context.read<ExceptionsBloc>().add(
       SetExceptionsEvent(

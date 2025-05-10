@@ -11,11 +11,13 @@ import 'package:mtaa_frontend/features/users/authentication/shared/data/storages
 class FriendItem extends StatefulWidget {
   final PublicBaseAccountResponse friend;
   final AccountRepository repository;
+  final TokenStorage tokenStorage;
 
   const FriendItem({
     super.key,
     required this.friend,
     required this.repository,
+    required this.tokenStorage,
   });
   
   @override
@@ -31,7 +33,7 @@ class _FriendItemState extends State<FriendItem> {
 
     Future.microtask(() async {
       if (!mounted) return;
-      String? res = await TokenStorage.getUserId();
+      String? res = await widget.tokenStorage.getToken();
       if(res== null || !mounted) return;
       setState(() {
         userId = res;

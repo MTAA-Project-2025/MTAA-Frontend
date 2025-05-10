@@ -22,14 +22,16 @@ import 'package:mtaa_frontend/features/shared/presentation/widgets/commentsTextI
 import 'package:mtaa_frontend/features/shared/presentation/widgets/dotLoader.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/empty_data_notification_section.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/server_error_notification_section.dart';
+import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
 import 'package:uuid/uuid.dart';
 
 class CommentsMainList extends StatefulWidget {
   final UuidValue postId;
   final CommentsRepository commentsRepository;
   final String postOwnerId;
+  final TokenStorage tokenStorage;
 
-  const CommentsMainList({super.key, required this.postId, required this.commentsRepository, required this.postOwnerId});
+  const CommentsMainList({super.key, required this.postId, required this.commentsRepository, required this.postOwnerId, required this.tokenStorage});
 
   @override
   State<CommentsMainList> createState() => _CommentsMainListState();
@@ -125,13 +127,14 @@ class _CommentsMainListState extends State<CommentsMainList> {
                       return CommentsChildList(
                         key: ValueKey(commentId),
                         postId: widget.postId,
-                      commentsRepository: widget.commentsRepository,
-                      postOwnerId: widget.postOwnerId,
-                      parentCommentId: commentId,
-                      mainParent: mainComment,
-                      depth: 1,
-                      commentController: CommentController(),
-                      isMovedToTop: true);
+                        commentsRepository: widget.commentsRepository,
+                        postOwnerId: widget.postOwnerId,
+                        parentCommentId: commentId,
+                        mainParent: mainComment,
+                        depth: 1,
+                        commentController: CommentController(),
+                        isMovedToTop: true,
+                        tokenStorage: widget.tokenStorage,);
                     }
                     mainComment=null;
                     return CommentCardWidget(
@@ -144,6 +147,7 @@ class _CommentsMainListState extends State<CommentsMainList> {
                       parentCommentId: null,
                       mainParent: commentsState.comments[index],
                       depth: 1,
+                      tokenStorage: widget.tokenStorage,
                     );
                   }
                   if (isLoading) {

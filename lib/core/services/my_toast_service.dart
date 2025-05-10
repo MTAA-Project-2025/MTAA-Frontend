@@ -21,10 +21,12 @@ class MyToastServiceImpl extends MyToastService {
 
   @override
   Future showErrorWithContext(String msg, BuildContext context) async {
+    if (!context.mounted) return;
     FToast fToast = FToast();
     fToast.init(context);
 
-    Widget toast = Container(
+    Widget toast = IntrinsicHeight(
+        child: Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: Theme.of(context).scaffoldBackgroundColor,
@@ -66,12 +68,12 @@ class MyToastServiceImpl extends MyToastService {
           ),
         ],
       ),
-    );
+    ));
 
     fToast.showToast(
       child: toast,
       gravity: ToastGravity.BOTTOM,
-      toastDuration: Duration(seconds: 3),
+      toastDuration: Duration(seconds: 3)
     );
   }
 
@@ -83,10 +85,12 @@ class MyToastServiceImpl extends MyToastService {
 
   @override
   Future showMsgWithContext(String msg, BuildContext context) async {
+    if (!context.mounted) return;
     FToast fToast = FToast();
     fToast.init(context);
 
-    Widget toast = Container(
+    Widget toast = IntrinsicHeight(
+        child: Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: Theme.of(context).scaffoldBackgroundColor,
@@ -125,7 +129,7 @@ class MyToastServiceImpl extends MyToastService {
           ),
         ],
       ),
-    );
+    ));
 
     fToast.showToast(
       child: toast,

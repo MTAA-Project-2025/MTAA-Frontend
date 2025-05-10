@@ -1,21 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:mtaa_frontend/core/constants/colors.dart';
 import 'package:mtaa_frontend/core/constants/menu_buttons.dart';
-import 'package:mtaa_frontend/core/utils/app_injections.dart';
 import 'package:mtaa_frontend/features/posts/data/repositories/posts_repository.dart';
 import 'package:mtaa_frontend/features/posts/presentation/screens/posts_global_search_screen.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/phone_bottom_menu.dart';
 import 'package:mtaa_frontend/features/users/account/data/repositories/account_repository.dart';
 import 'package:mtaa_frontend/features/users/account/presentation/widgets/usersGlobalSearch.dart';
+import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
 
 class GlobalSearchScreen extends StatefulWidget {
   final PostsRepository postsRepository;
   final AccountRepository usersRepository;
+  final TokenStorage tokenStorage;
 
   const GlobalSearchScreen({
     super.key,
     required this.postsRepository,
     required this.usersRepository,
+    required this.tokenStorage,
   });
 
   @override
@@ -26,15 +28,6 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
   String activeTab = 'posts';
   String searchQuery = '';
   final searchController = TextEditingController();
-
-  @override
-  void initState() {
-    if (getIt.isRegistered<BuildContext>()) {
-      getIt.unregister<BuildContext>();
-    }
-    getIt.registerSingleton<BuildContext>(context);
-    super.initState();
-  }
 
   void onTabChange(String tabId) {
     setState(() {
@@ -91,9 +84,11 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
             child: activeTab == 'posts'
                 ? PostsGlobalSearchScreen(
                     repository: widget.postsRepository,
+                    tokenStorage: widget.tokenStorage,
                   )
                 : UsersGlobalSearch(
                     repository: widget.usersRepository,
+                    tokenStorage: widget.tokenStorage,
                   ),
           ),
         ],

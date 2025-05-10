@@ -30,8 +30,16 @@ class FullPostWidget extends StatefulWidget {
   final PostsRepository repository;
   final LocationsRepository locationsRepository;
   final MyToastService toaster;
+  final TokenStorage tokenStorage;
 
-  const FullPostWidget({super.key, required this.post, required this.timeFormatingService, required this.isFull, required this.repository, required this.locationsRepository, required this.toaster});
+  const FullPostWidget({super.key,
+  required this.post,
+  required this.timeFormatingService,
+  required this.isFull,
+  required this.repository,
+  required this.locationsRepository,
+  required this.toaster,
+  required this.tokenStorage});
 
   @override
   State<FullPostWidget> createState() => _FullPostWidgetState();
@@ -59,7 +67,7 @@ class _FullPostWidgetState extends State<FullPostWidget> {
     maxPos = widget.post.images.length - 1;
     images = widget.post.images;
     Future.microtask(() async {
-      var uId = await TokenStorage.getUserId();
+      var uId = await widget.tokenStorage.getUserId();
       if (!mounted) return;
       if (uId != null) {
         userId = uId;
@@ -177,7 +185,7 @@ class _FullPostWidgetState extends State<FullPostWidget> {
                 GoRouter.of(context).push("$fullPostScreenRoute/${widget.post.id}", extra: widget.post);
               },
               child: CarouselSlider(
-                  items: [for (var image in images) Image(fit: BoxFit.fitWidth, image: getImage(image.images.firstWhere((element) => element.type == ImageSizeType.middle)))],
+                  items: [for (var image in images) Image(fit: BoxFit.fitWidth, image: getImage(image.images.firstWhere((element) => element.type == ImageSizeType.large)))],
                   carouselController: carouselController,
                   disableGesture: false,
                   options: CarouselOptions(
@@ -188,7 +196,7 @@ class _FullPostWidgetState extends State<FullPostWidget> {
                     enableInfiniteScroll: false,
                     autoPlayAnimationDuration: Duration(milliseconds: 800),
                     autoPlayCurve: Curves.fastOutSlowIn,
-                    aspectRatio: widget.post.images.first.images.firstWhere((element) => element.type == ImageSizeType.middle).aspectRatio,
+                    aspectRatio: widget.post.images.first.images.firstWhere((element) => element.type == ImageSizeType.large).aspectRatio,
                     enlargeStrategy: CenterPageEnlargeStrategy.height,
                     scrollDirection: Axis.horizontal,
                     onPageChanged: (index, reason) => setState(() {

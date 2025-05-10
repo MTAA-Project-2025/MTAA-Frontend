@@ -1,7 +1,4 @@
-import 'package:airplane_mode_checker/airplane_mode_checker.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mtaa_frontend/core/utils/app_injections.dart';
+import 'package:mtaa_frontend/core/services/internet_checker.dart';
 import 'package:mtaa_frontend/domain/hive_data/add-posts/add_post_hive.dart';
 import 'package:mtaa_frontend/features/locations/data/models/requests/add_location_request.dart';
 import 'package:mtaa_frontend/features/posts/data/models/requests/add_post_request.dart';
@@ -14,9 +11,6 @@ import 'package:mtaa_frontend/features/posts/data/network/posts_api.dart';
 import 'package:mtaa_frontend/features/posts/data/storages/posts_storage.dart';
 import 'package:mtaa_frontend/features/posts/presentation/screens/add_post_screen.dart';
 import 'package:mtaa_frontend/features/posts/presentation/widgets/add_post_form.dart';
-import 'package:mtaa_frontend/features/shared/bloc/exception_type.dart';
-import 'package:mtaa_frontend/features/shared/bloc/exceptions_bloc.dart';
-import 'package:mtaa_frontend/features/shared/bloc/exceptions_event.dart';
 import 'package:mtaa_frontend/features/shared/data/models/page_parameters.dart';
 import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
 import 'package:uuid/uuid.dart';
@@ -51,49 +45,25 @@ abstract class PostsRepository {
 class PostsRepositoryImpl extends PostsRepository {
   final PostsApi postsApi;
   final PostsStorage postsStorage;
+  final TokenStorage tokenStorage;
 
-  PostsRepositoryImpl(this.postsApi, this.postsStorage);
+  PostsRepositoryImpl(this.postsApi, this.postsStorage, this.tokenStorage);
 
   @override
   Future<UuidValue?> addPost(AddPostRequest request) async {
-    final status = await AirplaneModeChecker.instance.checkAirplaneMode();
-    if (status == AirplaneModeStatus.on) {
-      if (getIt.isRegistered<BuildContext>()) {
-        var context = getIt.get<BuildContext>();
-        if (context.mounted) {
-          context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: true, exceptionType: ExceptionTypes.flightMode, message: 'Flight mode is enabled'));
-        }
-        return null;
-      }
-    }
+    if(await InternetChecker.fullIsFlightMode()) return null;
     return await postsApi.addPost(request);
   }
 
   @override
   Future<bool> updatePost(UpdatePostRequest request) async {
-    final status = await AirplaneModeChecker.instance.checkAirplaneMode();
-    if (status == AirplaneModeStatus.on) {
-      if (getIt.isRegistered<BuildContext>()) {
-        var context = getIt.get<BuildContext>();
-        if (context.mounted) {
-          context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: true, exceptionType: ExceptionTypes.flightMode, message: 'Flight mode is enabled'));
-        }
-        return false;
-      }
-    }
+    if(await InternetChecker.fullIsFlightMode()) return false;
     return await postsApi.updatePost(request);
   }
 
   @override
   Future<List<FullPostResponse>> getRecommendedPosts(PageParameters request) async {
-    final status = await AirplaneModeChecker.instance.checkAirplaneMode();
-    if (status == AirplaneModeStatus.on) {
-      if (getIt.isRegistered<BuildContext>()) {
-        var context = getIt.get<BuildContext>();
-        context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: true, exceptionType: ExceptionTypes.flightMode, message: 'Flight mode is enabled'));
-        return [];
-      }
-    }
+    if(await InternetChecker.fullIsFlightMode()) return [];
     return await postsApi.getRecommendedPosts(request);
   }
 
@@ -109,54 +79,26 @@ class PostsRepositoryImpl extends PostsRepository {
 
   @override
   Future<List<FullPostResponse>> getGlobalPosts(GetGLobalPostsRequest request) async {
-    final status = await AirplaneModeChecker.instance.checkAirplaneMode();
-    if (status == AirplaneModeStatus.on) {
-      if (getIt.isRegistered<BuildContext>()) {
-        var context = getIt.get<BuildContext>();
-        context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: true, exceptionType: ExceptionTypes.flightMode, message: 'Flight mode is enabled'));
-        return [];
-      }
-    }
+    if(await InternetChecker.fullIsFlightMode()) return [];
     return await postsApi.getGlobalPosts(request);
   }
 
   @override
   Future<List<FullPostResponse>> getLikedPosts(PageParameters pageParameters) async {
-    final status = await AirplaneModeChecker.instance.checkAirplaneMode();
-    if (status == AirplaneModeStatus.on) {
-      if (getIt.isRegistered<BuildContext>()) {
-        var context = getIt.get<BuildContext>();
-        context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: true, exceptionType: ExceptionTypes.flightMode, message: 'Flight mode is enabled'));
-        return [];
-      }
-    }
+    if(await InternetChecker.fullIsFlightMode()) return [];
     return await postsApi.getLiked(pageParameters);
   }
 
   @override
   Future<FullPostResponse?> getFullPostById(UuidValue id) async {
-    final status = await AirplaneModeChecker.instance.checkAirplaneMode();
-    if (status == AirplaneModeStatus.on) {
-      if (getIt.isRegistered<BuildContext>()) {
-        var context = getIt.get<BuildContext>();
-        context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: true, exceptionType: ExceptionTypes.flightMode, message: 'Flight mode is enabled'));
-        return null;
-      }
-    }
+    if(await InternetChecker.fullIsFlightMode()) return null;
     return await postsApi.getFullPostById(id);
   }
 
   @override
   Future<List<SimplePostResponse>> getAccountPosts(String userId, PageParameters pageParameters) async {
-    final status = await AirplaneModeChecker.instance.checkAirplaneMode();
-    if (status == AirplaneModeStatus.on) {
-      if (getIt.isRegistered<BuildContext>()) {
-        var context = getIt.get<BuildContext>();
-        context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: true, exceptionType: ExceptionTypes.flightMode, message: 'Flight mode is enabled'));
-        return [];
-      }
-    }
-    if(userId==await TokenStorage.getUserId()) {
+    if(await InternetChecker.fullIsFlightMode()) return [];
+    if(userId==await tokenStorage.getUserId()) {
       return await postsStorage.getAccountPosts(pageParameters);
     }
     
@@ -165,16 +107,7 @@ class PostsRepositoryImpl extends PostsRepository {
 
   @override
   Future<bool> deletePost(UuidValue id) async {
-    final status = await AirplaneModeChecker.instance.checkAirplaneMode();
-    if (status == AirplaneModeStatus.on) {
-      if (getIt.isRegistered<BuildContext>()) {
-        var context = getIt.get<BuildContext>();
-        if (context.mounted) {
-          context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: true, exceptionType: ExceptionTypes.flightMode, message: 'Flight mode is enabled'));
-        }
-        return false;
-      }
-    }
+    if(await InternetChecker.fullIsFlightMode()) return false;
     var res = await postsApi.deletePost(id);
     if (res) {
       //Todo: implement deleting of local posts
@@ -185,11 +118,13 @@ class PostsRepositoryImpl extends PostsRepository {
 
   @override
   Future<bool> likePost(UuidValue id) async {
+    if(await InternetChecker.fullIsFlightMode()) return false;
     return await postsApi.likePost(id);
   }
 
   @override
   Future<bool> removePostLike(UuidValue id) async {
+    if(await InternetChecker.fullIsFlightMode()) return false;
     return await postsApi.removePostLike(id);
   }
 

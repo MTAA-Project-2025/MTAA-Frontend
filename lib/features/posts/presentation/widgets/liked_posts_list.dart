@@ -19,11 +19,13 @@ import 'package:mtaa_frontend/features/shared/presentation/widgets/airmode_error
 import 'package:mtaa_frontend/features/shared/presentation/widgets/dotLoader.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/empty_data_notification_section.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/server_error_notification_section.dart';
+import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
 
 class LikedPostsList extends StatefulWidget {
   final PostsRepository repository;
+  final TokenStorage tokenStorage;
 
-  const LikedPostsList({super.key, required this.repository});
+  const LikedPostsList({super.key, required this.repository, required this.tokenStorage});
 
   @override
   State<LikedPostsList> createState() => _LikedPostsListState();
@@ -114,8 +116,9 @@ class _LikedPostsListState extends State<LikedPostsList> {
   @override
   Widget build(BuildContext contex) {
     return BlocBuilder<ExceptionsBloc, ExceptionsState>(builder: (context, state) {
-      return Expanded(
-        child: ListView.builder(
+      return ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
           cacheExtent: 9999,
           itemCount: posts.length + 1,
           controller: paginationScrollController.scrollController,
@@ -128,6 +131,7 @@ class _LikedPostsListState extends State<LikedPostsList> {
                 repository: widget.repository,
                 locationsRepository: getIt<LocationsRepository>(),
                 toaster: getIt<MyToastService>(),
+                tokenStorage: widget.tokenStorage,
               );
             }
             if (paginationScrollController.isLoading) {
@@ -162,8 +166,7 @@ class _LikedPostsListState extends State<LikedPostsList> {
             }
             return null;
           },
-        ),
-      );
+        );
     });
   }
 }

@@ -7,7 +7,6 @@ import 'package:mtaa_frontend/core/constants/images/image_size_type.dart';
 import 'package:mtaa_frontend/core/constants/route_constants.dart';
 import 'package:mtaa_frontend/core/constants/validators.dart';
 import 'package:mtaa_frontend/core/services/my_toast_service.dart';
-import 'package:mtaa_frontend/core/utils/app_injections.dart';
 import 'package:mtaa_frontend/features/images/data/models/requests/update_image_request.dart';
 import 'package:mtaa_frontend/features/images/data/models/responses/myImageResponse.dart';
 import 'package:mtaa_frontend/features/images/data/storages/my_image_storage.dart';
@@ -55,11 +54,6 @@ class _UpdatePostScreenState extends State<UpdatePostScreen> {
   void initState() {
     super.initState();
 
-    if (getIt.isRegistered<BuildContext>()) {
-      getIt.unregister<BuildContext>();
-    }
-    getIt.registerSingleton<BuildContext>(context);
-
     Future.microtask(() async {
       if (!mounted) return;
 
@@ -98,8 +92,6 @@ class _UpdatePostScreenState extends State<UpdatePostScreen> {
   @override
   void dispose() {
     descriptionController.dispose();
-
-    getIt.unregister<BuildContext>();
     super.dispose();
   }
 

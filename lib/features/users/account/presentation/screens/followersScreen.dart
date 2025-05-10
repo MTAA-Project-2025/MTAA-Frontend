@@ -18,11 +18,14 @@ import 'package:mtaa_frontend/features/shared/presentation/widgets/server_error_
 import 'package:mtaa_frontend/features/users/account/data/models/responses/publicBaseAccountResponse.dart';
 import 'package:mtaa_frontend/features/users/account/data/repositories/account_repository.dart';
 import 'package:mtaa_frontend/features/users/account/presentation/widgets/followersList.dart';
+import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
 
 class FollowersScreen extends StatefulWidget {
   final AccountRepository repository;
+  final TokenStorage tokenStorage;
 
-  const FollowersScreen({super.key, required this.repository});
+  const FollowersScreen({super.key, required this.repository,
+  required this.tokenStorage});
 
   @override
   State<FollowersScreen> createState() => _FollowersScreenState();
@@ -160,6 +163,7 @@ class _FollowersScreenState extends State<FollowersScreen> {
                             followers: followers,
                             searchQuery: filterStr,
                             repository: widget.repository,
+                            tokenStorage: widget.tokenStorage,
                           );
                         },
                       ),

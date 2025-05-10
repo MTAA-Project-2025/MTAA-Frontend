@@ -2,7 +2,6 @@ import 'package:go_router/go_router.dart';
 import 'package:mtaa_frontend/core/constants/route_constants.dart';
 import 'package:mtaa_frontend/core/services/my_toast_service.dart';
 import 'package:mtaa_frontend/core/utils/app_injections.dart';
-import 'package:mtaa_frontend/features/groups/presentation/screens/userGroupListScreen.dart';
 import 'package:mtaa_frontend/features/images/data/storages/my_image_storage.dart';
 import 'package:mtaa_frontend/features/images/presentation/widgets/test.dart';
 import 'package:mtaa_frontend/features/locations/data/models/requests/add_location_request.dart';
@@ -36,6 +35,7 @@ import 'package:mtaa_frontend/features/users/account/presentation/screens/public
 import 'package:mtaa_frontend/features/users/account/presentation/screens/updateAccountScreen.dart';
 import 'package:mtaa_frontend/features/users/account/presentation/screens/updateAvatarScreen.dart';
 import 'package:mtaa_frontend/features/users/authentication/shared/data/network/identity_api.dart';
+import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
 import 'package:mtaa_frontend/features/users/authentication/sign-up/presentation/screens/createAccountScreen.dart';
 import 'package:mtaa_frontend/features/users/authentication/sign-up/presentation/screens/signUpVerificationByEmailScreen.dart';
 import 'package:mtaa_frontend/features/users/authentication/sign-up/presentation/screens/startScreen.dart';
@@ -64,7 +64,7 @@ class AppRouter {
         ),
         GoRoute(
           path: createAccountScreenRoute,
-          builder: (context, state) => CreateAccountScreen(identityApi: getIt<IdentityApi>(), notificationsService: getIt<NotificationsService>()),
+          builder: (context, state) => CreateAccountScreen(identityApi: getIt<IdentityApi>(), notificationsService: getIt<NotificationsService>(), tokenStorage: getIt<TokenStorage>(),),
         ),
         GoRoute(
           path: firstUpdateDisplayNameScreenRoute,
@@ -79,20 +79,12 @@ class AppRouter {
           builder: (context, state) => FirstUpdateAvatarScreen(accountApi: getIt<AccountApi>(), toastService: getIt<MyToastService>()),
         ),
         GoRoute(
-          path: userGroupListScreenRoute,
-          builder: (context, state) => UserGroupListScreen(identityApi: getIt<IdentityApi>(), notificationsService: getIt<NotificationsService>()),
-        ),
-        GoRoute(
-          path: userGroupListScreenRoute,
-          builder: (context, state) => UserGroupListScreen(identityApi: getIt<IdentityApi>(), notificationsService: getIt<NotificationsService>()),
-        ),
-        GoRoute(
           path: userRecommendationsScreenRoute,
-          builder: (context, state) => PostRecommendationsScreen(repository: getIt<PostsRepository>())
+          builder: (context, state) => PostRecommendationsScreen(repository: getIt<PostsRepository>(), tokenStorage: getIt<TokenStorage>(),)
         ),
         GoRoute(
           path: accountProfileScreenRoute,
-          builder: (context, state) => AccountInformationScreen(repository: getIt<AccountRepository>()),
+          builder: (context, state) => AccountInformationScreen(repository: getIt<AccountRepository>(), tokenStorage: getIt<TokenStorage>(),),
         ),
         GoRoute(
           path: publicAccountInformationScreenRoute,
@@ -138,11 +130,11 @@ class AppRouter {
         ),
         GoRoute(
           path: userSettingsScreenRoute,
-          builder: (context, state) => UserSettingsScreen()
+          builder: (context, state) => UserSettingsScreen(tokenStorage: getIt<TokenStorage>(),)
         ),
         GoRoute(
           path: globalSearchScreenRoute,
-          builder: (context, state) => GlobalSearchScreen(postsRepository: getIt<PostsRepository>(), usersRepository: getIt<AccountRepository>(),)
+          builder: (context, state) => GlobalSearchScreen(postsRepository: getIt<PostsRepository>(), usersRepository: getIt<AccountRepository>(), tokenStorage: getIt<TokenStorage>(),)
         ),
         GoRoute(path: userMapScreenRoute,
           builder: (context, state) => MainLocationMapScreen(repository: getIt<LocationsRepository>(),toastService: getIt<MyToastService>())
@@ -153,7 +145,8 @@ class AppRouter {
             FullPostResponse? post;
             if(state.extra!=null && state.extra is FullPostResponse) post = state.extra as FullPostResponse;
             String? postId = state.pathParameters['id']!;
-            return FullPostScreen(repository: getIt<PostsRepository>(), postId: postId, post: post, locationsRepository: getIt<LocationsRepository>());
+            return FullPostScreen(repository: getIt<PostsRepository>(), postId: postId, post: post, locationsRepository: getIt<LocationsRepository>(),
+            tokenStorage: getIt<TokenStorage>(),);
           }
         ),
         GoRoute(
@@ -186,15 +179,18 @@ class AppRouter {
           builder: (context, state) => LogInScreen(
             identityApi: getIt<IdentityApi>(),
             notificationsService: getIt<NotificationsService>(),
+            tokenStorage: getIt<TokenStorage>(),
           ),
         ),
         GoRoute(
           path: followersScreenRoute,
-          builder: (context, state) => FollowersScreen(repository: getIt<AccountRepository>())
+          builder: (context, state) => FollowersScreen(repository: getIt<AccountRepository>(),
+          tokenStorage: getIt<TokenStorage>(),)
         ),
         GoRoute(
           path: friendsScreenRoute,
-          builder: (context, state) => FriendsScreen(repository: getIt<AccountRepository>())
+          builder: (context, state) => FriendsScreen(repository: getIt<AccountRepository>(),
+          tokenStorage: getIt<TokenStorage>(),)
         ),
         GoRoute(
           path: notificationsScreenRoute,

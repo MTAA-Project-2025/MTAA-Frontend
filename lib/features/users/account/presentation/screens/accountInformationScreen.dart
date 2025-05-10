@@ -16,12 +16,14 @@ import 'package:mtaa_frontend/features/users/account/bloc/account_state.dart';
 import 'package:mtaa_frontend/features/users/account/data/repositories/account_repository.dart';
 import 'package:mtaa_frontend/features/users/account/presentation/widgets/profileInfoWidget.dart';
 import 'package:mtaa_frontend/features/users/account/presentation/widgets/tabNavigation.dart';
+import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
 
 class AccountInformationScreen extends StatefulWidget {
   final AccountRepository repository;
+  final TokenStorage tokenStorage;
 
-  const AccountInformationScreen({super.key, required this.repository});
-
+  const AccountInformationScreen({super.key, required this.repository, required this.tokenStorage});
+  
   @override
   State<AccountInformationScreen> createState() => _AccountInformationScreenState();
 }
@@ -86,40 +88,41 @@ class _AccountInformationScreenState extends State<AccountInformationScreen> {
                       }))
             ],
           ),
-          body: (isLoading || accountState.account==null)
+          body: (isLoading || accountState.account == null)
               ? Padding(padding: const EdgeInsets.all(16.0), child: DotLoader())
-              : Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: ProfileInfoWidget(
-                        avatarUrl: accountState.account!.avatar!.images.first.fullPath,
-                        name: accountState.account!.displayName,
-                        username: '@${accountState.account!.username}',
-                        friends: accountState.account!.friendsCount,
-                        followers: accountState.account!.followersCount,
-                        likes: accountState.account!.likesCount,
-                      ),
-                    ),
-                    Padding(
+              : SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      Padding(
                         padding: const EdgeInsets.all(16.0),
-                        child: TabNavigation(
-                          activeTab: activeTab,
-                          onTabChange: handleTabChange,
-                        )),
-                    const SizedBox(height: 10),
-                    if (accountState.account != null && activeTab == AccountTabType.Posts)
-                      Expanded(
-                          child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: AccountPostListWidget(
-                                repository: getIt<PostsRepository>(),
-                                userId: accountState.account!.id,
-                                isOwner: true,
-                              ))),
-                    if (accountState.account != null && activeTab == AccountTabType.SavedPosts) SavedLocationsPointsList(repository: getIt<PostsRepository>()),
-                    if (accountState.account != null && activeTab == AccountTabType.LikedPosts) LikedPostsList(repository: getIt<PostsRepository>()),
-                  ],
+                        child: ProfileInfoWidget(
+                          avatarUrl: accountState.account!.avatar!.images.first.fullPath,
+                          name: accountState.account!.displayName,
+                          username: '@${accountState.account!.username}',
+                          friends: accountState.account!.friendsCount,
+                          followers: accountState.account!.followersCount,
+                          likes: accountState.account!.likesCount,
+                        ),
+                      ),
+                      Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: TabNavigation(
+                            activeTab: activeTab,
+                            onTabChange: handleTabChange,
+                          )),
+                      const SizedBox(height: 10),
+                      if (accountState.account != null && activeTab == AccountTabType.Posts)
+                        Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: AccountPostListWidget(
+                              repository: getIt<PostsRepository>(),
+                              userId: accountState.account!.id,
+                              isOwner: true,
+                            )),
+                      if (accountState.account != null && activeTab == AccountTabType.SavedPosts) SavedLocationsPointsList(repository: getIt<PostsRepository>()),
+                      if (accountState.account != null && activeTab == AccountTabType.LikedPosts) LikedPostsList(repository: getIt<PostsRepository>(), tokenStorage: widget.tokenStorage),
+                    ],
+                  ),
                 ),
           bottomNavigationBar: PhoneBottomMenu(sellectedType: MenuButtons.Home));
     });

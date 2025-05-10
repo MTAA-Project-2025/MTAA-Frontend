@@ -17,8 +17,12 @@ import 'package:mtaa_frontend/themes/bloc/theme_event.dart';
 class CreateAccountScreen extends StatefulWidget {
   final IdentityApi identityApi;
   final NotificationsService notificationsService;
+  final TokenStorage tokenStorage;
 
-  const CreateAccountScreen({super.key, required this.identityApi, required this.notificationsService});
+  const CreateAccountScreen({super.key,
+  required this.identityApi,
+  required this.notificationsService,
+  required this.tokenStorage});
 
   @override
   State<CreateAccountScreen> createState() => _CreateAccountState();
@@ -39,8 +43,6 @@ class _CreateAccountState extends State<CreateAccountScreen> {
 
   void _navigateToFirstUpdateDisplayNameScreenRoute() {
     Future.microtask(() async {
-      if(!mounted) return;
-      await widget.notificationsService.startSSE();
       if (!mounted) return;
       GoRouter.of(context).go(firstUpdateDisplayNameScreenRoute);
     });
@@ -93,7 +95,7 @@ class _CreateAccountState extends State<CreateAccountScreen> {
                         setState(() => isLoading = false);
                         if(res != null)
                         {
-                          TokenStorage.saveToken(res.token);
+                          widget.tokenStorage.saveToken(res.token);
                           _navigateToFirstUpdateDisplayNameScreenRoute();
                         }
                       }

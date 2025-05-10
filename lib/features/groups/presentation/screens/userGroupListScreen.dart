@@ -7,7 +7,6 @@ import 'package:mtaa_frontend/features/users/authentication/shared/blocs/verific
 import 'package:mtaa_frontend/features/users/authentication/shared/blocs/verification_email_phone_state.dart';
 import 'package:mtaa_frontend/features/users/authentication/shared/data/models/token.dart';
 import 'package:mtaa_frontend/features/users/authentication/shared/data/network/identity_api.dart';
-import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
 import 'package:mtaa_frontend/features/users/authentication/sign-up/data/models/requests/signUpByEmailRequest.dart';
 import 'package:mtaa_frontend/features/users/authentication/sign-up/presentation/widgets/createAccountForm.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/dotLoader.dart';
@@ -39,8 +38,6 @@ class _UserGroupListScreenState extends State<UserGroupListScreen> {
 
   void _navigateToFirstUpdateDisplayNameScreenRoute() {
     Future.microtask(() async{
-      if(!mounted) return;
-      await widget.notificationsService.startSSE();
       if (!mounted) return;
       GoRouter.of(context).push(firstUpdateDisplayNameScreenRoute);
     });
@@ -92,9 +89,7 @@ class _UserGroupListScreenState extends State<UserGroupListScreen> {
                         if(!mounted)return;
                         setState(() => isLoading = false);
                         if(res != null)
-                        {
-                          TokenStorage.saveToken(res.token);
-                          
+                        { 
                           _navigateToFirstUpdateDisplayNameScreenRoute();
                         }
                       }

@@ -28,6 +28,14 @@ class _StartSignUpScreenState extends State<StartSignUpScreen> {
   final emailController = TextEditingController();
   bool isLoading = false;
 
+  void navigateToVerificationScreen() {
+    if (!mounted) return;
+    Future.microtask(() {
+      if (!mounted || !context.mounted) return;
+      GoRouter.of(context).go(signUpVerificationByEmailScreenRoute);
+    });
+  }
+
   @override
   void dispose() {
     emailController.dispose();
@@ -86,13 +94,8 @@ class _StartSignUpScreenState extends State<StartSignUpScreen> {
                                       });
                                     },
                                     style: TextButton.styleFrom(
-                                      foregroundColor: isShowEmailForm
-                                          ? whiteColor
-                                          : whiteColor,
-                                      backgroundColor: isShowEmailForm
-                                          ? secondary1InvincibleColor
-                                          : Theme.of(context)
-                                              .secondaryHeaderColor,
+                                      foregroundColor: isShowEmailForm ? whiteColor : whiteColor,
+                                      backgroundColor: isShowEmailForm ? secondary1InvincibleColor : Theme.of(context).secondaryHeaderColor,
                                       textStyle: const TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.w500,
@@ -112,13 +115,8 @@ class _StartSignUpScreenState extends State<StartSignUpScreen> {
                                       });
                                     },
                                     style: TextButton.styleFrom(
-                                      foregroundColor: !isShowEmailForm
-                                          ? whiteColor
-                                          : whiteColor,
-                                      backgroundColor: !isShowEmailForm
-                                          ? secondary1InvincibleColor
-                                          : Theme.of(context)
-                                              .secondaryHeaderColor,
+                                      foregroundColor: !isShowEmailForm ? whiteColor : whiteColor,
+                                      backgroundColor: !isShowEmailForm ? secondary1InvincibleColor : Theme.of(context).secondaryHeaderColor,
                                       textStyle: const TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.w500,
@@ -133,12 +131,7 @@ class _StartSignUpScreenState extends State<StartSignUpScreen> {
                           ),
                         ),
                         const SizedBox(height: 19),
-                        isShowEmailForm
-                            ? StartSignUpByEmailForm(
-                                formKey: _emailformKey,
-                                emailController: emailController)
-                            : const SizedBox(
-                                height: 10), //TODO: change to LogInByPhoneForm,
+                        isShowEmailForm ? StartSignUpByEmailForm(formKey: _emailformKey, emailController: emailController) : const SizedBox(height: 10), //TODO: change to LogInByPhoneForm,
                         const SizedBox(height: 4),
                         Align(
                           alignment: Alignment.centerLeft,
@@ -155,20 +148,15 @@ class _StartSignUpScreenState extends State<StartSignUpScreen> {
                     : TextButton(
                         onPressed: () async {
                           if (_emailformKey.currentState!.validate()) {
-                            if(!mounted)return;
+                            if (!mounted) return;
                             setState(() => isLoading = true);
-                            emailPhoneBloc.add(SetVerificationEmailPhoneEvent(
-                                emailController.text));
-                            bool res = await widget.identityApi
-                                .signUpStartEmailVerification(
-                                    StartSignUpEmailVerificationRequest(
-                                        email: emailController.text));
-                            
-                            if(!mounted)return;
+                            emailPhoneBloc.add(SetVerificationEmailPhoneEvent(emailController.text));
+                            bool res = await widget.identityApi.signUpStartEmailVerification(StartSignUpEmailVerificationRequest(email: emailController.text));
+
+                            if (!mounted) return;
                             setState(() => isLoading = false);
                             if (res == true) {
-                              GoRouter.of(context)
-                                  .push(signUpVerificationByEmailScreenRoute);
+                              navigateToVerificationScreen();
                             }
                           }
                         },

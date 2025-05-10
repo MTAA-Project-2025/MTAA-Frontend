@@ -6,7 +6,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:mtaa_frontend/core/constants/route_constants.dart';
 import 'package:mtaa_frontend/core/constants/validators.dart';
 import 'package:mtaa_frontend/core/services/my_toast_service.dart';
-import 'package:mtaa_frontend/core/utils/app_injections.dart';
 import 'package:mtaa_frontend/domain/hive_data/add-posts/add_image_hive.dart';
 import 'package:mtaa_frontend/features/images/data/models/requests/add_image_request.dart';
 import 'package:mtaa_frontend/features/images/data/storages/my_image_storage.dart';
@@ -49,12 +48,6 @@ class _AddPostScreenState extends State<AddPostScreen> {
   @override
   void initState() {
     super.initState();
-
-    if (getIt.isRegistered<BuildContext>()) {
-      getIt.unregister<BuildContext>();
-    }
-    getIt.registerSingleton<BuildContext>(context);
-
     Future.microtask(() async {
       if (!mounted) return;
       var hiveData = await widget.repository.getTempPostAddForm();
@@ -91,8 +84,6 @@ class _AddPostScreenState extends State<AddPostScreen> {
   @override
   void dispose() {
     descriptionController.dispose();
-
-    getIt.unregister<BuildContext>();
     super.dispose();
   }
 
@@ -107,7 +98,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
   }
 
   void deleteImg(int pos) {
-    if(!mounted) return;
+    if (!mounted) return;
     setState(() {
       var addImgDTO = addImagesDTOs[pos];
       if (addImgDTO.isLocal) {
@@ -147,17 +138,18 @@ class _AddPostScreenState extends State<AddPostScreen> {
   }
 
   void uploadImg(XFile orig, File cropped) {
-    if(!mounted) return;
-    setState(() {
-      AddPostImageScreenDTO newImage = AddPostImageScreenDTO(position: images.length);
-      newImage.originalImage = orig;
-      newImage.image = cropped;
+    if (!mounted) return;
+    AddPostImageScreenDTO newImage = AddPostImageScreenDTO(position: images.length);
+    newImage.originalImage = orig;
+    newImage.image = cropped;
 
-      ImageDTO newImageDTO =
-          ImageDTO(image: Image(image: FileImage(cropped), fit: BoxFit.fitHeight), originalPath: orig.path, isAspectRatioError: false, aspectRatioPreset: CropAspectRatioPresetCustom(1, 1, '1x1'));
+    ImageDTO newImageDTO =
+        ImageDTO(image: Image(image: FileImage(cropped), fit: BoxFit.fitHeight), originalPath: orig.path, isAspectRatioError: false, aspectRatioPreset: CropAspectRatioPresetCustom(1, 1, '1x1'));
 
-      Future.microtask(() async {
-        var res = await rewiewAspectRatio(cropped);
+    Future.microtask(() async {
+      var res = await rewiewAspectRatio(cropped);
+      if(!mounted)return;
+      setState(() {
         if (res != null) {
           newImageDTO.aspectRatioPreset = res;
           addImagesDTOs.add(newImage);
@@ -165,7 +157,10 @@ class _AddPostScreenState extends State<AddPostScreen> {
         }
       });
     });
-    isEdited = true;
+    if(!mounted)return;
+    setState(() {
+      isEdited = true;
+    });
   }
 
   void updateImg(int pos, File cropped) async {
@@ -173,7 +168,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
     if (aspectRatio == null) {
       return;
     }
-    if(!mounted) return;
+    if (!mounted) return;
     setState(() {
       images[pos].image = Image(image: FileImage(cropped), fit: BoxFit.fitHeight);
 
@@ -182,8 +177,8 @@ class _AddPostScreenState extends State<AddPostScreen> {
         addImagesDTOs[pos].imagePath = null;
         addImagesDTOs[pos].image = cropped;
       }
+      images[pos].aspectRatioPreset = aspectRatio;
     });
-    images[pos].aspectRatioPreset = aspectRatio;
 
     var firstImg = images[0];
 
@@ -192,12 +187,12 @@ class _AddPostScreenState extends State<AddPostScreen> {
       if (!((img.aspectRatioPreset.width.toDouble() / img.aspectRatioPreset.height.toDouble() - firstImg.aspectRatioPreset.width.toDouble() / firstImg.aspectRatioPreset.height.toDouble()).abs() <=
           0.01)) {
         flag = true;
-        if(!mounted) return;
+        if (!mounted) return;
         setState(() {
           img.isAspectRatioError = true;
         });
       } else {
-        if(!mounted) return;
+        if (!mounted) return;
         setState(() {
           img.isAspectRatioError = false;
         });
@@ -210,7 +205,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
         });
       }
     }
-    if(!mounted) return;
+    if (!mounted) return;
     setState(() {
       if (flag) {
         isAspectRatioError = true;
@@ -307,7 +302,9 @@ class _AddPostScreenState extends State<AddPostScreen> {
                               Icon(Icons.location_pin, color: Theme.of(context).textTheme.bodySmall!.color),
                               const SizedBox(width: 5),
                               Text(
-                                addLocationRequest.latitude > -200 ? "${double.parse((addLocationRequest.latitude).toStringAsFixed(7))} ${double.parse((addLocationRequest.longitude).toStringAsFixed(7))}" : 'Choose your location (optional)',
+                                addLocationRequest.latitude > -200
+                                    ? "${double.parse((addLocationRequest.latitude).toStringAsFixed(7))} ${double.parse((addLocationRequest.longitude).toStringAsFixed(7))}"
+                                    : 'Choose your location (optional)',
                                 style: Theme.of(context).textTheme.labelSmall,
                               ),
                             ],
@@ -315,7 +312,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                           if (addLocationRequest.latitude > -200)
                             IconButton(
                                 onPressed: () {
-                                  if(!mounted) return;
+                                  if (!mounted) return;
                                   setState(() {
                                     addLocationRequest.latitude = -200;
                                     addLocationRequest.longitude = -200;
@@ -343,7 +340,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                                 return;
                               }
                               if (formKey.currentState!.validate()) {
-                                if(!mounted) return;
+                                if (!mounted) return;
                                 setState(() => isLoading = true);
                                 List<AddImageRequest> addImageRequests = [];
                                 for (int i = 0; i < addImagesDTOs.length; i++) {
@@ -353,9 +350,9 @@ class _AddPostScreenState extends State<AddPostScreen> {
                                     addImageRequests.add(AddImageRequest(image: File(addImagesDTOs[i].imagePath!), position: i));
                                   }
                                 }
-                                var id = await widget.repository
-                                    .addPost(AddPostRequest(images: addImageRequests, description: descriptionController.text, location: addLocationRequest.latitude > -200 ? addLocationRequest : null));
-                                if(!mounted)return;
+                                var id = await widget.repository.addPost(
+                                    AddPostRequest(images: addImageRequests, description: descriptionController.text, location: addLocationRequest.latitude > -200 ? addLocationRequest : null));
+                                if (!mounted) return;
                                 setState(() => isLoading = false);
                                 if (id != null) {
                                   _navigateToGroupListScreen();

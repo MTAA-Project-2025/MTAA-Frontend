@@ -49,7 +49,7 @@ class _FirstUpdateAvatarScreenState extends State<FirstUpdateAvatarScreen> {
   void _navigateToGroupListScreen() {
     Future.microtask(() {
       if (!mounted) return;
-      GoRouter.of(context).go(userGroupListScreenRoute);
+      GoRouter.of(context).go(userRecommendationsScreenRoute);
     });
   }
 
@@ -158,7 +158,7 @@ class _FirstUpdateAvatarScreenState extends State<FirstUpdateAvatarScreen> {
                     children: [
                       TextButton(
                         onPressed: () {
-                          GoRouter.of(context).goNamed(userGroupListScreenRoute);
+                          GoRouter.of(context).goNamed(userRecommendationsScreenRoute);
                         },
                         style: TextButton.styleFrom(
                           foregroundColor: Theme.of(context).colorScheme.secondary,

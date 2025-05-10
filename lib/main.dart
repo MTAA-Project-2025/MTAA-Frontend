@@ -18,9 +18,12 @@ import 'package:mtaa_frontend/domain/hive_data/posts/full_post_hive.dart';
 import 'package:mtaa_frontend/domain/hive_data/posts/my_image_group_hive.dart';
 import 'package:mtaa_frontend/domain/hive_data/posts/my_image_hive.dart';
 import 'package:mtaa_frontend/domain/hive_data/posts/simple_user_hive.dart';
+import 'package:mtaa_frontend/domain/hive_data/users/user_full_account_hive.dart';
 import 'package:mtaa_frontend/features/notifications/data/network/notificationsService.dart';
 import 'package:mtaa_frontend/features/shared/bloc/exceptions_bloc.dart';
 import 'package:mtaa_frontend/features/users/account/bloc/account_bloc.dart';
+import 'package:mtaa_frontend/features/users/account/bloc/account_events.dart';
+import 'package:mtaa_frontend/features/users/account/data/repositories/account_repository.dart';
 import 'package:mtaa_frontend/features/users/authentication/shared/blocs/verification_email_phone_bloc.dart';
 import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
 import 'package:mtaa_frontend/themes/app_theme.dart';
@@ -28,6 +31,7 @@ import 'package:mtaa_frontend/themes/bloc/theme_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mtaa_frontend/themes/bloc/theme_state.dart';
 import 'package:mtaa_frontend/core/route/router.dart' as router;
+import 'package:timezone/data/latest.dart' as tz;
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -43,12 +47,15 @@ Future<void> main() async {
   Hive.registerAdapter(CropAspectRatioPresetCustomHiveAdapter());
   Hive.registerAdapter(UserPositionHiveAdapter());
   Hive.registerAdapter(SimplePointHiveAdapter());
+  Hive.registerAdapter(UserFullAccountHiveAdapter());
 
   await Hive.openBox(currentUserDataBox);
   await Hive.openBox<List>(postsDataBox);
   await Hive.openBox<List>(locationPointsDataBox);
   await Hive.openBox<UserPositionHive>(prevUserLocationDataBox);
 
+  tz.initializeTimeZones();
+  
   const environment = String.fromEnvironment('ENV', defaultValue: 'development');
   AppConfig.loadConfig(environment);
   setupDependencies();
@@ -59,7 +66,11 @@ Future<void> main() async {
   await FMTCObjectBoxBackend().initialise();
   await FMTCStore(tilesBox).manage.create();
   var sse = getIt<NotificationsService>();
-  await sse.startSSE();
+  var tokenStorage = getIt<TokenStorage>();
+  var token = await tokenStorage.getToken();
+  if(token != null && token.isNotEmpty) {
+    sse.startSSE(token);
+  }
 
   runApp(MultiBlocProvider(
     providers: [
@@ -78,12 +89,14 @@ Future<void> main() async {
     ],
     child: MyApp(
       initialRoute: initialRoute,
+      accountRepository: getIt<AccountRepository>(),
     ),
   ));
 }
 
 Future<bool> isAuthorized() async {
-  final token = await TokenStorage.getToken();
+  final tokenStorage = getIt<TokenStorage>();
+  final token = await tokenStorage.getToken();
   return token != null && token.isNotEmpty;
 }
 
@@ -97,29 +110,53 @@ Future<String> getInitialRoute() async {
 
 class MyApp extends StatefulWidget {
   final String initialRoute;
-  const MyApp({super.key, required this.initialRoute});
+  final AccountRepository accountRepository;
+  const MyApp({super.key, required this.initialRoute, required this.accountRepository});
 
   @override
   State<MyApp> createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
+  late String initialRoute;
   @override
   void initState() {
     super.initState();
     InternetChecker.initialize();
+
+    initialRoute = widget.initialRoute;
+
+    Future.microtask(() async{
+      if(!mounted)return;
+      var account = await widget.accountRepository.getFullLocalAccount();
+      if(account==null)return;
+      if(!context.mounted)return;
+      context.read<AccountBloc>().add(LoadAccountEvent(account: account));
+    });
   }
 
   @override
   void dispose() {
+    Future.microtask(() async{
+      if(!mounted || !context.mounted)return;
+      var account = context.read<AccountBloc>().state.account;
+      if(account==null)return;
+      await widget.accountRepository.setFullLocalAccount(account);
+    });
+    
     InternetChecker.dispose();
     super.dispose();
+  }
+
+  Future setInitialRoute() async {
+    initialRoute = await getInitialRoute();
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ThemeBloc, ThemeState>(
       builder: (context, state) {
+        setInitialRoute();
         ThemeData themeData;
         switch (state.appThemeMode) {
           case AppThemeMode.dark:
@@ -136,7 +173,7 @@ class _MyAppState extends State<MyApp> {
         return MaterialApp.router(
           title: 'Likely',
           theme: themeData,
-          routerConfig: router.AppRouter.createRouter(widget.initialRoute),
+          routerConfig: router.AppRouter.createRouter(initialRoute),
         );
       },
     );

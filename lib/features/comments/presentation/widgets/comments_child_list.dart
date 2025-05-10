@@ -13,6 +13,7 @@ import 'package:mtaa_frontend/features/shared/bloc/exceptions_state.dart';
 import 'package:mtaa_frontend/features/shared/data/models/page_parameters.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/dotLoader.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/server_error_notification_section.dart';
+import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
 import 'package:uuid/uuid.dart';
 
 class CommentsChildList extends StatefulWidget {
@@ -24,6 +25,7 @@ class CommentsChildList extends StatefulWidget {
   final double depth;
   final CommentController commentController;
   final bool isMovedToTop;
+  final TokenStorage tokenStorage;
 
   const CommentsChildList(
       {super.key,
@@ -34,6 +36,7 @@ class CommentsChildList extends StatefulWidget {
       required this.mainParent,
       required this.depth,
       required this.commentController,
+      required this.tokenStorage,
       this.isMovedToTop = false});
 
   @override
@@ -154,6 +157,7 @@ class _CommentsChildListState extends State<CommentsChildList> {
                         mainParent: widget.mainParent,
                         depth: widget.depth + 1,
                         parentCommentController: childCommentControllers[index],
+                        tokenStorage: widget.tokenStorage,
                       );
                     }
                     if (isLoading) {

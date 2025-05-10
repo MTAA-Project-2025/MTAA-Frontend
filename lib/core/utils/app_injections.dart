@@ -17,6 +17,7 @@ import 'package:mtaa_frontend/features/locations/data/repositories/locations_rep
 import 'package:mtaa_frontend/features/locations/data/storages/locations_storage.dart';
 import 'package:mtaa_frontend/features/notifications/data/network/notificationsApi.dart';
 import 'package:mtaa_frontend/features/notifications/data/network/notificationsService.dart';
+import 'package:mtaa_frontend/features/notifications/data/network/phoneNotificationService.dart';
 import 'package:mtaa_frontend/features/notifications/data/repositories/notificationsRepository.dart';
 import 'package:mtaa_frontend/features/posts/data/network/posts_api.dart';
 import 'package:mtaa_frontend/features/posts/data/repositories/posts_repository.dart';
@@ -24,7 +25,9 @@ import 'package:mtaa_frontend/features/posts/data/storages/posts_storage.dart';
 import 'package:mtaa_frontend/features/synchronization/synchronization_service.dart';
 import 'package:mtaa_frontend/features/users/account/data/network/account_api.dart';
 import 'package:mtaa_frontend/features/users/account/data/repositories/account_repository.dart';
+import 'package:mtaa_frontend/features/users/account/data/storages/account_storage.dart';
 import 'package:mtaa_frontend/features/users/authentication/shared/data/network/identity_api.dart';
+import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
 import 'package:mtaa_frontend/features/users/versioning/api/VersionItemsApi.dart';
 import 'package:mtaa_frontend/features/users/versioning/api/VersionItemsApiImpl.dart';
 import 'package:mtaa_frontend/features/users/versioning/storage/VersionItemsStorage.dart';
@@ -33,8 +36,13 @@ import 'package:mtaa_frontend/features/users/versioning/storage/VersionItemsStor
 final GetIt getIt = GetIt.instance;
 
 void setupDependencies() {
+
+  getIt.registerSingleton<TokenStorage>(
+    TokenStorage(),
+  );
+
   Dio dio = Dio(BaseOptions(baseUrl: AppConfig.config.baseUrl));
-  dio.interceptors.add(AuthInterceptor());
+  dio.interceptors.add(AuthInterceptor(getIt<TokenStorage>()));
   dio.interceptors.add(ErrorInterceptor());
 
   getIt.registerSingleton<Dio>(dio);
@@ -63,7 +71,7 @@ void setupDependencies() {
     PresetAvatarImagesApiImpl(getIt<Dio>()),
   );
   getIt.registerSingleton<IdentityApi>(
-    IdentityImplApi(getIt<Dio>()),
+    IdentityImplApi(getIt<Dio>(), getIt<ExceptionsService>()),
   );
 
   getIt.registerSingleton<LocationsApi>(
@@ -73,11 +81,20 @@ void setupDependencies() {
   getIt.registerSingleton<PostsApi>(
     PostsApiImpl(getIt<Dio>(), getIt<ExceptionsService>()),
   );
+
+  getIt.registerSingleton<PhoneNotificationsService>(
+    PhoneNotificationsServiceImpl(),
+  );
+
   getIt.registerSingleton<PostsStorage>(
-    PostsStorageImpl(getIt<MyDbContext>(), getIt<MyImageStorage>(), getIt<Dio>(), getIt<NotificationsService>()),
+    PostsStorageImpl(getIt<MyDbContext>(),
+    getIt<MyImageStorage>(),
+    getIt<Dio>(),
+    getIt<PhoneNotificationsService>(),
+    getIt<TokenStorage>()),
   );
   getIt.registerSingleton<PostsRepository>(
-    PostsRepositoryImpl(getIt<PostsApi>(), getIt<PostsStorage>()),
+    PostsRepositoryImpl(getIt<PostsApi>(), getIt<PostsStorage>(), getIt<TokenStorage>()),
   );
 
   getIt.registerSingleton<LocationsStorage>(
@@ -92,8 +109,12 @@ void setupDependencies() {
   getIt.registerSingleton<AccountApi>(
     AccountApiImpl(getIt<Dio>(), getIt<ExceptionsService>()),
   );
+  getIt.registerSingleton<AccountStorage>(
+    AccountStorageImpl()
+  );
+
   getIt.registerSingleton<AccountRepository>(
-    AccountRepositoryImpl(getIt<AccountApi>()),
+    AccountRepositoryImpl(getIt<AccountApi>(), getIt<AccountStorage>()),
   );
   
   getIt.registerSingleton<NotificationsApi>(
@@ -130,4 +151,6 @@ void setupDependencies() {
   getIt.registerSingleton<CommentsRepository>(
     CommentsRepositoryImpl(getIt<CommentsApi>()),
   );
+
+  getIt.get<TokenStorage>().initialize(getIt<SynchronizationService>(), getIt<NotificationsService>());
 }

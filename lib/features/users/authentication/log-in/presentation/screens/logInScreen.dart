@@ -15,8 +15,11 @@ import 'package:mtaa_frontend/themes/bloc/theme_event.dart';
 class LogInScreen extends StatefulWidget {
   final IdentityApi identityApi;
   final NotificationsService notificationsService;
+  final TokenStorage tokenStorage;
 
-  const LogInScreen({super.key, required this.identityApi, required this.notificationsService});
+  const LogInScreen({super.key, required this.identityApi,
+  required this.notificationsService,
+  required this.tokenStorage});
 
   @override
   State<LogInScreen> createState() => _LogInScreenState();
@@ -37,8 +40,6 @@ class _LogInScreenState extends State<LogInScreen> {
 
   void _navigateToMainScreen() {
     Future.microtask(() async{
-      if(!mounted) return;
-      await widget.notificationsService.startSSE();
       if (!mounted) return;
       GoRouter.of(context).go(userRecommendationsScreenRoute);
     });
@@ -100,7 +101,7 @@ class _LogInScreenState extends State<LogInScreen> {
                               setState(() => isLoading = false);
 
                               if (res != null) {
-                                TokenStorage.saveToken(res.token);
+                                widget.tokenStorage.saveToken(res.token);
                                 _navigateToMainScreen();
                               }
                             }

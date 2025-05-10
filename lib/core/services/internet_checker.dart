@@ -1,5 +1,12 @@
 import 'dart:async';
+import 'package:airplane_mode_checker/airplane_mode_checker.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mtaa_frontend/core/utils/app_injections.dart';
+import 'package:mtaa_frontend/features/shared/bloc/exception_type.dart';
+import 'package:mtaa_frontend/features/shared/bloc/exceptions_bloc.dart';
+import 'package:mtaa_frontend/features/shared/bloc/exceptions_event.dart' show SetExceptionsEvent;
 
 class InternetChecker {
   static final Connectivity connectivity = Connectivity();
@@ -23,6 +30,19 @@ class InternetChecker {
 
   static void dispose(){
     connectionController.close();
+  }
+
+  static Future<bool> fullIsFlightMode() async{
+    final status = await AirplaneModeChecker.instance.checkAirplaneMode();
+    if (status == AirplaneModeStatus.on && !await isInternetEnabled()) {
+      if (getIt.isRegistered<BuildContext>()) {
+        var context = getIt.get<BuildContext>();
+        if(!context.mounted)return true;
+        context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: true, exceptionType: ExceptionTypes.flightMode, message: 'Flight mode is enabled'));
+      }
+      return true;
+    }
+    return false;
   }
 
   static Future<bool> isInternetEnabled() async {

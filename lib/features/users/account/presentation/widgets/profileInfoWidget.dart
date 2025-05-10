@@ -118,12 +118,15 @@ class ProfileInfoWidget extends StatelessWidget {
 
   return GestureDetector(
     onTap: onTap,
+    child:Container(
     child: Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Text(value, style: textTheme.headlineMedium!.copyWith(fontSize: 16)),
         Text(label, style: textTheme.labelMedium!.copyWith(fontSize: 13)),
       ],
     ),
+  ),
   );
 }
 

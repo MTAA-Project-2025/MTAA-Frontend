@@ -38,6 +38,7 @@ class SynchronizationServiceImpl extends SynchronizationService {
 
   SynchronizationServiceImpl(this.postsApi, this.locationsApi, this.postsStorage, this.versionItemsApi, this.versionItemsStorage, this.accountApi);
 
+  @override
   Future synchronize() async {
     try {
       var newVersions = await versionItemsApi.getVersionItems();

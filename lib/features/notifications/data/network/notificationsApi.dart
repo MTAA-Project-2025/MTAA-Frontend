@@ -34,5 +34,4 @@ class NotificationsApiImpl extends NotificationsApi {
   String _getNotificationTypeString(NotificationType type) {
     return type.toString().split('.').last;
   }
-
 }

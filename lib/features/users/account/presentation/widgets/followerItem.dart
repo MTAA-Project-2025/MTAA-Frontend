@@ -11,11 +11,13 @@ import 'package:mtaa_frontend/features/users/authentication/shared/data/storages
 class FollowerItem extends StatefulWidget {
   final PublicBaseAccountResponse follower;
   final AccountRepository repository;
+  final TokenStorage tokenStorage;
 
   const FollowerItem({
     super.key,
     required this.follower,
     required this.repository,
+    required this.tokenStorage,
   });
 
   @override
@@ -32,7 +34,7 @@ class _FollowerItemState extends State<FollowerItem> {
     final colorScheme = theme.colorScheme;
     Future.microtask(() async {
       if (!mounted) return;
-      String? res = await TokenStorage.getUserId();
+      String? res = await widget.tokenStorage.getUserId();
       if(res== null || !mounted) return;
       setState(() {
         userId = res;

@@ -3,15 +3,21 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mtaa_frontend/core/constants/route_constants.dart';
+import 'package:mtaa_frontend/core/utils/app_injections.dart';
 import 'package:mtaa_frontend/themes/bloc/theme_bloc.dart';
 import 'package:mtaa_frontend/themes/bloc/theme_event.dart';
 import 'package:mtaa_frontend/themes/button_theme.dart';
 
 class StartScreen extends StatelessWidget {
   const StartScreen({super.key});
-
+  
   @override
   Widget build(BuildContext context) {
+    if (getIt.isRegistered<BuildContext>()) {
+      getIt.unregister<BuildContext>();
+    }
+    getIt.registerSingleton<BuildContext>(context);
+
     return LayoutBuilder(
       builder: (context, constraints) {
         return Scaffold(

@@ -14,7 +14,7 @@ import 'package:mtaa_frontend/features/images/data/storages/my_image_storage.dar
 import 'package:mtaa_frontend/features/locations/data/models/requests/add_location_request.dart';
 import 'package:mtaa_frontend/features/locations/data/models/responses/location_point_type.dart';
 import 'package:mtaa_frontend/features/locations/data/models/responses/simple_location_point_response.dart';
-import 'package:mtaa_frontend/features/notifications/data/network/notificationsService.dart';
+import 'package:mtaa_frontend/features/notifications/data/network/phoneNotificationService.dart';
 import 'package:mtaa_frontend/features/posts/data/models/responses/full_post_response.dart';
 import 'package:mtaa_frontend/features/posts/data/models/responses/location_post_response.dart';
 import 'package:mtaa_frontend/features/posts/data/models/responses/simple_post_response.dart';
@@ -54,9 +54,10 @@ class PostsStorageImpl extends PostsStorage {
   final MyDbContext dbContext;
   final MyImageStorage imageStorage;
   final Dio dio;
-  final NotificationsService notificationsService;
+  final PhoneNotificationsService notificationsService;
+  final TokenStorage tokenStorage;
 
-  PostsStorageImpl(this.dbContext, this.imageStorage, this.dio, this.notificationsService);
+  PostsStorageImpl(this.dbContext, this.imageStorage, this.dio, this.notificationsService, this.tokenStorage);
 
   @override
   Future<List<FullPostResponse>> getRecommended() async {
@@ -98,7 +99,7 @@ class PostsStorageImpl extends PostsStorage {
       var origPost = postsHive.firstWhere((e) => e.id == post.id.uuid, orElse: () => FullPostHive.fromResponse(post));
 
       for (var imgGroup in origPost.images) {
-        var img = imgGroup.images.firstWhere((e) => e.type == ImageSizeType.middle.index);
+        var img = imgGroup.images.firstWhere((e) => e.type == ImageSizeType.large.index);
         var uint8List = await imageStorage.urlToUint8List(img.fullPath);
         if (uint8List == null) continue;
         var path = await imageStorage.saveTempImage(uint8List, 'postImg_${imgGroup.title}_${img.id}');
@@ -204,7 +205,7 @@ class PostsStorageImpl extends PostsStorage {
       posts.add(post);
     }
 
-    return posts;
+    return posts..sort((a, b) => b.dataCreationTime.compareTo(a.dataCreationTime));
   }
 
   @override
@@ -369,7 +370,7 @@ class PostsStorageImpl extends PostsStorage {
     int locationId = await notificationsService.scheduleNotification("One hour to event", post.description, post.eventTime);
 
     await dbContext.transaction(() async {
-      var userId = await TokenStorage.getUserId();
+      var userId = await tokenStorage.getUserId();
 
       await dbContext.into(dbContext.locationPosts).insert(LocationPostsCompanion(
             id: Value(post.id.uuid),
@@ -513,6 +514,7 @@ class PostsStorageImpl extends PostsStorage {
         point: point,
         description: postTable.description,
         ownerDisplayName: postTable.ownerDisplayName,
+        isLocal: true
       );
 
       posts.add(post);
@@ -611,7 +613,7 @@ class PostsStorageImpl extends PostsStorage {
       }
     }
 
-    final String? ownerId = await TokenStorage.getUserId();
+    final String? ownerId = await tokenStorage.getUserId();
     if (ownerId == null) return;
 
     await dbContext.transaction(() async {
@@ -675,7 +677,7 @@ class PostsStorageImpl extends PostsStorage {
       if (image != null && image.locationPostId == null) {
         await dbContext.delete(dbContext.myImages).delete(MyImagesCompanion(id: Value(image.id)));
       } else if (image != null) {
-        await (dbContext.update(dbContext.myImages)..where((tbl) => tbl.id.equals(image!.id))).write(MyImagesCompanion(
+        await (dbContext.update(dbContext.myImages)..where((tbl) => tbl.id.equals(image.id))).write(MyImagesCompanion(
           postId: Value(null),
         ));
       }

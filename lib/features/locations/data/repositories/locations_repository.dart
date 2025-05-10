@@ -1,3 +1,4 @@
+import 'package:mtaa_frontend/core/services/internet_checker.dart';
 import 'package:mtaa_frontend/domain/hive_data/locations/user_position_hive.dart';
 import 'package:mtaa_frontend/features/locations/data/models/requests/get_location_points_request.dart';
 import 'package:mtaa_frontend/features/locations/data/models/responses/simple_location_point_response.dart';
@@ -28,11 +29,13 @@ class LocationsRepositoryImpl extends LocationsRepository {
 
   @override
   Future<List<SimpleLocationPointResponse>> getLocationPoints(GetLocationPointsRequest request) async {
+    if(await InternetChecker.fullIsFlightMode()) return [];
     return await api.getLocationPoints(request);
   }
 
   @override
   Future<List<LocationPostResponse>> getClusterLocationPoints(UuidValue clusterId, PageParameters pageParameters) async {
+    if(await InternetChecker.fullIsFlightMode()) return [];
     return await api.getClusterLocationPoints(clusterId, pageParameters);
   }
 

@@ -37,11 +37,6 @@ class _LocationClusterPointsScreenState extends State<LocationClusterPointsScree
 
   @override
   void initState() {
-    if (getIt.isRegistered<BuildContext>()) {
-      getIt.unregister<BuildContext>();
-    }
-    getIt.registerSingleton<BuildContext>(context);
-
     paginationScrollController.init(loadAction: () => loadPosts());
     super.initState();
 

@@ -21,11 +21,13 @@ import 'package:mtaa_frontend/features/shared/presentation/widgets/dotLoader.dar
 import 'package:mtaa_frontend/features/shared/presentation/widgets/empty_data_notification_section.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/phone_bottom_menu.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/server_error_notification_section.dart';
+import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
 
 class PostRecommendationsScreen extends StatefulWidget {
   final PostsRepository repository;
+  final TokenStorage tokenStorage;
 
-  const PostRecommendationsScreen({super.key, required this.repository});
+  const PostRecommendationsScreen({super.key, required this.repository, required this.tokenStorage});
 
   @override
   State<PostRecommendationsScreen> createState() => _PostRecommendationsScreenState();
@@ -157,6 +159,7 @@ class _PostRecommendationsScreenState extends State<PostRecommendationsScreen> {
                       repository: widget.repository,
                       locationsRepository: getIt<LocationsRepository>(),
                       toaster: getIt<MyToastService>(),
+                      tokenStorage: widget.tokenStorage,
                     );
                   }
                   if (paginationScrollController.isLoading) {

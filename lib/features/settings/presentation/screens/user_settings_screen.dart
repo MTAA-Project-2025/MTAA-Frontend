@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mtaa_frontend/core/constants/menu_buttons.dart';
 import 'package:mtaa_frontend/core/constants/route_constants.dart';
+import 'package:mtaa_frontend/core/utils/app_injections.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/phone_bottom_menu.dart';
 import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
 import 'package:mtaa_frontend/themes/bloc/theme_bloc.dart';
@@ -10,7 +11,9 @@ import 'package:mtaa_frontend/themes/bloc/theme_event.dart';
 import 'package:mtaa_frontend/themes/bloc/theme_state.dart';
 
 class UserSettingsScreen extends StatefulWidget {
-  const UserSettingsScreen({super.key});
+  final TokenStorage tokenStorage;
+  const UserSettingsScreen({super.key,
+  required this.tokenStorage});
 
   @override
   State<UserSettingsScreen> createState() => _UserSettingsScreenState();
@@ -20,23 +23,20 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
   void _changeTheme(AppThemeMode mode) {
     context.read<ThemeBloc>().add(ChangeThemeEvent(mode));
   }
+
+  @override
+  void initState() {
+    super.initState();
+    if (getIt.isRegistered<BuildContext>()) {
+      getIt.unregister<BuildContext>();
+    }
+    getIt.registerSingleton<BuildContext>(context);
+  }
   
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          actions: <Widget>[
-            Container(
-                margin: const EdgeInsets.fromLTRB(0, 0, 21, 0),
-                child: IconButton(
-                  icon: const Icon(Icons.dark_mode),
-                  tooltip: 'Change theme',
-                  onPressed: () {
-                    context.read<ThemeBloc>().add(ToggleThemeEvent());
-                  },
-                ))
-          ],
-        ),
+        appBar: AppBar(),
         body: Column(
           children: [
             ConstrainedBox(
@@ -45,7 +45,7 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
                 width: double.infinity,
                 child: TextButton(
                   onPressed: () {
-                    TokenStorage.deleteToken();
+                    widget.tokenStorage.deleteToken();
                     GoRouter.of(context).go('/');
                   },
                   style: Theme.of(context).textButtonTheme.style,

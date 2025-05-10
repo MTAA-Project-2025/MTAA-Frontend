@@ -1,11 +1,5 @@
-import 'package:airplane_mode_checker/airplane_mode_checker.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mtaa_frontend/core/utils/app_injections.dart';
+import 'package:mtaa_frontend/core/services/internet_checker.dart';
 import 'package:mtaa_frontend/features/images/data/models/responses/myImageGroupResponse.dart';
-import 'package:mtaa_frontend/features/shared/bloc/exception_type.dart';
-import 'package:mtaa_frontend/features/shared/bloc/exceptions_bloc.dart';
-import 'package:mtaa_frontend/features/shared/bloc/exceptions_event.dart';
 import 'package:mtaa_frontend/features/shared/data/models/global_search.dart';
 import 'package:mtaa_frontend/features/users/account/data/models/requests/customUpdateAccountAvatarRequest.dart';
 import 'package:mtaa_frontend/features/users/account/data/models/requests/follow.dart';
@@ -18,9 +12,14 @@ import 'package:mtaa_frontend/features/users/account/data/models/responses/publi
 import 'package:mtaa_frontend/features/users/account/data/models/responses/publicFullAccountResponse.dart';
 import 'package:mtaa_frontend/features/users/account/data/models/responses/userFullAccountResponse.dart';
 import 'package:mtaa_frontend/features/users/account/data/network/account_api.dart';
+import 'package:mtaa_frontend/features/users/account/data/storages/account_storage.dart';
 
 abstract class AccountRepository {
   Future<UserFullAccountResponse?> getFullAccount();
+  
+  Future<UserFullAccountResponse?> getFullLocalAccount();
+  Future setFullLocalAccount(UserFullAccountResponse account);
+  
   Future<PublicFullAccountResponse?> getPublicFullAccount(String userId);
 
   Future<List<PublicBaseAccountResponse>> getFollowers(GlobalSearch request);
@@ -38,196 +37,92 @@ abstract class AccountRepository {
 
 class AccountRepositoryImpl extends AccountRepository {
   final AccountApi accountApi;
+  final AccountStorage accountStorage;
 
-  AccountRepositoryImpl(this.accountApi);
+  AccountRepositoryImpl(this.accountApi, this.accountStorage);
 
   @override
   Future<UserFullAccountResponse?> getFullAccount() async {
-    final status = await AirplaneModeChecker.instance.checkAirplaneMode();
-    if (status == AirplaneModeStatus.on) {
-      if (getIt.isRegistered<BuildContext>()) {
-        var context = getIt.get<BuildContext>();
-        if(context.mounted){
-          context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: true, exceptionType: ExceptionTypes.flightMode, message: 'Flight mode is enabled'));
-        }
-        return null;
-      }
-    }
+    if(await InternetChecker.fullIsFlightMode()) return null;
     return await accountApi.getFullAccount();
+  }
+
+
+  @override
+  Future<UserFullAccountResponse?> getFullLocalAccount() async {
+    return await accountStorage.getFullLocalAccount();
+  }
+
+  @override
+  Future setFullLocalAccount(UserFullAccountResponse account) async {
+    await accountStorage.setFullLocalAccount(account);
   }
 
   @override
   Future<PublicFullAccountResponse?> getPublicFullAccount(String userId) async {
-    final status = await AirplaneModeChecker.instance.checkAirplaneMode();
-    if (status == AirplaneModeStatus.on) {
-      if (getIt.isRegistered<BuildContext>()) {
-        var context = getIt.get<BuildContext>();
-        if(context.mounted){
-          context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: true, exceptionType: ExceptionTypes.flightMode, message: 'Flight mode is enabled'));
-        }
-        return null;
-      }
-    }
+    if(await InternetChecker.fullIsFlightMode()) return null;
     return await accountApi.getPublicFullAccount(userId);
   }
 
   @override
   Future<List<PublicBaseAccountResponse>> getFollowers(GlobalSearch request) async {
-    final status = await AirplaneModeChecker.instance.checkAirplaneMode();
-    if (status == AirplaneModeStatus.on) {
-      if (getIt.isRegistered<BuildContext>()) {
-        var context = getIt.get<BuildContext>();
-        if(context.mounted){
-          context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: true, exceptionType: ExceptionTypes.flightMode, message: 'Flight mode is enabled'));
-        }
-        return [];
-      }
-    }
+    if(await InternetChecker.fullIsFlightMode()) return [];
     return await accountApi.getFollowers(request);
   }
 
   @override
   Future<List<PublicBaseAccountResponse>> getFriends(GlobalSearch request) async {
-    final status = await AirplaneModeChecker.instance.checkAirplaneMode();
-    if (status == AirplaneModeStatus.on) {
-      if (getIt.isRegistered<BuildContext>()) {
-        var context = getIt.get<BuildContext>();
-        if(context.mounted){
-          context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: true, exceptionType: ExceptionTypes.flightMode, message: 'Flight mode is enabled'));
-        }
-        return [];
-      }
-    }
+    if(await InternetChecker.fullIsFlightMode()) return [];
     return await accountApi.getFriends(request);
   }
 
   @override
   Future<List<PublicBaseAccountResponse>> getGlobalUsers(GlobalSearch request) async {
-    final status = await AirplaneModeChecker.instance.checkAirplaneMode();
-    if (status == AirplaneModeStatus.on) {
-      if (getIt.isRegistered<BuildContext>()) {
-        var context = getIt.get<BuildContext>();
-        if(context.mounted){
-          context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: true, exceptionType: ExceptionTypes.flightMode, message: 'Flight mode is enabled'));
-        }
-        return [];
-      }
-    }
+    if(await InternetChecker.fullIsFlightMode()) return [];
     return await accountApi.getGlobalUsers(request);
   }
 
   @override
   Future<bool> follow(Follow request) async {
-    final status = await AirplaneModeChecker.instance.checkAirplaneMode();
-    if (status == AirplaneModeStatus.on) {
-      if (getIt.isRegistered<BuildContext>()) {
-        var context = getIt.get<BuildContext>();
-        if (context.mounted) {
-          context.read<ExceptionsBloc>().add(SetExceptionsEvent(
-            isException: true,
-            exceptionType: ExceptionTypes.flightMode,
-            message: 'Flight mode is enabled',
-          ));
-        }
-        return false;
-      }
-    }
+    if(await InternetChecker.fullIsFlightMode()) return false;
     await accountApi.follow(request);
     return true;
   }
 
   @override
   Future<bool> unfollow(Unfollow request) async {
-    final status = await AirplaneModeChecker.instance.checkAirplaneMode();
-    if (status == AirplaneModeStatus.on) {
-      if (getIt.isRegistered<BuildContext>()) {
-        var context = getIt.get<BuildContext>();
-        if (context.mounted) {
-          context.read<ExceptionsBloc>().add(SetExceptionsEvent(
-            isException: true,
-            exceptionType: ExceptionTypes.flightMode,
-            message: 'Flight mode is enabled',
-          ));
-        }
-        return false;
-      }
-    }
+    if(await InternetChecker.fullIsFlightMode()) return false;
     await accountApi.unfollow(request);
     return true;
   }
 
   @override
   Future<MyImageGroupResponse?> customUpdateAccountAvatar(CustomUpdateAccountAvatarRequest request) async {
-    final status = await AirplaneModeChecker.instance.checkAirplaneMode();
-    if (status == AirplaneModeStatus.on) {
-      if (getIt.isRegistered<BuildContext>()) {
-        var context = getIt.get<BuildContext>();
-        if(context.mounted){
-          context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: true, exceptionType: ExceptionTypes.flightMode, message: 'Flight mode is enabled'));
-        }
-        return null;
-      }
-    }
+    if(await InternetChecker.fullIsFlightMode()) return null;
     return await accountApi.customUpdateAccountAvatar(request);
   }
 
   @override
   Future<MyImageGroupResponse?> presetUpdateAccountAvatar(PresetUpdateAccountAvatarRequest request) async {
-    final status = await AirplaneModeChecker.instance.checkAirplaneMode();
-    if (status == AirplaneModeStatus.on) {
-      if (getIt.isRegistered<BuildContext>()) {
-        var context = getIt.get<BuildContext>();
-        if(context.mounted){
-          context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: true, exceptionType: ExceptionTypes.flightMode, message: 'Flight mode is enabled'));
-        }
-        return null;
-      }
-    }
+    if(await InternetChecker.fullIsFlightMode()) return null;
     return await accountApi.presetUpdateAccountAvatar(request);
   }
 
   @override
   Future<bool> updateAccountBirthDate(UpdateAccountBirthDateRequest request) async {
-    final status = await AirplaneModeChecker.instance.checkAirplaneMode();
-    if (status == AirplaneModeStatus.on) {
-      if (getIt.isRegistered<BuildContext>()) {
-        var context = getIt.get<BuildContext>();
-        if(context.mounted){
-          context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: true, exceptionType: ExceptionTypes.flightMode, message: 'Flight mode is enabled'));
-        }
-        return false;
-      }
-    }
+    if(await InternetChecker.fullIsFlightMode()) return false;
     return await accountApi.updateAccountBirthDate(request);
   }
 
   @override
   Future<bool> updateAccountDisplayName(UpdateAccountDisplayNameRequest request) async {
-    final status = await AirplaneModeChecker.instance.checkAirplaneMode();
-    if (status == AirplaneModeStatus.on) {
-      if (getIt.isRegistered<BuildContext>()) {
-        var context = getIt.get<BuildContext>();
-        if(context.mounted){
-          context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: true, exceptionType: ExceptionTypes.flightMode, message: 'Flight mode is enabled'));
-        }
-        return false;
-      }
-    }
+    if(await InternetChecker.fullIsFlightMode()) return false;
     return await accountApi.updateAccountDisplayName(request);
   }
 
   @override
   Future<bool> updateAccountUsername(UpdateAccountUsernameRequest request) async {
-    final status = await AirplaneModeChecker.instance.checkAirplaneMode();
-    if (status == AirplaneModeStatus.on) {
-      if (getIt.isRegistered<BuildContext>()) {
-        var context = getIt.get<BuildContext>();
-        if(context.mounted){
-          context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: true, exceptionType: ExceptionTypes.flightMode, message: 'Flight mode is enabled'));
-        }
-        return false;
-      }
-    }
+    if(await InternetChecker.fullIsFlightMode()) return false;
     return await accountApi.updateAccountUsername(request);
   }
 }

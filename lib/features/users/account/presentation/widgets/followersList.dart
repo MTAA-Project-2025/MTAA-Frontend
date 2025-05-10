@@ -2,17 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:mtaa_frontend/features/users/account/data/models/responses/publicBaseAccountResponse.dart';
 import 'package:mtaa_frontend/features/users/account/data/repositories/account_repository.dart';
 import 'package:mtaa_frontend/features/users/account/presentation/widgets/followerItem.dart';
+import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
 
 class FollowersList extends StatefulWidget {
   final List<PublicBaseAccountResponse> followers;
   final String searchQuery;
   final AccountRepository repository; 
+  final TokenStorage tokenStorage;
 
   const FollowersList({
     super.key,
     required this.followers,
     this.searchQuery = "",
     required this.repository,
+    required this.tokenStorage,
   });
 
   @override
@@ -43,6 +46,7 @@ class _FollowersListState extends State<FollowersList> {
           return FollowerItem(
             follower: follower,
             repository: widget.repository,
+            tokenStorage: widget.tokenStorage,
           );
         },
       )
