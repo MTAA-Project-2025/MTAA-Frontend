@@ -4,6 +4,7 @@ import 'package:mtaa_frontend/features/posts/data/models/requests/add_post_reque
 import 'package:mtaa_frontend/features/posts/data/models/requests/get_global_posts_request.dart';
 import 'package:mtaa_frontend/features/posts/data/models/requests/update_post_request.dart';
 import 'package:mtaa_frontend/features/posts/data/models/responses/full_post_response.dart';
+import 'package:mtaa_frontend/features/posts/data/models/responses/schedule_post_response.dart';
 import 'package:mtaa_frontend/features/posts/data/models/responses/simple_post_response.dart';
 import 'package:mtaa_frontend/features/shared/data/models/page_parameters.dart';
 import 'package:mtaa_frontend/features/synchronization/data/version_post_item_response.dart';
@@ -22,6 +23,9 @@ abstract class PostsApi {
   Future<bool> removePostLike(UuidValue id);
 
   Future<List<VersionPostItemResponse>> getVersionPostItems(PageParameters pageParameters);
+
+  Future<List<SchedulePostResponse>> getSchedulePosts(PageParameters pageParameters);
+  Future<SchedulePostResponse?> getSchedulePostById(UuidValue id);
 }
 
 class PostsApiImpl extends PostsApi {
@@ -117,6 +121,31 @@ class PostsApiImpl extends PostsApi {
     } on DioException catch (e) {
       exceptionsService.httpError(e);
       return [];
+    }
+  }
+
+  @override
+  Future<List<SchedulePostResponse>> getSchedulePosts(PageParameters pageParameters) async {
+    final fullUrl = '$controllerName/get-scheduled-posts';
+    try {
+      var res = await dio.post(fullUrl,data:pageParameters.toJson());
+      List<dynamic> data = res.data;
+      return data.map((item) => SchedulePostResponse.fromJson(item)).toList();
+    } on DioException catch (e) {
+      exceptionsService.httpError(e);
+      return [];
+    }
+  }
+
+  @override
+  Future<SchedulePostResponse?> getSchedulePostById(UuidValue id) async{
+    final fullUrl = '$controllerName/get-scheduled-post/${id.uuid}';
+    try {
+      var res = await dio.get(fullUrl);
+      return SchedulePostResponse.fromJson(res.data);
+    } on DioException catch (e) {
+      exceptionsService.httpError(e);
+      return null;
     }
   }
 

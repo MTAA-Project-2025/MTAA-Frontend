@@ -6,6 +6,7 @@ import 'package:mtaa_frontend/features/posts/data/models/requests/get_global_pos
 import 'package:mtaa_frontend/features/posts/data/models/requests/update_post_request.dart';
 import 'package:mtaa_frontend/features/posts/data/models/responses/full_post_response.dart';
 import 'package:mtaa_frontend/features/posts/data/models/responses/location_post_response.dart';
+import 'package:mtaa_frontend/features/posts/data/models/responses/schedule_post_response.dart';
 import 'package:mtaa_frontend/features/posts/data/models/responses/simple_post_response.dart';
 import 'package:mtaa_frontend/features/posts/data/network/posts_api.dart';
 import 'package:mtaa_frontend/features/posts/data/storages/posts_storage.dart';
@@ -40,6 +41,11 @@ abstract class PostsRepository {
   Future removeLocationPost(LocationPostResponse post);
   Future<List<LocationPostResponse>> getSavedLocationPosts(PageParameters pageParameteres);
   Future<bool> isLocationPostSaved(UuidValue postId);
+
+  Future saveSchedulePost(SchedulePostResponse post);
+  Future removeSchedulePost(SchedulePostResponse post);
+  Future<List<SchedulePostResponse>> getSavedSchedulePosts(PageParameters pageParameteres);
+  Future<SchedulePostResponse?> getSavedSchedulePostById(UuidValue id);
 }
 
 class PostsRepositoryImpl extends PostsRepository {
@@ -161,5 +167,26 @@ class PostsRepositoryImpl extends PostsRepository {
   @override
   Future<bool> isLocationPostSaved(UuidValue postId) async {
     return await postsStorage.isLocationPostSaved(postId);
+  }
+
+
+  @override
+  Future saveSchedulePost(SchedulePostResponse post) async {
+    await postsStorage.saveSchedulePost(post);
+  }
+
+  @override
+  Future removeSchedulePost(SchedulePostResponse post) async {
+    return await postsStorage.removeSchedulePost(post);
+  }
+
+  @override
+  Future<List<SchedulePostResponse>> getSavedSchedulePosts(PageParameters pageParameteres) async {
+    return await postsStorage.getSavedSchedulePosts(pageParameteres);
+  }
+
+  @override
+  Future<SchedulePostResponse?> getSavedSchedulePostById(UuidValue id) async{
+    return await postsStorage.getSavedSchedulePostById(id);
   }
 }

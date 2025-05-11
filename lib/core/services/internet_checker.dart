@@ -8,6 +8,8 @@ import 'package:mtaa_frontend/features/shared/bloc/exception_type.dart';
 import 'package:mtaa_frontend/features/shared/bloc/exceptions_bloc.dart';
 import 'package:mtaa_frontend/features/shared/bloc/exceptions_event.dart' show SetExceptionsEvent;
 
+
+//+-GPT + Doc + myself
 class InternetChecker {
   static final Connectivity connectivity = Connectivity();
   static final StreamController<bool> connectionController = StreamController<bool>.broadcast();

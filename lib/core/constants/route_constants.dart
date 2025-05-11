@@ -28,6 +28,7 @@ const String updatePostScreenRoute = "/updatePostScreen";
 const String locationClusterPointsScreenRoute = "/locationClusterPointsScreen";
 const String savedLocationsScreenRoute = "/savedLocationsScreenRoute";
 const String addPostLocationScreenRoute = "/addPostLocationScreen";
+const String addSchedulePostDateScreenRoute = "/addSchedulePostDateScreen";
 const String onePointScreenRoute = "/onePointScreen";
 
 const String updateAccountAvatarRoute = "/updateAccountAvatarScreen";
@@ -36,3 +37,5 @@ const String followersScreenRoute = "/followersScreen";
 const String friendsScreenRoute = "/friendsScreen";
 
 const String notificationsScreenRoute = "/notificationsScreen";
+
+const String schedulePostsScreenRoute = "/schedulePostsScreen";

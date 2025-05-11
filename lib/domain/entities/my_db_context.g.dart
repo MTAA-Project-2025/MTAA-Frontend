@@ -1822,6 +1822,466 @@ class LocationPostsCompanion extends UpdateCompanion<LocationPost> {
   }
 }
 
+class $SchedulePostsTable extends SchedulePosts
+    with TableInfo<$SchedulePostsTable, SchedulePost> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SchedulePostsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _descriptionMeta =
+      const VerificationMeta('description');
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+      'description', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _smallFirstImageIdMeta =
+      const VerificationMeta('smallFirstImageId');
+  @override
+  late final GeneratedColumn<String> smallFirstImageId =
+      GeneratedColumn<String>('small_first_image_id', aliasedName, false,
+          type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _isHiddenMeta =
+      const VerificationMeta('isHidden');
+  @override
+  late final GeneratedColumn<bool> isHidden = GeneratedColumn<bool>(
+      'is_hidden', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_hidden" IN (0, 1))'));
+  static const VerificationMeta _schedulePublishDateMeta =
+      const VerificationMeta('schedulePublishDate');
+  @override
+  late final GeneratedColumn<DateTime> schedulePublishDate =
+      GeneratedColumn<DateTime>('schedule_publish_date', aliasedName, true,
+          type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _hiddenReasonMeta =
+      const VerificationMeta('hiddenReason');
+  @override
+  late final GeneratedColumn<String> hiddenReason = GeneratedColumn<String>(
+      'hidden_reason', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _dataCreationTimeMeta =
+      const VerificationMeta('dataCreationTime');
+  @override
+  late final GeneratedColumn<DateTime> dataCreationTime =
+      GeneratedColumn<DateTime>('data_creation_time', aliasedName, false,
+          type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _versionMeta =
+      const VerificationMeta('version');
+  @override
+  late final GeneratedColumn<int> version = GeneratedColumn<int>(
+      'version', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        description,
+        smallFirstImageId,
+        isHidden,
+        schedulePublishDate,
+        hiddenReason,
+        dataCreationTime,
+        version
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'schedule_posts';
+  @override
+  VerificationContext validateIntegrity(Insertable<SchedulePost> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+          _descriptionMeta,
+          description.isAcceptableOrUnknown(
+              data['description']!, _descriptionMeta));
+    } else if (isInserting) {
+      context.missing(_descriptionMeta);
+    }
+    if (data.containsKey('small_first_image_id')) {
+      context.handle(
+          _smallFirstImageIdMeta,
+          smallFirstImageId.isAcceptableOrUnknown(
+              data['small_first_image_id']!, _smallFirstImageIdMeta));
+    } else if (isInserting) {
+      context.missing(_smallFirstImageIdMeta);
+    }
+    if (data.containsKey('is_hidden')) {
+      context.handle(_isHiddenMeta,
+          isHidden.isAcceptableOrUnknown(data['is_hidden']!, _isHiddenMeta));
+    } else if (isInserting) {
+      context.missing(_isHiddenMeta);
+    }
+    if (data.containsKey('schedule_publish_date')) {
+      context.handle(
+          _schedulePublishDateMeta,
+          schedulePublishDate.isAcceptableOrUnknown(
+              data['schedule_publish_date']!, _schedulePublishDateMeta));
+    }
+    if (data.containsKey('hidden_reason')) {
+      context.handle(
+          _hiddenReasonMeta,
+          hiddenReason.isAcceptableOrUnknown(
+              data['hidden_reason']!, _hiddenReasonMeta));
+    }
+    if (data.containsKey('data_creation_time')) {
+      context.handle(
+          _dataCreationTimeMeta,
+          dataCreationTime.isAcceptableOrUnknown(
+              data['data_creation_time']!, _dataCreationTimeMeta));
+    } else if (isInserting) {
+      context.missing(_dataCreationTimeMeta);
+    }
+    if (data.containsKey('version')) {
+      context.handle(_versionMeta,
+          version.isAcceptableOrUnknown(data['version']!, _versionMeta));
+    } else if (isInserting) {
+      context.missing(_versionMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  SchedulePost map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SchedulePost(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      description: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}description'])!,
+      smallFirstImageId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}small_first_image_id'])!,
+      isHidden: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_hidden'])!,
+      schedulePublishDate: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}schedule_publish_date']),
+      hiddenReason: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}hidden_reason']),
+      dataCreationTime: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}data_creation_time'])!,
+      version: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}version'])!,
+    );
+  }
+
+  @override
+  $SchedulePostsTable createAlias(String alias) {
+    return $SchedulePostsTable(attachedDatabase, alias);
+  }
+}
+
+class SchedulePost extends DataClass implements Insertable<SchedulePost> {
+  final String id;
+  final String description;
+  final String smallFirstImageId;
+  final bool isHidden;
+  final DateTime? schedulePublishDate;
+  final String? hiddenReason;
+  final DateTime dataCreationTime;
+  final int version;
+  const SchedulePost(
+      {required this.id,
+      required this.description,
+      required this.smallFirstImageId,
+      required this.isHidden,
+      this.schedulePublishDate,
+      this.hiddenReason,
+      required this.dataCreationTime,
+      required this.version});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['description'] = Variable<String>(description);
+    map['small_first_image_id'] = Variable<String>(smallFirstImageId);
+    map['is_hidden'] = Variable<bool>(isHidden);
+    if (!nullToAbsent || schedulePublishDate != null) {
+      map['schedule_publish_date'] = Variable<DateTime>(schedulePublishDate);
+    }
+    if (!nullToAbsent || hiddenReason != null) {
+      map['hidden_reason'] = Variable<String>(hiddenReason);
+    }
+    map['data_creation_time'] = Variable<DateTime>(dataCreationTime);
+    map['version'] = Variable<int>(version);
+    return map;
+  }
+
+  SchedulePostsCompanion toCompanion(bool nullToAbsent) {
+    return SchedulePostsCompanion(
+      id: Value(id),
+      description: Value(description),
+      smallFirstImageId: Value(smallFirstImageId),
+      isHidden: Value(isHidden),
+      schedulePublishDate: schedulePublishDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(schedulePublishDate),
+      hiddenReason: hiddenReason == null && nullToAbsent
+          ? const Value.absent()
+          : Value(hiddenReason),
+      dataCreationTime: Value(dataCreationTime),
+      version: Value(version),
+    );
+  }
+
+  factory SchedulePost.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SchedulePost(
+      id: serializer.fromJson<String>(json['id']),
+      description: serializer.fromJson<String>(json['description']),
+      smallFirstImageId: serializer.fromJson<String>(json['smallFirstImageId']),
+      isHidden: serializer.fromJson<bool>(json['isHidden']),
+      schedulePublishDate:
+          serializer.fromJson<DateTime?>(json['schedulePublishDate']),
+      hiddenReason: serializer.fromJson<String?>(json['hiddenReason']),
+      dataCreationTime: serializer.fromJson<DateTime>(json['dataCreationTime']),
+      version: serializer.fromJson<int>(json['version']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'description': serializer.toJson<String>(description),
+      'smallFirstImageId': serializer.toJson<String>(smallFirstImageId),
+      'isHidden': serializer.toJson<bool>(isHidden),
+      'schedulePublishDate': serializer.toJson<DateTime?>(schedulePublishDate),
+      'hiddenReason': serializer.toJson<String?>(hiddenReason),
+      'dataCreationTime': serializer.toJson<DateTime>(dataCreationTime),
+      'version': serializer.toJson<int>(version),
+    };
+  }
+
+  SchedulePost copyWith(
+          {String? id,
+          String? description,
+          String? smallFirstImageId,
+          bool? isHidden,
+          Value<DateTime?> schedulePublishDate = const Value.absent(),
+          Value<String?> hiddenReason = const Value.absent(),
+          DateTime? dataCreationTime,
+          int? version}) =>
+      SchedulePost(
+        id: id ?? this.id,
+        description: description ?? this.description,
+        smallFirstImageId: smallFirstImageId ?? this.smallFirstImageId,
+        isHidden: isHidden ?? this.isHidden,
+        schedulePublishDate: schedulePublishDate.present
+            ? schedulePublishDate.value
+            : this.schedulePublishDate,
+        hiddenReason:
+            hiddenReason.present ? hiddenReason.value : this.hiddenReason,
+        dataCreationTime: dataCreationTime ?? this.dataCreationTime,
+        version: version ?? this.version,
+      );
+  SchedulePost copyWithCompanion(SchedulePostsCompanion data) {
+    return SchedulePost(
+      id: data.id.present ? data.id.value : this.id,
+      description:
+          data.description.present ? data.description.value : this.description,
+      smallFirstImageId: data.smallFirstImageId.present
+          ? data.smallFirstImageId.value
+          : this.smallFirstImageId,
+      isHidden: data.isHidden.present ? data.isHidden.value : this.isHidden,
+      schedulePublishDate: data.schedulePublishDate.present
+          ? data.schedulePublishDate.value
+          : this.schedulePublishDate,
+      hiddenReason: data.hiddenReason.present
+          ? data.hiddenReason.value
+          : this.hiddenReason,
+      dataCreationTime: data.dataCreationTime.present
+          ? data.dataCreationTime.value
+          : this.dataCreationTime,
+      version: data.version.present ? data.version.value : this.version,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SchedulePost(')
+          ..write('id: $id, ')
+          ..write('description: $description, ')
+          ..write('smallFirstImageId: $smallFirstImageId, ')
+          ..write('isHidden: $isHidden, ')
+          ..write('schedulePublishDate: $schedulePublishDate, ')
+          ..write('hiddenReason: $hiddenReason, ')
+          ..write('dataCreationTime: $dataCreationTime, ')
+          ..write('version: $version')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, description, smallFirstImageId, isHidden,
+      schedulePublishDate, hiddenReason, dataCreationTime, version);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SchedulePost &&
+          other.id == this.id &&
+          other.description == this.description &&
+          other.smallFirstImageId == this.smallFirstImageId &&
+          other.isHidden == this.isHidden &&
+          other.schedulePublishDate == this.schedulePublishDate &&
+          other.hiddenReason == this.hiddenReason &&
+          other.dataCreationTime == this.dataCreationTime &&
+          other.version == this.version);
+}
+
+class SchedulePostsCompanion extends UpdateCompanion<SchedulePost> {
+  final Value<String> id;
+  final Value<String> description;
+  final Value<String> smallFirstImageId;
+  final Value<bool> isHidden;
+  final Value<DateTime?> schedulePublishDate;
+  final Value<String?> hiddenReason;
+  final Value<DateTime> dataCreationTime;
+  final Value<int> version;
+  final Value<int> rowid;
+  const SchedulePostsCompanion({
+    this.id = const Value.absent(),
+    this.description = const Value.absent(),
+    this.smallFirstImageId = const Value.absent(),
+    this.isHidden = const Value.absent(),
+    this.schedulePublishDate = const Value.absent(),
+    this.hiddenReason = const Value.absent(),
+    this.dataCreationTime = const Value.absent(),
+    this.version = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  SchedulePostsCompanion.insert({
+    required String id,
+    required String description,
+    required String smallFirstImageId,
+    required bool isHidden,
+    this.schedulePublishDate = const Value.absent(),
+    this.hiddenReason = const Value.absent(),
+    required DateTime dataCreationTime,
+    required int version,
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        description = Value(description),
+        smallFirstImageId = Value(smallFirstImageId),
+        isHidden = Value(isHidden),
+        dataCreationTime = Value(dataCreationTime),
+        version = Value(version);
+  static Insertable<SchedulePost> custom({
+    Expression<String>? id,
+    Expression<String>? description,
+    Expression<String>? smallFirstImageId,
+    Expression<bool>? isHidden,
+    Expression<DateTime>? schedulePublishDate,
+    Expression<String>? hiddenReason,
+    Expression<DateTime>? dataCreationTime,
+    Expression<int>? version,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (description != null) 'description': description,
+      if (smallFirstImageId != null) 'small_first_image_id': smallFirstImageId,
+      if (isHidden != null) 'is_hidden': isHidden,
+      if (schedulePublishDate != null)
+        'schedule_publish_date': schedulePublishDate,
+      if (hiddenReason != null) 'hidden_reason': hiddenReason,
+      if (dataCreationTime != null) 'data_creation_time': dataCreationTime,
+      if (version != null) 'version': version,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  SchedulePostsCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? description,
+      Value<String>? smallFirstImageId,
+      Value<bool>? isHidden,
+      Value<DateTime?>? schedulePublishDate,
+      Value<String?>? hiddenReason,
+      Value<DateTime>? dataCreationTime,
+      Value<int>? version,
+      Value<int>? rowid}) {
+    return SchedulePostsCompanion(
+      id: id ?? this.id,
+      description: description ?? this.description,
+      smallFirstImageId: smallFirstImageId ?? this.smallFirstImageId,
+      isHidden: isHidden ?? this.isHidden,
+      schedulePublishDate: schedulePublishDate ?? this.schedulePublishDate,
+      hiddenReason: hiddenReason ?? this.hiddenReason,
+      dataCreationTime: dataCreationTime ?? this.dataCreationTime,
+      version: version ?? this.version,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (smallFirstImageId.present) {
+      map['small_first_image_id'] = Variable<String>(smallFirstImageId.value);
+    }
+    if (isHidden.present) {
+      map['is_hidden'] = Variable<bool>(isHidden.value);
+    }
+    if (schedulePublishDate.present) {
+      map['schedule_publish_date'] =
+          Variable<DateTime>(schedulePublishDate.value);
+    }
+    if (hiddenReason.present) {
+      map['hidden_reason'] = Variable<String>(hiddenReason.value);
+    }
+    if (dataCreationTime.present) {
+      map['data_creation_time'] = Variable<DateTime>(dataCreationTime.value);
+    }
+    if (version.present) {
+      map['version'] = Variable<int>(version.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SchedulePostsCompanion(')
+          ..write('id: $id, ')
+          ..write('description: $description, ')
+          ..write('smallFirstImageId: $smallFirstImageId, ')
+          ..write('isHidden: $isHidden, ')
+          ..write('schedulePublishDate: $schedulePublishDate, ')
+          ..write('hiddenReason: $hiddenReason, ')
+          ..write('dataCreationTime: $dataCreationTime, ')
+          ..write('version: $version, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $MyImagesTable extends MyImages with TableInfo<$MyImagesTable, MyImage> {
   @override
   final GeneratedDatabase attachedDatabase;
@@ -1894,6 +2354,15 @@ class $MyImagesTable extends MyImages with TableInfo<$MyImagesTable, MyImage> {
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('REFERENCES location_posts (id)'));
+  static const VerificationMeta _schedulePostIdMeta =
+      const VerificationMeta('schedulePostId');
+  @override
+  late final GeneratedColumn<String> schedulePostId = GeneratedColumn<String>(
+      'schedule_post_id', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('REFERENCES schedule_posts (id)'));
   static const VerificationMeta _simpleLocationPointIdMeta =
       const VerificationMeta('simpleLocationPointId');
   @override
@@ -1916,6 +2385,7 @@ class $MyImagesTable extends MyImages with TableInfo<$MyImagesTable, MyImage> {
         type,
         postId,
         locationPostId,
+        schedulePostId,
         simpleLocationPointId
       ];
   @override
@@ -1995,6 +2465,12 @@ class $MyImagesTable extends MyImages with TableInfo<$MyImagesTable, MyImage> {
           locationPostId.isAcceptableOrUnknown(
               data['location_post_id']!, _locationPostIdMeta));
     }
+    if (data.containsKey('schedule_post_id')) {
+      context.handle(
+          _schedulePostIdMeta,
+          schedulePostId.isAcceptableOrUnknown(
+              data['schedule_post_id']!, _schedulePostIdMeta));
+    }
     if (data.containsKey('simple_location_point_id')) {
       context.handle(
           _simpleLocationPointIdMeta,
@@ -2032,6 +2508,8 @@ class $MyImagesTable extends MyImages with TableInfo<$MyImagesTable, MyImage> {
           .read(DriftSqlType.string, data['${effectivePrefix}post_id']),
       locationPostId: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}location_post_id']),
+      schedulePostId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}schedule_post_id']),
       simpleLocationPointId: attachedDatabase.typeMapping.read(
           DriftSqlType.string,
           data['${effectivePrefix}simple_location_point_id']),
@@ -2056,6 +2534,7 @@ class MyImage extends DataClass implements Insertable<MyImage> {
   final int type;
   final String? postId;
   final String? locationPostId;
+  final String? schedulePostId;
   final String? simpleLocationPointId;
   const MyImage(
       {required this.id,
@@ -2069,6 +2548,7 @@ class MyImage extends DataClass implements Insertable<MyImage> {
       required this.type,
       this.postId,
       this.locationPostId,
+      this.schedulePostId,
       this.simpleLocationPointId});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -2087,6 +2567,9 @@ class MyImage extends DataClass implements Insertable<MyImage> {
     }
     if (!nullToAbsent || locationPostId != null) {
       map['location_post_id'] = Variable<String>(locationPostId);
+    }
+    if (!nullToAbsent || schedulePostId != null) {
+      map['schedule_post_id'] = Variable<String>(schedulePostId);
     }
     if (!nullToAbsent || simpleLocationPointId != null) {
       map['simple_location_point_id'] = Variable<String>(simpleLocationPointId);
@@ -2110,6 +2593,9 @@ class MyImage extends DataClass implements Insertable<MyImage> {
       locationPostId: locationPostId == null && nullToAbsent
           ? const Value.absent()
           : Value(locationPostId),
+      schedulePostId: schedulePostId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(schedulePostId),
       simpleLocationPointId: simpleLocationPointId == null && nullToAbsent
           ? const Value.absent()
           : Value(simpleLocationPointId),
@@ -2131,6 +2617,7 @@ class MyImage extends DataClass implements Insertable<MyImage> {
       type: serializer.fromJson<int>(json['type']),
       postId: serializer.fromJson<String?>(json['postId']),
       locationPostId: serializer.fromJson<String?>(json['locationPostId']),
+      schedulePostId: serializer.fromJson<String?>(json['schedulePostId']),
       simpleLocationPointId:
           serializer.fromJson<String?>(json['simpleLocationPointId']),
     );
@@ -2150,6 +2637,7 @@ class MyImage extends DataClass implements Insertable<MyImage> {
       'type': serializer.toJson<int>(type),
       'postId': serializer.toJson<String?>(postId),
       'locationPostId': serializer.toJson<String?>(locationPostId),
+      'schedulePostId': serializer.toJson<String?>(schedulePostId),
       'simpleLocationPointId':
           serializer.toJson<String?>(simpleLocationPointId),
     };
@@ -2167,6 +2655,7 @@ class MyImage extends DataClass implements Insertable<MyImage> {
           int? type,
           Value<String?> postId = const Value.absent(),
           Value<String?> locationPostId = const Value.absent(),
+          Value<String?> schedulePostId = const Value.absent(),
           Value<String?> simpleLocationPointId = const Value.absent()}) =>
       MyImage(
         id: id ?? this.id,
@@ -2181,6 +2670,8 @@ class MyImage extends DataClass implements Insertable<MyImage> {
         postId: postId.present ? postId.value : this.postId,
         locationPostId:
             locationPostId.present ? locationPostId.value : this.locationPostId,
+        schedulePostId:
+            schedulePostId.present ? schedulePostId.value : this.schedulePostId,
         simpleLocationPointId: simpleLocationPointId.present
             ? simpleLocationPointId.value
             : this.simpleLocationPointId,
@@ -2203,6 +2694,9 @@ class MyImage extends DataClass implements Insertable<MyImage> {
       locationPostId: data.locationPostId.present
           ? data.locationPostId.value
           : this.locationPostId,
+      schedulePostId: data.schedulePostId.present
+          ? data.schedulePostId.value
+          : this.schedulePostId,
       simpleLocationPointId: data.simpleLocationPointId.present
           ? data.simpleLocationPointId.value
           : this.simpleLocationPointId,
@@ -2223,6 +2717,7 @@ class MyImage extends DataClass implements Insertable<MyImage> {
           ..write('type: $type, ')
           ..write('postId: $postId, ')
           ..write('locationPostId: $locationPostId, ')
+          ..write('schedulePostId: $schedulePostId, ')
           ..write('simpleLocationPointId: $simpleLocationPointId')
           ..write(')'))
         .toString();
@@ -2241,6 +2736,7 @@ class MyImage extends DataClass implements Insertable<MyImage> {
       type,
       postId,
       locationPostId,
+      schedulePostId,
       simpleLocationPointId);
   @override
   bool operator ==(Object other) =>
@@ -2257,6 +2753,7 @@ class MyImage extends DataClass implements Insertable<MyImage> {
           other.type == this.type &&
           other.postId == this.postId &&
           other.locationPostId == this.locationPostId &&
+          other.schedulePostId == this.schedulePostId &&
           other.simpleLocationPointId == this.simpleLocationPointId);
 }
 
@@ -2272,6 +2769,7 @@ class MyImagesCompanion extends UpdateCompanion<MyImage> {
   final Value<int> type;
   final Value<String?> postId;
   final Value<String?> locationPostId;
+  final Value<String?> schedulePostId;
   final Value<String?> simpleLocationPointId;
   final Value<int> rowid;
   const MyImagesCompanion({
@@ -2286,6 +2784,7 @@ class MyImagesCompanion extends UpdateCompanion<MyImage> {
     this.type = const Value.absent(),
     this.postId = const Value.absent(),
     this.locationPostId = const Value.absent(),
+    this.schedulePostId = const Value.absent(),
     this.simpleLocationPointId = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -2301,6 +2800,7 @@ class MyImagesCompanion extends UpdateCompanion<MyImage> {
     required int type,
     this.postId = const Value.absent(),
     this.locationPostId = const Value.absent(),
+    this.schedulePostId = const Value.absent(),
     this.simpleLocationPointId = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : id = Value(id),
@@ -2324,6 +2824,7 @@ class MyImagesCompanion extends UpdateCompanion<MyImage> {
     Expression<int>? type,
     Expression<String>? postId,
     Expression<String>? locationPostId,
+    Expression<String>? schedulePostId,
     Expression<String>? simpleLocationPointId,
     Expression<int>? rowid,
   }) {
@@ -2339,6 +2840,7 @@ class MyImagesCompanion extends UpdateCompanion<MyImage> {
       if (type != null) 'type': type,
       if (postId != null) 'post_id': postId,
       if (locationPostId != null) 'location_post_id': locationPostId,
+      if (schedulePostId != null) 'schedule_post_id': schedulePostId,
       if (simpleLocationPointId != null)
         'simple_location_point_id': simpleLocationPointId,
       if (rowid != null) 'rowid': rowid,
@@ -2357,6 +2859,7 @@ class MyImagesCompanion extends UpdateCompanion<MyImage> {
       Value<int>? type,
       Value<String?>? postId,
       Value<String?>? locationPostId,
+      Value<String?>? schedulePostId,
       Value<String?>? simpleLocationPointId,
       Value<int>? rowid}) {
     return MyImagesCompanion(
@@ -2371,6 +2874,7 @@ class MyImagesCompanion extends UpdateCompanion<MyImage> {
       type: type ?? this.type,
       postId: postId ?? this.postId,
       locationPostId: locationPostId ?? this.locationPostId,
+      schedulePostId: schedulePostId ?? this.schedulePostId,
       simpleLocationPointId:
           simpleLocationPointId ?? this.simpleLocationPointId,
       rowid: rowid ?? this.rowid,
@@ -2413,6 +2917,9 @@ class MyImagesCompanion extends UpdateCompanion<MyImage> {
     if (locationPostId.present) {
       map['location_post_id'] = Variable<String>(locationPostId.value);
     }
+    if (schedulePostId.present) {
+      map['schedule_post_id'] = Variable<String>(schedulePostId.value);
+    }
     if (simpleLocationPointId.present) {
       map['simple_location_point_id'] =
           Variable<String>(simpleLocationPointId.value);
@@ -2437,6 +2944,7 @@ class MyImagesCompanion extends UpdateCompanion<MyImage> {
           ..write('type: $type, ')
           ..write('postId: $postId, ')
           ..write('locationPostId: $locationPostId, ')
+          ..write('schedulePostId: $schedulePostId, ')
           ..write('simpleLocationPointId: $simpleLocationPointId, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -2452,13 +2960,20 @@ abstract class _$MyDbContext extends GeneratedDatabase {
   late final $SimpleLocationPointsTable simpleLocationPoints =
       $SimpleLocationPointsTable(this);
   late final $LocationPostsTable locationPosts = $LocationPostsTable(this);
+  late final $SchedulePostsTable schedulePosts = $SchedulePostsTable(this);
   late final $MyImagesTable myImages = $MyImagesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [users, posts, simpleLocationPoints, locationPosts, myImages];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [
+        users,
+        posts,
+        simpleLocationPoints,
+        locationPosts,
+        schedulePosts,
+        myImages
+      ];
 }
 
 typedef $$UsersTableCreateCompanionBuilder = UsersCompanion Function({
@@ -3938,6 +4453,314 @@ typedef $$LocationPostsTableProcessedTableManager = ProcessedTableManager<
     (LocationPost, $$LocationPostsTableReferences),
     LocationPost,
     PrefetchHooks Function({bool pointId, bool myImagesRefs})>;
+typedef $$SchedulePostsTableCreateCompanionBuilder = SchedulePostsCompanion
+    Function({
+  required String id,
+  required String description,
+  required String smallFirstImageId,
+  required bool isHidden,
+  Value<DateTime?> schedulePublishDate,
+  Value<String?> hiddenReason,
+  required DateTime dataCreationTime,
+  required int version,
+  Value<int> rowid,
+});
+typedef $$SchedulePostsTableUpdateCompanionBuilder = SchedulePostsCompanion
+    Function({
+  Value<String> id,
+  Value<String> description,
+  Value<String> smallFirstImageId,
+  Value<bool> isHidden,
+  Value<DateTime?> schedulePublishDate,
+  Value<String?> hiddenReason,
+  Value<DateTime> dataCreationTime,
+  Value<int> version,
+  Value<int> rowid,
+});
+
+final class $$SchedulePostsTableReferences
+    extends BaseReferences<_$MyDbContext, $SchedulePostsTable, SchedulePost> {
+  $$SchedulePostsTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$MyImagesTable, List<MyImage>> _myImagesRefsTable(
+          _$MyDbContext db) =>
+      MultiTypedResultKey.fromTable(db.myImages,
+          aliasName: $_aliasNameGenerator(
+              db.schedulePosts.id, db.myImages.schedulePostId));
+
+  $$MyImagesTableProcessedTableManager get myImagesRefs {
+    final manager = $$MyImagesTableTableManager($_db, $_db.myImages).filter(
+        (f) => f.schedulePostId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_myImagesRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+}
+
+class $$SchedulePostsTableFilterComposer
+    extends Composer<_$MyDbContext, $SchedulePostsTable> {
+  $$SchedulePostsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get smallFirstImageId => $composableBuilder(
+      column: $table.smallFirstImageId,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isHidden => $composableBuilder(
+      column: $table.isHidden, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get schedulePublishDate => $composableBuilder(
+      column: $table.schedulePublishDate,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get hiddenReason => $composableBuilder(
+      column: $table.hiddenReason, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get dataCreationTime => $composableBuilder(
+      column: $table.dataCreationTime,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get version => $composableBuilder(
+      column: $table.version, builder: (column) => ColumnFilters(column));
+
+  Expression<bool> myImagesRefs(
+      Expression<bool> Function($$MyImagesTableFilterComposer f) f) {
+    final $$MyImagesTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.myImages,
+        getReferencedColumn: (t) => t.schedulePostId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$MyImagesTableFilterComposer(
+              $db: $db,
+              $table: $db.myImages,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+}
+
+class $$SchedulePostsTableOrderingComposer
+    extends Composer<_$MyDbContext, $SchedulePostsTable> {
+  $$SchedulePostsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get smallFirstImageId => $composableBuilder(
+      column: $table.smallFirstImageId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isHidden => $composableBuilder(
+      column: $table.isHidden, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get schedulePublishDate => $composableBuilder(
+      column: $table.schedulePublishDate,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get hiddenReason => $composableBuilder(
+      column: $table.hiddenReason,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get dataCreationTime => $composableBuilder(
+      column: $table.dataCreationTime,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get version => $composableBuilder(
+      column: $table.version, builder: (column) => ColumnOrderings(column));
+}
+
+class $$SchedulePostsTableAnnotationComposer
+    extends Composer<_$MyDbContext, $SchedulePostsTable> {
+  $$SchedulePostsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => column);
+
+  GeneratedColumn<String> get smallFirstImageId => $composableBuilder(
+      column: $table.smallFirstImageId, builder: (column) => column);
+
+  GeneratedColumn<bool> get isHidden =>
+      $composableBuilder(column: $table.isHidden, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get schedulePublishDate => $composableBuilder(
+      column: $table.schedulePublishDate, builder: (column) => column);
+
+  GeneratedColumn<String> get hiddenReason => $composableBuilder(
+      column: $table.hiddenReason, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get dataCreationTime => $composableBuilder(
+      column: $table.dataCreationTime, builder: (column) => column);
+
+  GeneratedColumn<int> get version =>
+      $composableBuilder(column: $table.version, builder: (column) => column);
+
+  Expression<T> myImagesRefs<T extends Object>(
+      Expression<T> Function($$MyImagesTableAnnotationComposer a) f) {
+    final $$MyImagesTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.myImages,
+        getReferencedColumn: (t) => t.schedulePostId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$MyImagesTableAnnotationComposer(
+              $db: $db,
+              $table: $db.myImages,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+}
+
+class $$SchedulePostsTableTableManager extends RootTableManager<
+    _$MyDbContext,
+    $SchedulePostsTable,
+    SchedulePost,
+    $$SchedulePostsTableFilterComposer,
+    $$SchedulePostsTableOrderingComposer,
+    $$SchedulePostsTableAnnotationComposer,
+    $$SchedulePostsTableCreateCompanionBuilder,
+    $$SchedulePostsTableUpdateCompanionBuilder,
+    (SchedulePost, $$SchedulePostsTableReferences),
+    SchedulePost,
+    PrefetchHooks Function({bool myImagesRefs})> {
+  $$SchedulePostsTableTableManager(_$MyDbContext db, $SchedulePostsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SchedulePostsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SchedulePostsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SchedulePostsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> description = const Value.absent(),
+            Value<String> smallFirstImageId = const Value.absent(),
+            Value<bool> isHidden = const Value.absent(),
+            Value<DateTime?> schedulePublishDate = const Value.absent(),
+            Value<String?> hiddenReason = const Value.absent(),
+            Value<DateTime> dataCreationTime = const Value.absent(),
+            Value<int> version = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              SchedulePostsCompanion(
+            id: id,
+            description: description,
+            smallFirstImageId: smallFirstImageId,
+            isHidden: isHidden,
+            schedulePublishDate: schedulePublishDate,
+            hiddenReason: hiddenReason,
+            dataCreationTime: dataCreationTime,
+            version: version,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String description,
+            required String smallFirstImageId,
+            required bool isHidden,
+            Value<DateTime?> schedulePublishDate = const Value.absent(),
+            Value<String?> hiddenReason = const Value.absent(),
+            required DateTime dataCreationTime,
+            required int version,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              SchedulePostsCompanion.insert(
+            id: id,
+            description: description,
+            smallFirstImageId: smallFirstImageId,
+            isHidden: isHidden,
+            schedulePublishDate: schedulePublishDate,
+            hiddenReason: hiddenReason,
+            dataCreationTime: dataCreationTime,
+            version: version,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$SchedulePostsTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: ({myImagesRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [if (myImagesRefs) db.myImages],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (myImagesRefs)
+                    await $_getPrefetchedData<SchedulePost, $SchedulePostsTable,
+                            MyImage>(
+                        currentTable: table,
+                        referencedTable: $$SchedulePostsTableReferences
+                            ._myImagesRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$SchedulePostsTableReferences(db, table, p0)
+                                .myImagesRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.schedulePostId == item.id),
+                        typedResults: items)
+                ];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$SchedulePostsTableProcessedTableManager = ProcessedTableManager<
+    _$MyDbContext,
+    $SchedulePostsTable,
+    SchedulePost,
+    $$SchedulePostsTableFilterComposer,
+    $$SchedulePostsTableOrderingComposer,
+    $$SchedulePostsTableAnnotationComposer,
+    $$SchedulePostsTableCreateCompanionBuilder,
+    $$SchedulePostsTableUpdateCompanionBuilder,
+    (SchedulePost, $$SchedulePostsTableReferences),
+    SchedulePost,
+    PrefetchHooks Function({bool myImagesRefs})>;
 typedef $$MyImagesTableCreateCompanionBuilder = MyImagesCompanion Function({
   required String id,
   required String shortPath,
@@ -3950,6 +4773,7 @@ typedef $$MyImagesTableCreateCompanionBuilder = MyImagesCompanion Function({
   required int type,
   Value<String?> postId,
   Value<String?> locationPostId,
+  Value<String?> schedulePostId,
   Value<String?> simpleLocationPointId,
   Value<int> rowid,
 });
@@ -3965,6 +4789,7 @@ typedef $$MyImagesTableUpdateCompanionBuilder = MyImagesCompanion Function({
   Value<int> type,
   Value<String?> postId,
   Value<String?> locationPostId,
+  Value<String?> schedulePostId,
   Value<String?> simpleLocationPointId,
   Value<int> rowid,
 });
@@ -3997,6 +4822,21 @@ final class $$MyImagesTableReferences
     final manager = $$LocationPostsTableTableManager($_db, $_db.locationPosts)
         .filter((f) => f.id.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_locationPostIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+
+  static $SchedulePostsTable _schedulePostIdTable(_$MyDbContext db) =>
+      db.schedulePosts.createAlias($_aliasNameGenerator(
+          db.myImages.schedulePostId, db.schedulePosts.id));
+
+  $$SchedulePostsTableProcessedTableManager? get schedulePostId {
+    final $_column = $_itemColumn<String>('schedule_post_id');
+    if ($_column == null) return null;
+    final manager = $$SchedulePostsTableTableManager($_db, $_db.schedulePosts)
+        .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_schedulePostIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: [item]));
@@ -4089,6 +4929,26 @@ class $$MyImagesTableFilterComposer
             $$LocationPostsTableFilterComposer(
               $db: $db,
               $table: $db.locationPosts,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
+  $$SchedulePostsTableFilterComposer get schedulePostId {
+    final $$SchedulePostsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.schedulePostId,
+        referencedTable: $db.schedulePosts,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$SchedulePostsTableFilterComposer(
+              $db: $db,
+              $table: $db.schedulePosts,
               $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
               joinBuilder: joinBuilder,
               $removeJoinBuilderFromRootComposer:
@@ -4195,6 +5055,26 @@ class $$MyImagesTableOrderingComposer
     return composer;
   }
 
+  $$SchedulePostsTableOrderingComposer get schedulePostId {
+    final $$SchedulePostsTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.schedulePostId,
+        referencedTable: $db.schedulePosts,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$SchedulePostsTableOrderingComposer(
+              $db: $db,
+              $table: $db.schedulePosts,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
   $$SimpleLocationPointsTableOrderingComposer get simpleLocationPointId {
     final $$SimpleLocationPointsTableOrderingComposer composer =
         $composerBuilder(
@@ -4293,6 +5173,26 @@ class $$MyImagesTableAnnotationComposer
     return composer;
   }
 
+  $$SchedulePostsTableAnnotationComposer get schedulePostId {
+    final $$SchedulePostsTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.schedulePostId,
+        referencedTable: $db.schedulePosts,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$SchedulePostsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.schedulePosts,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
   $$SimpleLocationPointsTableAnnotationComposer get simpleLocationPointId {
     final $$SimpleLocationPointsTableAnnotationComposer composer =
         $composerBuilder(
@@ -4327,7 +5227,10 @@ class $$MyImagesTableTableManager extends RootTableManager<
     (MyImage, $$MyImagesTableReferences),
     MyImage,
     PrefetchHooks Function(
-        {bool postId, bool locationPostId, bool simpleLocationPointId})> {
+        {bool postId,
+        bool locationPostId,
+        bool schedulePostId,
+        bool simpleLocationPointId})> {
   $$MyImagesTableTableManager(_$MyDbContext db, $MyImagesTable table)
       : super(TableManagerState(
           db: db,
@@ -4350,6 +5253,7 @@ class $$MyImagesTableTableManager extends RootTableManager<
             Value<int> type = const Value.absent(),
             Value<String?> postId = const Value.absent(),
             Value<String?> locationPostId = const Value.absent(),
+            Value<String?> schedulePostId = const Value.absent(),
             Value<String?> simpleLocationPointId = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
@@ -4365,6 +5269,7 @@ class $$MyImagesTableTableManager extends RootTableManager<
             type: type,
             postId: postId,
             locationPostId: locationPostId,
+            schedulePostId: schedulePostId,
             simpleLocationPointId: simpleLocationPointId,
             rowid: rowid,
           ),
@@ -4380,6 +5285,7 @@ class $$MyImagesTableTableManager extends RootTableManager<
             required int type,
             Value<String?> postId = const Value.absent(),
             Value<String?> locationPostId = const Value.absent(),
+            Value<String?> schedulePostId = const Value.absent(),
             Value<String?> simpleLocationPointId = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
@@ -4395,6 +5301,7 @@ class $$MyImagesTableTableManager extends RootTableManager<
             type: type,
             postId: postId,
             locationPostId: locationPostId,
+            schedulePostId: schedulePostId,
             simpleLocationPointId: simpleLocationPointId,
             rowid: rowid,
           ),
@@ -4405,6 +5312,7 @@ class $$MyImagesTableTableManager extends RootTableManager<
           prefetchHooksCallback: (
               {postId = false,
               locationPostId = false,
+              schedulePostId = false,
               simpleLocationPointId = false}) {
             return PrefetchHooks(
               db: db,
@@ -4441,6 +5349,16 @@ class $$MyImagesTableTableManager extends RootTableManager<
                         $$MyImagesTableReferences._locationPostIdTable(db).id,
                   ) as T;
                 }
+                if (schedulePostId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.schedulePostId,
+                    referencedTable:
+                        $$MyImagesTableReferences._schedulePostIdTable(db),
+                    referencedColumn:
+                        $$MyImagesTableReferences._schedulePostIdTable(db).id,
+                  ) as T;
+                }
                 if (simpleLocationPointId) {
                   state = state.withJoin(
                     currentTable: table,
@@ -4475,7 +5393,10 @@ typedef $$MyImagesTableProcessedTableManager = ProcessedTableManager<
     (MyImage, $$MyImagesTableReferences),
     MyImage,
     PrefetchHooks Function(
-        {bool postId, bool locationPostId, bool simpleLocationPointId})>;
+        {bool postId,
+        bool locationPostId,
+        bool schedulePostId,
+        bool simpleLocationPointId})>;
 
 class $MyDbContextManager {
   final _$MyDbContext _db;
@@ -4488,6 +5409,8 @@ class $MyDbContextManager {
       $$SimpleLocationPointsTableTableManager(_db, _db.simpleLocationPoints);
   $$LocationPostsTableTableManager get locationPosts =>
       $$LocationPostsTableTableManager(_db, _db.locationPosts);
+  $$SchedulePostsTableTableManager get schedulePosts =>
+      $$SchedulePostsTableTableManager(_db, _db.schedulePosts);
   $$MyImagesTableTableManager get myImages =>
       $$MyImagesTableTableManager(_db, _db.myImages);
 }

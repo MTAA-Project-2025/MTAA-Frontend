@@ -21,6 +21,7 @@ class FullPostResponse {
   bool isLocal;
 
   bool isSaved=false;
+  bool isHidden;
 
   FullPostResponse({
     required this.id,
@@ -33,6 +34,7 @@ class FullPostResponse {
     this.locationId,
     required this.dataCreationTime,
     this.isLocal = false,
+    this.isHidden = false,
   });
 
   Map<String, dynamic> toJson() {
@@ -46,6 +48,7 @@ class FullPostResponse {
       'isLiked': isLiked,
       'locationId': locationId?.uuid,
       'dataCreationTime': dataCreationTime.toIso8601String(),
+      'isHidden': isHidden,
     };
   }
   factory FullPostResponse.fromJson(Map<String, dynamic> json) {
@@ -61,6 +64,7 @@ class FullPostResponse {
       images: (json['images'] as List)
           .map((image) => MyImageGroupResponse.fromJson(image))
           .toList(),
+      isHidden: json['isHidden'] ?? false,
     );
   }
 
@@ -76,7 +80,7 @@ class FullPostResponse {
       isLiked: hive.isLiked,
       locationId: hive.locationId!=null?UuidValue.fromString(hive.locationId!):null,
       dataCreationTime: hive.dataCreationTime,
-      isLocal:true
+      isLocal:true,
     );
   }
 }

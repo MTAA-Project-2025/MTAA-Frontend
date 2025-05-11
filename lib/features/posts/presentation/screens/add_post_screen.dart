@@ -1,8 +1,10 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:mtaa_frontend/core/constants/route_constants.dart';
 import 'package:mtaa_frontend/core/constants/validators.dart';
 import 'package:mtaa_frontend/core/services/my_toast_service.dart';
@@ -11,11 +13,15 @@ import 'package:mtaa_frontend/features/images/data/models/requests/add_image_req
 import 'package:mtaa_frontend/features/images/data/storages/my_image_storage.dart';
 import 'package:mtaa_frontend/features/images/domain/utils/cropAspectRatioPresetCustom.dart';
 import 'package:mtaa_frontend/features/locations/data/models/requests/add_location_request.dart';
+import 'package:mtaa_frontend/features/posts/bloc/scheduled_posts_bloc.dart';
+import 'package:mtaa_frontend/features/posts/bloc/scheduled_posts_event.dart';
 import 'package:mtaa_frontend/features/posts/data/models/requests/add_post_request.dart';
 import 'package:mtaa_frontend/features/posts/data/repositories/posts_repository.dart';
 import 'package:mtaa_frontend/features/posts/presentation/widgets/add_post_form.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/dotLoader.dart';
 import 'package:mtaa_frontend/themes/button_theme.dart';
+import 'package:uuid/uuid.dart';
+import 'package:uuid/uuid_value.dart';
 
 class AddPostScreen extends StatefulWidget {
   final PostsRepository repository;
@@ -40,6 +46,8 @@ class _AddPostScreenState extends State<AddPostScreen> {
   bool isAspectRatioError = false;
   final int maxImageCount = 10;
   List<String> imagePathsForDelete = [];
+
+  AddScheduleDateDTO addScheduleDateDTO = AddScheduleDateDTO();
 
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
@@ -148,7 +156,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
 
     Future.microtask(() async {
       var res = await rewiewAspectRatio(cropped);
-      if(!mounted)return;
+      if (!mounted) return;
       setState(() {
         if (res != null) {
           newImageDTO.aspectRatioPreset = res;
@@ -157,7 +165,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
         }
       });
     });
-    if(!mounted)return;
+    if (!mounted) return;
     setState(() {
       isEdited = true;
     });
@@ -322,6 +330,41 @@ class _AddPostScreenState extends State<AddPostScreen> {
                         ],
                       ),
                     )),
+                const SizedBox(height: 10),
+                Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: GestureDetector(
+                      onTap: () {
+                        GoRouter.of(context).push(addSchedulePostDateScreenRoute, extra: addScheduleDateDTO);
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.access_alarm, color: Theme.of(context).textTheme.bodySmall!.color),
+                              const SizedBox(width: 5),
+                              Text(
+                                addScheduleDateDTO.date != null
+                                    ? //GPT
+                                    DateFormat('E, MMM d · h:mm a').format(addScheduleDateDTO.date!)
+                                    : 'Schedule post (optional)',
+                                style: Theme.of(context).textTheme.labelSmall,
+                              ),
+                            ],
+                          ),
+                          if (addScheduleDateDTO.date!=null)
+                            IconButton(
+                                onPressed: () {
+                                  if (!mounted) return;
+                                  setState(() {
+                                    addScheduleDateDTO.date = null;
+                                  });
+                                },
+                                icon: Icon(Icons.cancel_outlined, color: Theme.of(context).textTheme.bodySmall!.color))
+                        ],
+                      ),
+                    )),
                 Expanded(flex: 1, child: Container()),
                 isLoading
                     ? const DotLoader()
@@ -350,8 +393,20 @@ class _AddPostScreenState extends State<AddPostScreen> {
                                     addImageRequests.add(AddImageRequest(image: File(addImagesDTOs[i].imagePath!), position: i));
                                   }
                                 }
-                                var id = await widget.repository.addPost(
-                                    AddPostRequest(images: addImageRequests, description: descriptionController.text, location: addLocationRequest.latitude > -200 ? addLocationRequest : null));
+                                var request = AddPostRequest(images: addImageRequests,
+                                description: descriptionController.text,
+                                location: addLocationRequest.latitude > -200 ? addLocationRequest : null,
+                                scheduledDate: addScheduleDateDTO.date);
+                                UuidValue? id;
+                                if(addScheduleDateDTO.date == null){
+                                  id = await widget.repository.addPost(request);
+                                }
+                                else {
+                                  id = UuidValue.fromString(Uuid().v4());
+                                  request.id=id;
+                                  if(!mounted)return;
+                                  context.read<ScheduledPostsBloc>().add(AddScheduledPostHiveEvent(post: request));
+                                }
                                 if (!mounted) return;
                                 setState(() => isLoading = false);
                                 if (id != null) {
@@ -371,6 +426,12 @@ class _AddPostScreenState extends State<AddPostScreen> {
       ),
     );
   }
+}
+
+class AddScheduleDateDTO{
+  DateTime? date;
+
+  AddScheduleDateDTO({this.date});
 }
 
 class AddPostImageScreenDTO {

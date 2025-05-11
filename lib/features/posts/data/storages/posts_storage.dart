@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:drift/drift.dart';
 import 'package:hive/hive.dart';
@@ -9,14 +11,17 @@ import 'package:mtaa_frontend/domain/hive_data/add-posts/add_location_hive.dart'
 import 'package:mtaa_frontend/domain/hive_data/add-posts/add_post_hive.dart';
 import 'package:mtaa_frontend/domain/hive_data/add-posts/crop_aspect_ratio_preset_custom_hive.dart';
 import 'package:mtaa_frontend/domain/hive_data/posts/full_post_hive.dart';
+import 'package:mtaa_frontend/features/images/data/models/requests/add_image_request.dart';
 import 'package:mtaa_frontend/features/images/data/models/responses/myImageResponse.dart';
 import 'package:mtaa_frontend/features/images/data/storages/my_image_storage.dart';
 import 'package:mtaa_frontend/features/locations/data/models/requests/add_location_request.dart';
 import 'package:mtaa_frontend/features/locations/data/models/responses/location_point_type.dart';
 import 'package:mtaa_frontend/features/locations/data/models/responses/simple_location_point_response.dart';
 import 'package:mtaa_frontend/features/notifications/data/network/phoneNotificationService.dart';
+import 'package:mtaa_frontend/features/posts/data/models/requests/add_post_request.dart';
 import 'package:mtaa_frontend/features/posts/data/models/responses/full_post_response.dart';
 import 'package:mtaa_frontend/features/posts/data/models/responses/location_post_response.dart';
+import 'package:mtaa_frontend/features/posts/data/models/responses/schedule_post_response.dart';
 import 'package:mtaa_frontend/features/posts/data/models/responses/simple_post_response.dart';
 import 'package:mtaa_frontend/features/posts/presentation/screens/add_post_screen.dart';
 import 'package:mtaa_frontend/features/posts/presentation/widgets/add_post_form.dart';
@@ -44,8 +49,18 @@ abstract class PostsStorage {
   Future<List<SimplePostResponse>> getAccountPosts(PageParameters pageParameters);
 
   Future<List<VersionPostItemResponse>> getVersionPostItems(PageParameters pageParameters);
+  Future<List<VersionPostItemResponse>> getVersionScheduledPostItems(PageParameters pageParameters);
   Future<int> updatePost(FullPostResponse newPost, LocationPostResponse? locationPost, int newVersion);
   Future deletePost(UuidValue id);
+
+  Future saveSchedulePost(SchedulePostResponse post);
+  Future removeSchedulePost(SchedulePostResponse post);
+  Future<List<SchedulePostResponse>> getSavedSchedulePosts(PageParameters pageParameteres);
+  Future<SchedulePostResponse?> getSavedSchedulePostById(UuidValue id);
+  Future<int> updateSchedulePost(SchedulePostResponse newPost, int newVersion);
+
+  Future setScheduledPostsHive(List<AddPostRequest> requests);
+  Future<List<AddPostRequest>> getScheduledPostsHive();
 }
 
 class PostsStorageImpl extends PostsStorage {
@@ -154,10 +169,78 @@ class PostsStorageImpl extends PostsStorage {
       imagesHive.add(newImageHive);
     }
 
-    var hivePost = AddPostHive(images: imagesHive, location: addLocation != null ? AddLocationHive.fromRequest(addLocation) : null, description: text);
+    var hivePost = AddPostHive(images: imagesHive, location: addLocation != null ? AddLocationHive.fromRequest(addLocation) : null, description: text, id: Uuid().v4());
 
     var box = await Hive.openBox<AddPostHive>(tempAddPostDataBox);
     await box.put(tempAddPost, hivePost);
+  }
+
+  @override
+  Future<List<AddPostRequest>> getScheduledPostsHive() async {
+    var box = await Hive.openBox<List>(scheduledAddPostDataBox);
+    List<dynamic>? oldPosts = box.get(scheduledAddPostDataBox);
+
+    if (oldPosts == null) return [];
+    var mappedPosts = oldPosts.map((e) => e as AddPostHive).toList();
+
+    List<AddPostRequest> res=[];
+
+    for(var post in mappedPosts){
+      List<AddImageRequest> images = [];
+      for (var img in post.images) {
+        File imageFile = File(img.imagePath);
+        AddImageRequest newImage = AddImageRequest(image: imageFile, position: img.position);
+        images.add(newImage);
+      }
+      var request =AddPostRequest(images: images, description: post.description, location: post.location != null ? AddLocationRequest.fromHive(post.location!) : null, scheduledDate: post.scheduledDate);
+      request.id=UuidValue.fromString(post.id);
+      res.add(request);
+    }
+    return res;
+  }
+
+  @override
+  Future setScheduledPostsHive(List<AddPostRequest> requests) async {
+    var box = await Hive.openBox<List>(scheduledAddPostDataBox);
+    List<dynamic>? oldPosts = box.get(scheduledAddPostDataBox);
+
+    if (oldPosts == null) return [];
+    var mappedPosts = oldPosts.map((e) => e as AddPostHive).toList();
+
+    List<AddPostRequest> postsToAdd = [];
+    List<AddPostHive> hivePosts = [];
+
+    for (var post in mappedPosts) {
+      if (!requests.any((e) => e.id!.uuid == post.id)) {
+        for (var img in post.images) {
+          await imageStorage.deleteImage(img.imagePath);
+        }
+      }
+    }
+    for (var request in requests) {
+      if (mappedPosts.any((e) => e.id == request.id!.uuid)) {
+        var res = mappedPosts.firstWhere((e) => e.id == request.id!.uuid);
+        hivePosts.add(res);
+      } else {
+        postsToAdd.add(request);
+      }
+    }
+
+    for (var request in requests) {
+      List<AddImageHive> imagesHive = [];
+      for (int j = 0; j < request.images.length; j++) {
+        AddImageHive newImageHive = AddImageHive();
+        newImageHive.imagePath = await imageStorage.saveTempImage(request.images[j].image.readAsBytesSync(), '${request.id!.uuid}_add_pos_img_$j');
+        newImageHive.origImagePath = '';
+        newImageHive.aspectRatioPreset = CropAspectRatioPresetCustomHive(height: 0, width: 0);
+        newImageHive.isAspectRatioError = false;
+        newImageHive.position = request.images[j].position;
+
+        imagesHive.add(newImageHive);
+      }
+      hivePosts.add(AddPostHive(images: imagesHive, location: request.location != null ? AddLocationHive.fromRequest(request.location!) : null, description: request.description, id: request.id!.uuid));
+    }
+    await box.put(scheduledAddPostDataBox, hivePosts);
   }
 
   @override
@@ -221,13 +304,25 @@ class PostsStorageImpl extends PostsStorage {
   }
 
   @override
+  Future<List<VersionPostItemResponse>> getVersionScheduledPostItems(PageParameters pageParameters) async {
+    final posts = await dbContext.select(dbContext.schedulePosts).get();
+
+    return posts
+        .map((post) => VersionPostItemResponse(
+              id: UuidValue.fromString(post.id),
+              version: post.version,
+            ))
+        .toList();
+  }
+
+  @override
   Future<int> updatePost(FullPostResponse newPost, LocationPostResponse? locationPost, int newVersion) async {
     final oldPost = await (dbContext.select(dbContext.posts)..where((tbl) => tbl.id.equals(newPost.id.uuid))).getSingleOrNull();
 
     if (oldPost == null) {
       MyImageResponse firstImage = newPost.images.first.images.firstWhere((img) => img.type == ImageSizeType.small);
 
-      saveSimple(SimplePostResponse(id: newPost.id, smallFirstImage: firstImage, dataCreationTime: newPost.dataCreationTime), newVersion);
+      await saveSimple(SimplePostResponse(id: newPost.id, smallFirstImage: firstImage, dataCreationTime: newPost.dataCreationTime), newVersion);
       return newVersion;
     }
 
@@ -268,7 +363,7 @@ class PostsStorageImpl extends PostsStorage {
     for (final id in removedImageIds) {
       final image = oldImages.firstWhere((img) => img.id == id);
 
-      if (image.locationPostId != null || image.simpleLocationPointId != null) {
+      if (image.locationPostId != null || image.simpleLocationPointId != null || image.schedulePostId != null) {
         await (dbContext.update(dbContext.myImages)..where((tbl) => tbl.id.equals(image.id))).write(MyImagesCompanion(
           postId: const Value(null),
         ));
@@ -342,6 +437,230 @@ class PostsStorageImpl extends PostsStorage {
     }
 
     return newVersion - oldVersion;
+  }
+
+  @override
+  Future<int> updateSchedulePost(SchedulePostResponse newPost, int newVersion) async {
+    final oldPost = await (dbContext.select(dbContext.schedulePosts)..where((tbl) => tbl.id.equals(newPost.id.uuid))).getSingleOrNull();
+
+    if (oldPost == null) {
+      await saveSchedulePost(newPost);
+      return newVersion;
+    }
+
+    final oldImage = await (dbContext.select(dbContext.myImages)..where((tbl) => tbl.id.equals(oldPost.smallFirstImageId))).getSingleOrNull();
+
+    if (oldImage != null && oldImage.id != newPost.smallFirstImage.id && oldImage.postId == null && oldImage.locationPostId == null && oldImage.simpleLocationPointId == null) {
+      await imageStorage.deleteImage(oldImage.localFullPath);
+      await (dbContext.delete(dbContext.myImages)..where((tbl) => tbl.id.equals(oldImage.id))).go();
+    } else if (oldImage != null) {
+      await (dbContext.update(dbContext.myImages)..where((tbl) => tbl.id.equals(oldImage.id))).write(MyImagesCompanion(
+        schedulePostId: Value(null),
+      ));
+    }
+
+    if (oldImage != null && oldImage.id != newPost.smallFirstImage.id) {
+      await (dbContext.update(dbContext.myImages)..where((tbl) => tbl.id.equals(newPost.smallFirstImage.id))).write(MyImagesCompanion(
+        schedulePostId: Value(newPost.id.uuid),
+      ));
+    }
+    await (dbContext.update(dbContext.schedulePosts)..where((tbl) => tbl.id.equals(oldPost.id))).write(SchedulePostsCompanion(
+      description: Value(newPost.description),
+      dataCreationTime: Value(newPost.dataCreationTime),
+      smallFirstImageId: Value(newPost.smallFirstImage.id),
+      isHidden: Value(newPost.isHidden),
+      hiddenReason: Value(newPost.hiddenReason),
+      schedulePublishDate: Value(newPost.schedulePublishDate),
+      version: Value(newVersion),
+    ));
+    return newVersion - oldPost.version;
+  }
+
+  @override
+  Future saveSchedulePost(SchedulePostResponse post) async {
+    final query = dbContext.selectOnly(dbContext.schedulePosts)
+      ..addColumns([dbContext.schedulePosts.id])
+      ..where(dbContext.schedulePosts.id.equals(post.id.uuid));
+
+    final isPostExist = await query.getSingleOrNull() != null;
+    if (isPostExist) {
+      return;
+    }
+
+    final imageExists = await (dbContext.select(dbContext.myImages)..where((tbl) => tbl.id.equals(post.smallFirstImage.id))).getSingleOrNull();
+
+    if (imageExists == null && post.smallFirstImage.localPath == '') {
+      var uint8List = await imageStorage.urlToUint8List(post.smallFirstImage.fullPath);
+      if (uint8List != null) {
+        var path = await imageStorage.saveTempImage(
+          uint8List,
+          'postScheduleImg_${post.smallFirstImage.type.index}_${post.smallFirstImage.id}',
+        );
+        post.smallFirstImage.localPath = path;
+      }
+    }
+
+    await dbContext.transaction(() async {
+      await dbContext.into(dbContext.schedulePosts).insert(SchedulePostsCompanion(
+            id: Value(post.id.uuid),
+            description: Value(post.description),
+            dataCreationTime: Value(post.dataCreationTime),
+            smallFirstImageId: Value(post.smallFirstImage.id),
+            version: Value(post.version),
+            isHidden: Value(post.isHidden),
+            hiddenReason: Value(post.hiddenReason),
+            schedulePublishDate: Value(post.schedulePublishDate),
+          ));
+
+      if (imageExists == null) {
+        await dbContext.into(dbContext.myImages).insert(MyImagesCompanion(
+              id: Value(post.smallFirstImage.id),
+              shortPath: Value(post.smallFirstImage.shortPath),
+              fullPath: Value(post.smallFirstImage.fullPath),
+              fileType: Value(post.smallFirstImage.fileType),
+              height: Value(post.smallFirstImage.height),
+              width: Value(post.smallFirstImage.width),
+              aspectRatio: Value(post.smallFirstImage.aspectRatio),
+              type: Value(post.smallFirstImage.type.index),
+              localFullPath: Value(post.smallFirstImage.localPath),
+              schedulePostId: Value(post.id.uuid),
+            ));
+      } else {
+        await (dbContext.update(dbContext.myImages)..where((tbl) => tbl.id.equals(post.smallFirstImage.id))).write(MyImagesCompanion(
+          schedulePostId: Value(post.id.uuid),
+        ));
+      }
+    });
+  }
+
+  @override
+  Future removeSchedulePost(SchedulePostResponse post) async {
+    final query = dbContext.selectOnly(dbContext.schedulePosts)
+      ..addColumns([dbContext.schedulePosts.id])
+      ..where(dbContext.schedulePosts.id.equals(post.id.uuid));
+    final isPostExist = await query.getSingleOrNull();
+    if (isPostExist == null) {
+      return;
+    }
+
+    final imageExists = await (dbContext.select(dbContext.myImages)..where((tbl) => tbl.id.equals(post.smallFirstImage.id))).getSingleOrNull();
+
+    if (imageExists != null && imageExists.postId == null && imageExists.locationPostId == null) {
+      await imageStorage.deleteImage(post.smallFirstImage.localPath);
+    }
+
+    await dbContext.transaction(() async {
+      await dbContext.delete(dbContext.schedulePosts).delete(SchedulePostsCompanion(id: Value(post.id.uuid)));
+
+      if (imageExists != null && imageExists.postId == null && imageExists.locationPostId == null) {
+        await dbContext.delete(dbContext.myImages).delete(MyImagesCompanion(id: Value(post.smallFirstImage.id)));
+      } else {
+        await (dbContext.update(dbContext.myImages)..where((tbl) => tbl.id.equals(post.smallFirstImage.id))).write(MyImagesCompanion(
+          schedulePostId: Value(null),
+        ));
+      }
+    });
+  }
+
+  @override
+  Future<List<SchedulePostResponse>> getSavedSchedulePosts(PageParameters pageParameteres) async {
+    final postsSubquery = dbContext.selectOnly(dbContext.schedulePosts)
+      ..addColumns([dbContext.schedulePosts.id])
+      ..orderBy([OrderingTerm.desc(dbContext.schedulePosts.dataCreationTime)])
+      ..limit(pageParameteres.pageSize, offset: pageParameteres.pageSize * pageParameteres.pageNumber);
+
+    final postIds = await postsSubquery.map((row) => row.read(dbContext.schedulePosts.id)).get();
+
+    if (postIds.isEmpty) {
+      return [];
+    }
+
+    final query = dbContext.select(dbContext.schedulePosts).join([
+      leftOuterJoin(
+        dbContext.myImages,
+        dbContext.myImages.schedulePostId.equalsExp(dbContext.schedulePosts.id),
+      ),
+    ])
+      ..where(dbContext.schedulePosts.id.isIn(postIds.cast<String>()));
+
+    final rows = await query.get();
+
+    final List<SchedulePostResponse> posts = [];
+
+    for (final row in rows) {
+      var postTable = row.readTable(dbContext.schedulePosts);
+      var imageTable = row.readTable(dbContext.myImages);
+
+      var image = MyImageResponse(
+          aspectRatio: imageTable.aspectRatio,
+          fileType: imageTable.fileType,
+          fullPath: imageTable.fullPath,
+          height: imageTable.height,
+          id: imageTable.id,
+          localPath: imageTable.localFullPath,
+          shortPath: imageTable.shortPath,
+          type: ImageSizeType.values[imageTable.type],
+          width: imageTable.width);
+
+      var post = SchedulePostResponse(
+        id: UuidValue.fromString(postTable.id),
+        smallFirstImage: image,
+        dataCreationTime: postTable.dataCreationTime,
+        description: postTable.description,
+        isLocal: true,
+        isHidden: postTable.isHidden,
+        hiddenReason: postTable.hiddenReason,
+        schedulePublishDate: postTable.schedulePublishDate,
+        version: postTable.version,
+      );
+
+      posts.add(post);
+    }
+
+    return posts;
+  }
+
+  @override
+  Future<SchedulePostResponse?> getSavedSchedulePostById(UuidValue id) async {
+    final query = dbContext.select(dbContext.schedulePosts).join([
+      leftOuterJoin(
+        dbContext.myImages,
+        dbContext.myImages.schedulePostId.equalsExp(dbContext.schedulePosts.id),
+      ),
+    ])
+      ..where(dbContext.schedulePosts.id.equals(id.uuid));
+
+    final rows = await query.getSingleOrNull();
+
+    if (rows == null) {
+      return null;
+    }
+
+    var postTable = rows.readTable(dbContext.schedulePosts);
+    var imageTable = rows.readTable(dbContext.myImages);
+
+    var image = MyImageResponse(
+        aspectRatio: imageTable.aspectRatio,
+        fileType: imageTable.fileType,
+        fullPath: imageTable.fullPath,
+        height: imageTable.height,
+        id: imageTable.id,
+        localPath: imageTable.localFullPath,
+        shortPath: imageTable.shortPath,
+        type: ImageSizeType.values[imageTable.type],
+        width: imageTable.width);
+
+    return SchedulePostResponse(
+      id: UuidValue.fromString(postTable.id),
+      smallFirstImage: image,
+      dataCreationTime: postTable.dataCreationTime,
+      description: postTable.description,
+      isHidden: postTable.isHidden,
+      hiddenReason: postTable.hiddenReason,
+      schedulePublishDate: postTable.schedulePublishDate,
+      version: postTable.version,
+      isLocal: true,
+    );
   }
 
   @override
@@ -424,13 +743,13 @@ class PostsStorageImpl extends PostsStorage {
       ..addColumns([dbContext.locationPosts.notificationId])
       ..where(dbContext.locationPosts.id.equals(post.id.uuid));
     final isPostExist = await query.getSingleOrNull();
-    if (isPostExist==null) {
+    if (isPostExist == null) {
       return;
     }
 
     final imageExists = await (dbContext.select(dbContext.myImages)..where((tbl) => tbl.id.equals(post.smallFirstImage.id))).getSingleOrNull();
 
-    if (imageExists != null && imageExists.postId == null) {
+    if (imageExists != null && imageExists.postId == null && imageExists.schedulePostId == null) {
       await imageStorage.deleteImage(post.smallFirstImage.localPath);
     }
 
@@ -440,7 +759,7 @@ class PostsStorageImpl extends PostsStorage {
       await dbContext.delete(dbContext.locationPosts).delete(LocationPostsCompanion(id: Value(post.id.uuid)));
       await dbContext.delete(dbContext.simpleLocationPoints).delete(SimpleLocationPointsCompanion(id: Value(post.point.id.uuid)));
 
-      if (imageExists != null && imageExists.postId == null) {
+      if (imageExists != null && imageExists.postId == null && imageExists.schedulePostId == null) {
         await dbContext.delete(dbContext.myImages).delete(MyImagesCompanion(id: Value(post.smallFirstImage.id)));
       } else {
         await (dbContext.update(dbContext.myImages)..where((tbl) => tbl.id.equals(post.smallFirstImage.id))).write(MyImagesCompanion(
@@ -506,16 +825,15 @@ class PostsStorageImpl extends PostsStorage {
       );
 
       var post = LocationPostResponse(
-        id: UuidValue.fromString(postTable.id),
-        smallFirstImage: image,
-        dataCreationTime: postTable.dataCreationTime,
-        locationId: UuidValue.fromString(postTable.locationId ?? ''),
-        eventTime: postTable.eventTime,
-        point: point,
-        description: postTable.description,
-        ownerDisplayName: postTable.ownerDisplayName,
-        isLocal: true
-      );
+          id: UuidValue.fromString(postTable.id),
+          smallFirstImage: image,
+          dataCreationTime: postTable.dataCreationTime,
+          locationId: UuidValue.fromString(postTable.locationId ?? ''),
+          eventTime: postTable.eventTime,
+          point: point,
+          description: postTable.description,
+          ownerDisplayName: postTable.ownerDisplayName,
+          isLocal: true);
 
       posts.add(post);
     }
@@ -667,7 +985,7 @@ class PostsStorageImpl extends PostsStorage {
     if (rows == null) return null;
     var image = rows.readTableOrNull(dbContext.myImages);
 
-    if (image != null && image.locationPostId == null) {
+    if (image != null && image.locationPostId == null && image.schedulePostId == null) {
       await imageStorage.deleteImage(image.localFullPath);
     }
 
@@ -682,9 +1000,9 @@ class PostsStorageImpl extends PostsStorage {
         ));
       }
     });
-    if(image!=null && image.locationPostId!=null){
+    if (image != null && image.locationPostId != null && image.schedulePostId == null) {
       var locPost = await getSavedLocationPostById(UuidValue.fromString(image.locationPostId!));
-      if(locPost!=null){
+      if (locPost != null) {
         removeLocationPost(locPost);
       }
     }

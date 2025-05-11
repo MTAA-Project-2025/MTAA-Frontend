@@ -20,19 +20,25 @@ class AddPostHiveAdapter extends TypeAdapter<AddPostHive> {
       location: fields[0] as AddLocationHive?,
       description: fields[1] as String,
       images: (fields[2] as List).cast<AddImageHive>(),
+      scheduledDate: fields[3] as DateTime?,
+      id: fields[4] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, AddPostHive obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.location)
       ..writeByte(1)
       ..write(obj.description)
       ..writeByte(2)
-      ..write(obj.images);
+      ..write(obj.images)
+      ..writeByte(3)
+      ..write(obj.scheduledDate)
+      ..writeByte(4)
+      ..write(obj.id);
   }
 
   @override

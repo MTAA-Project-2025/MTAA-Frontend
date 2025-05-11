@@ -1,8 +1,14 @@
+import 'dart:async';
+
 import 'package:airplane_mode_checker/airplane_mode_checker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mtaa_frontend/core/services/internet_checker.dart';
 import 'package:mtaa_frontend/core/utils/app_injections.dart';
 import 'package:mtaa_frontend/features/locations/data/network/locations_api.dart';
+import 'package:mtaa_frontend/features/posts/bloc/scheduled_posts_bloc.dart';
+import 'package:mtaa_frontend/features/posts/bloc/scheduled_posts_event.dart';
+import 'package:mtaa_frontend/features/posts/bloc/scheduled_posts_state.dart';
 import 'package:mtaa_frontend/features/posts/data/models/responses/full_post_response.dart';
 import 'package:mtaa_frontend/features/posts/data/models/responses/location_post_response.dart';
 import 'package:mtaa_frontend/features/posts/data/network/posts_api.dart';
@@ -19,11 +25,13 @@ import 'package:mtaa_frontend/features/users/versioning/api/VersionItemsApi.dart
 import 'package:mtaa_frontend/features/users/versioning/data/VersionItem.dart';
 import 'package:mtaa_frontend/features/users/versioning/shared/VersionItemTypes.dart';
 import 'package:mtaa_frontend/features/users/versioning/storage/VersionItemsStorage.dart';
+import 'package:uuid/uuid.dart';
 
 abstract class SynchronizationService {
   Future synchronizePosts(int versionDifferency, int newVersion);
   Future synchronizeAccount(int newFollowersVersion, int newFriendsVersion, int newAccountVersion, int newLikedPostsVersion);
   Future synchronize();
+  Future initializeSyncLoad();
 }
 
 class SynchronizationServiceImpl extends SynchronizationService {
@@ -35,19 +43,69 @@ class SynchronizationServiceImpl extends SynchronizationService {
   final VersionItemsStorage versionItemsStorage;
 
   bool isPostsSynchronizing = false;
+  bool isSynchronizeLoading = false;
 
-  SynchronizationServiceImpl(this.postsApi, this.locationsApi, this.postsStorage, this.versionItemsApi, this.versionItemsStorage, this.accountApi);
+  Timer? syncTimer;
+
+  SynchronizationServiceImpl(this.postsApi,
+  this.locationsApi,
+  this.postsStorage,
+  this.versionItemsApi,
+  this.versionItemsStorage, 
+  this.accountApi);
+
+  @override
+  Future initializeSyncLoad() async{
+    InternetChecker.connectionStream.listen((hasConnection) async {
+      if (hasConnection) {
+        await synchronize();
+      }
+    });
+
+    syncTimer = Timer.periodic(const Duration(seconds: 5), (timer) async {
+      if (await InternetChecker.isInternetEnabled()) {
+        await synchronizeLoad();
+      }
+    });
+  }
+
+  
+  Future synchronizeLoad() async {
+    if (!getIt.isRegistered<BuildContext>()) return;
+    var context = getIt.get<BuildContext>();
+    if (!context.mounted) return;
+    ScheduledPostsBloc bloc = context.read<ScheduledPostsBloc>();
+    ScheduledPostsState state = bloc.state;
+    if (isSynchronizeLoading || state.notSyncedPosts.isEmpty) return;
+
+    isSynchronizeLoading = true;
+
+    try {
+      await Future.delayed(Duration(seconds: 1));
+
+
+      for (final post in state.notSyncedPostsHive) {
+        UuidValue? id = await postsApi.addPost(post);
+        if (id != null) {
+          bloc.add(RemoveScheduledPostHiveEvent(post: post));
+        }
+      }
+    } finally {
+      isSynchronizeLoading = false;
+    }
+  }
 
   @override
   Future synchronize() async {
     try {
       var newVersions = await versionItemsApi.getVersionItems();
+      if (newVersions.isEmpty) return;
       var oldPostsVersion = await versionItemsStorage.getVersionItem(VersionItemTypes.AccountPosts);
       var oldAccountVersion = await versionItemsStorage.getVersionItem(VersionItemTypes.Account);
       var oldFriendsVersion = await versionItemsStorage.getVersionItem(VersionItemTypes.Friends);
       var oldFollowersVersion = await versionItemsStorage.getVersionItem(VersionItemTypes.Followers);
       var oldLikedPostsVersion = await versionItemsStorage.getVersionItem(VersionItemTypes.LikedPosts);
-      
+
       VersionItem newPostsVersionItem = newVersions.firstWhere((element) => element.type == VersionItemTypes.AccountPosts);
       int postsVersionDifferency = newPostsVersionItem.version - oldPostsVersion;
       if (postsVersionDifferency > 0) {
@@ -56,7 +114,7 @@ class SynchronizationServiceImpl extends SynchronizationService {
 
       VersionItem newFollowersVersionItem = newVersions.firstWhere((element) => element.type == VersionItemTypes.Followers);
       int followersVersionDifferency = newFollowersVersionItem.version - oldFollowersVersion;
-      
+
       VersionItem newFriendsVersionItem = newVersions.firstWhere((element) => element.type == VersionItemTypes.Friends);
       int friendsVersionDifferency = newFriendsVersionItem.version - oldFriendsVersion;
 
@@ -121,6 +179,7 @@ class SynchronizationServiceImpl extends SynchronizationService {
 
       var pageParameters = PageParameters(pageNumber: 0, pageSize: 100);
       var oldPosts = await postsStorage.getVersionPostItems(pageParameters);
+      var oldScheduledPosts = await postsStorage.getVersionScheduledPostItems(pageParameters);
 
       while (versionDifferency > 0) {
         var newPosts = await postsApi.getVersionPostItems(pageParameters);
@@ -138,19 +197,41 @@ class SynchronizationServiceImpl extends SynchronizationService {
                 locationPost = await locationsApi.getLocationPostById(fullPost.locationId!);
               }
               versionDifferency -= (await postsStorage.updatePost(fullPost, locationPost, post.version) + 1);
+              if (fullPost.isHidden) {
+                var schedulePost = await postsApi.getSchedulePostById(post.id);
+                if (schedulePost != null) {
+                  await postsStorage.updateSchedulePost(schedulePost, schedulePost.version);
+                }
+              }
             }
           }
         }
-        for (var oldPost in oldPosts) {
+        if (versionDifferency > 0) {
+          for (var oldPost in oldPosts) {
+            VersionPostItemResponse? resp = newPosts.where((e) => e.id == oldPost.id).firstOrNull;
+            if (resp == null) {
+              DateTime? dateTime = await postsStorage.getSimplePostDateTime(oldPost.id);
+              if (dateTime != null && lastPost != null) {
+                await postsStorage.deletePost(oldPost.id);
+                versionDifferency--;
+              }
+            }
+          }
+        }
+        for (var oldPost in oldScheduledPosts) {
           VersionPostItemResponse? resp = newPosts.where((e) => e.id == oldPost.id).firstOrNull;
           if (resp == null) {
             DateTime? dateTime = await postsStorage.getSimplePostDateTime(oldPost.id);
             if (dateTime != null && lastPost != null) {
-              await postsStorage.deletePost(oldPost.id);
-              versionDifferency--;
+              var sPost = await postsApi.getSchedulePostById(oldPost.id);
+              if (sPost != null) {
+                await postsStorage.removeSchedulePost(sPost);
+                versionDifferency--;
+              }
             }
           }
         }
+
         pageParameters.pageNumber++;
       }
       await versionItemsStorage.saveVersionItem(VersionItem(

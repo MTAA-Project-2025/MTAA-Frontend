@@ -18,8 +18,10 @@ import 'package:mtaa_frontend/features/posts/data/models/responses/full_post_res
 import 'package:mtaa_frontend/features/posts/data/repositories/posts_repository.dart';
 import 'package:mtaa_frontend/features/posts/presentation/screens/add_post_location_screen.dart';
 import 'package:mtaa_frontend/features/posts/presentation/screens/add_post_screen.dart';
+import 'package:mtaa_frontend/features/posts/presentation/screens/add_schedule_post_date_screen.dart';
 import 'package:mtaa_frontend/features/posts/presentation/screens/full_post_screen.dart';
 import 'package:mtaa_frontend/features/posts/presentation/screens/post_recommendations_screen.dart';
+import 'package:mtaa_frontend/features/posts/presentation/screens/schedule_posts_screen.dart';
 import 'package:mtaa_frontend/features/posts/presentation/screens/update_post_screen.dart';
 import 'package:mtaa_frontend/features/settings/presentation/screens/user_settings_screen.dart';
 import 'package:mtaa_frontend/features/users/account/data/network/account_api.dart';
@@ -158,6 +160,14 @@ class AppRouter {
           }
         ),
         GoRoute(
+          path: addSchedulePostDateScreenRoute,	
+          builder: (context, state) {
+            AddScheduleDateDTO? request;
+            if(state.extra!=null && state.extra is AddScheduleDateDTO) request = state.extra as AddScheduleDateDTO;
+            return AddSchedulePostDateScreen(toastService: getIt<MyToastService>(), addDateDTO: request!);
+          }
+        ),
+        GoRoute(
           path: '$locationClusterPointsScreenRoute/:id',	
           builder: (context, state) {
             String? clusterId = state.pathParameters['id']!;
@@ -168,6 +178,12 @@ class AppRouter {
           path: locationClusterPointsScreenRoute,	
           builder: (context, state) {
             return SavedLocationsPointsScreen(repository: getIt<PostsRepository>());
+          }
+        ),
+        GoRoute(
+          path: schedulePostsScreenRoute,	
+          builder: (context, state) {
+            return SchedulePostsScreen(repository: getIt<PostsRepository>());
           }
         ),
         GoRoute(

@@ -1,19 +1,23 @@
 import 'package:dio/dio.dart';
 import 'package:mtaa_frontend/features/images/data/models/requests/add_image_request.dart';
 import 'package:mtaa_frontend/features/locations/data/models/requests/add_location_request.dart';
+import 'package:uuid/uuid.dart';
 
 class AddPostRequest {
   final List<AddImageRequest> images;
   final String description;
   final AddLocationRequest? location;
+  final DateTime? scheduledDate;
+  UuidValue? id;
 
-  AddPostRequest({required this.images, required this.description, this.location});
+  AddPostRequest({required this.images, required this.description, this.location, this.scheduledDate});
 
   Map<String, dynamic> toJson() {
     return {
       'images': images.map((image) => image.toJson()).toList(),
       'description': description,
       'location': location?.toJson(),
+      'scheduledDate': scheduledDate?.toIso8601String(),
     };
   }
 
@@ -36,6 +40,9 @@ class AddPostRequest {
       formData.fields.add(MapEntry('location.latitude', location!.latitude.toString()));
       formData.fields.add(MapEntry('location.longitude', location!.longitude.toString()));
       formData.fields.add(MapEntry('location.eventTime', location!.eventTime.toIso8601String()));
+    }
+    if(scheduledDate != null) {
+      formData.fields.add(MapEntry('scheduledDate', scheduledDate!.toIso8601String()));
     }
 
     return formData;
