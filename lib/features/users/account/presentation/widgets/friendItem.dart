@@ -33,7 +33,7 @@ class _FriendItemState extends State<FriendItem> {
 
     Future.microtask(() async {
       if (!mounted) return;
-      String? res = await widget.tokenStorage.getToken();
+      String? res = await widget.tokenStorage.getUserId();
       if(res== null || !mounted) return;
       setState(() {
         userId = res;

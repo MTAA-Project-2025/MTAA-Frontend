@@ -12,6 +12,7 @@ class CommentsTextInput extends StatefulWidget {
   final bool isEnabled;
   final void Function() onCancel;
   final void Function() onSend;
+  final bool isLoading;
 
   const CommentsTextInput({
     super.key,
@@ -24,6 +25,7 @@ class CommentsTextInput extends StatefulWidget {
     required this.isEnabled,
     required this.onCancel,
     required this.onSend,
+    this.isLoading = false,
   });
 
   @override
@@ -98,7 +100,7 @@ class _CommentsTextInputState extends State<CommentsTextInput> {
             child: Row(
               children: [
                 TextButton(
-                  onPressed: (){
+                  onPressed: () {
                     FocusScope.of(context).unfocus();
                     widget.onCancel();
                   },
@@ -114,7 +116,8 @@ class _CommentsTextInputState extends State<CommentsTextInput> {
                 ),
                 const SizedBox(width: 5),
                 TextButton(
-                  onPressed: (){
+                  onPressed: () {
+                    if (widget.isLoading) return;
                     FocusScope.of(context).unfocus();
                     widget.onSend();
                   },
@@ -122,9 +125,11 @@ class _CommentsTextInputState extends State<CommentsTextInput> {
                         minimumSize: WidgetStateProperty.all(Size(0, 0)),
                         padding: WidgetStateProperty.all(EdgeInsets.symmetric(horizontal: 20, vertical: 10)),
                       ),
-                  child: Text(
-                    'Save',
-                  ),
+                  child: widget.isLoading
+                      ? CircularProgressIndicator()
+                      : Text(
+                          'Save',
+                        ),
                 ),
               ],
             ))

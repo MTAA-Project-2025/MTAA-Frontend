@@ -42,7 +42,7 @@ class PhoneNotificationsServiceImpl extends PhoneNotificationsService {
       const NotificationDetails(
         android: AndroidNotificationDetails('channelId', 'channelName'),
       ),
-      androidScheduleMode: AndroidScheduleMode.exact,
+      androidScheduleMode: AndroidScheduleMode.inexact,
     );
     return id;
   }
@@ -55,7 +55,7 @@ class PhoneNotificationsServiceImpl extends PhoneNotificationsService {
     final bool? macOsGranted =
         await flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<MacOSFlutterLocalNotificationsPlugin>()?.requestPermissions(alert: true, badge: false, sound: true);
 
-    final bool? androidGranted = await flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()?.requestExactAlarmsPermission();
+    final bool? androidGranted = await flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()?.requestNotificationsPermission();
 
     return iosGranted ?? macOsGranted ?? androidGranted ?? true;
   }

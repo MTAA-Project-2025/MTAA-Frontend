@@ -124,7 +124,7 @@ class _AccountInformationScreenState extends State<AccountInformationScreen> {
                     ],
                   ),
                 ),
-          bottomNavigationBar: PhoneBottomMenu(sellectedType: MenuButtons.Home));
+          bottomNavigationBar: PhoneBottomMenu(sellectedType: MenuButtons.Profile));
     });
   }
 }

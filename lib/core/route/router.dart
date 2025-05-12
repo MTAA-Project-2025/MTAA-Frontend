@@ -34,6 +34,7 @@ import 'package:mtaa_frontend/features/users/account/presentation/screens/follow
 import 'package:mtaa_frontend/features/users/account/presentation/screens/friendsScreen.dart';
 import 'package:mtaa_frontend/features/users/account/presentation/screens/globalSearchScreen.dart';
 import 'package:mtaa_frontend/features/users/account/presentation/screens/publicAccountInformationScreen.dart';
+import 'package:mtaa_frontend/features/users/account/presentation/screens/terms-policy.dart';
 import 'package:mtaa_frontend/features/users/account/presentation/screens/updateAccountScreen.dart';
 import 'package:mtaa_frontend/features/users/account/presentation/screens/updateAvatarScreen.dart';
 import 'package:mtaa_frontend/features/users/authentication/shared/data/network/identity_api.dart';
@@ -157,6 +158,12 @@ class AppRouter {
             AddLocationRequest? request;
             if(state.extra!=null && state.extra is AddLocationRequest) request = state.extra as AddLocationRequest;
             return AddPostLocationScreen(toastService: getIt<MyToastService>(), addLocationRequest: request!);
+          }
+        ),
+        GoRoute(
+          path: termsPolicyRoute,
+          builder: (context, state) {
+            return TermsPolicyWidget();
           }
         ),
         GoRoute(

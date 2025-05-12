@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:dio/dio.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:hive/hive.dart';
 import 'package:mtaa_frontend/core/constants/storages/storage_boxes.dart';
 import 'package:mtaa_frontend/features/notifications/data/network/notificationsService.dart';
@@ -9,7 +11,7 @@ class TokenStorage {
   static const String tokenKey = "auth_token";
   late SynchronizationService synchronizationService;
   late NotificationsService notificationsService;
-
+  Dio? dio;
   Future<void> initialize(SynchronizationService synchronizationService, NotificationsService notificationsService) async {
     this.synchronizationService = synchronizationService;
     this.notificationsService = notificationsService;
@@ -21,6 +23,26 @@ class TokenStorage {
     await box.put(tokenKey, token);
     await notificationsService.startSSE(token);
     await synchronizationService.synchronize();
+
+    await saveFirebaseToken();
+  }
+  Future saveFirebaseToken() async{
+    if(dio == null)return;
+    String? token = await FirebaseMessaging.instance.getToken();
+    if(token == null)return;
+
+    final fullUrl = 'Account/save-firebase-token';
+    try {
+      await dio!.post(fullUrl, data: {
+        'token' : token
+      });
+    } catch (e) {
+      print('Error saving Firebase token: $e');
+    }
+  }
+
+  Future initializeDio(Dio dio) async {
+    this.dio = dio;
   }
 
   Future<String?> getToken() async {

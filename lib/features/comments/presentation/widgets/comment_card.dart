@@ -7,12 +7,15 @@ import 'package:go_router/go_router.dart';
 import 'package:mtaa_frontend/core/constants/images/image_size_type.dart';
 import 'package:mtaa_frontend/core/constants/route_constants.dart';
 import 'package:mtaa_frontend/core/constants/validators.dart';
+import 'package:mtaa_frontend/core/services/my_toast_service.dart';
 import 'package:mtaa_frontend/core/services/number_formating_service.dart';
 import 'package:mtaa_frontend/core/services/time_formating_service.dart';
+import 'package:mtaa_frontend/core/utils/app_injections.dart';
 import 'package:mtaa_frontend/features/comments/bloc/comments_bloc.dart';
 import 'package:mtaa_frontend/features/comments/bloc/comments_event.dart';
 import 'package:mtaa_frontend/features/comments/data/controllers/comment_controller.dart';
 import 'package:mtaa_frontend/features/comments/data/models/requests/add_comment_request.dart';
+import 'package:mtaa_frontend/features/comments/data/models/requests/update_comment_request.dart';
 import 'package:mtaa_frontend/features/comments/data/models/responses/comment_interaction_type.dart';
 import 'package:mtaa_frontend/features/comments/data/models/responses/full_comment_response.dart';
 import 'package:mtaa_frontend/features/comments/data/repositories/comments_repository.dart';
@@ -60,8 +63,11 @@ class _CommentCardWidgetState extends State<CommentCardWidget> {
   bool isEditSectionActive = false;
   bool isChildrenOpen = false;
   final TextEditingController createCommentTextController = TextEditingController();
+  final TextEditingController editCommentTextController = TextEditingController();
   late String userId;
   final CommentController commentController = CommentController();
+  bool isEditLoading = false;
+  bool isChildLoading = false;
 
   @override
   void initState() {
@@ -251,28 +257,60 @@ class _CommentCardWidgetState extends State<CommentCardWidget> {
           ],
         ),
         const SizedBox(height: 10),
-        Container(
-          width: double.infinity,
-          child: Text.rich(
-              textAlign: TextAlign.start,
-              TextSpan(
-                text: (widget.comment.text.length <= 400 || isTextOpen) ? widget.comment.text : '${widget.comment.text.substring(0, 400)}... ',
-                style: Theme.of(context).textTheme.bodySmall,
-                children: [
-                  if (widget.comment.text.length > 400)
+        isEditSectionActive
+            ? CommentsTextInput(
+                key: const Key('editCommentTextInput'),
+                placeholder: 'Edit comment',
+                controller: editCommentTextController,
+                validator: commentValidator,
+                maxLines: 5,
+                isEnabled: true,
+                isLoading: isEditLoading,
+                onCancel: () {
+                  editCommentTextController.clear();
+                  setState(() {
+                    isEditSectionActive = false;
+                  });
+                },
+                onSend: () async {
+                  if (!mounted) return;
+                  setState(() {
+                    isEditLoading = true;
+                  });
+                  if (editCommentTextController.text.isEmpty) return;
+                  var res = await widget.commentsRepository.updateComment(UpdateCommentRequest(commentId: widget.comment.id, text: editCommentTextController.text));
+                  if (!res || !mounted || !context.mounted) return;
+                  if (!mounted) return;
+                  setState(() {
+                    isEditLoading = false;
+                    widget.comment.text = editCommentTextController.text;
+                    widget.comment.isEdited = true;
+                    isEditSectionActive = false;
+                  });
+                  editCommentTextController.clear();
+                })
+            : Container(
+                width: double.infinity,
+                child: Text.rich(
+                    textAlign: TextAlign.start,
                     TextSpan(
-                      text: isTextOpen ? ' less' : ' more',
-                      style: Theme.of(context).textTheme.labelSmall!.copyWith(fontSize: 10),
-                      recognizer: TapGestureRecognizer()
-                        ..onTap = () {
-                          setState(() {
-                            isTextOpen = !isTextOpen;
-                          });
-                        },
-                    ),
-                ],
-              )),
-        ),
+                      text: (widget.comment.text.length <= 400 || isTextOpen) ? widget.comment.text : '${widget.comment.text.substring(0, 400)}... ',
+                      style: Theme.of(context).textTheme.bodySmall,
+                      children: [
+                        if (widget.comment.text.length > 400)
+                          TextSpan(
+                            text: isTextOpen ? ' less' : ' more',
+                            style: Theme.of(context).textTheme.labelSmall!.copyWith(fontSize: 10),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () {
+                                setState(() {
+                                  isTextOpen = !isTextOpen;
+                                });
+                              },
+                          ),
+                      ],
+                    )),
+              ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -298,6 +336,7 @@ class _CommentCardWidgetState extends State<CommentCardWidget> {
               onSelected: (CommentMenuElement item) {
                 if (item == CommentMenuElement.edit) {
                   if (!mounted) return;
+                  editCommentTextController.text = widget.comment.text;
                   setState(() {
                     isEditSectionActive = true;
                   });
@@ -305,11 +344,11 @@ class _CommentCardWidgetState extends State<CommentCardWidget> {
                   if (!mounted || !context.mounted) return;
                   context.read<CommentsBloc>().add(RemoveCommentEvent(comment: widget.comment));
                   widget.commentsRepository.deleteComment(widget.comment.id);
+                  getIt.get<MyToastService>().showMsgWithContext('Comment is successfully deleted', context);
                 }
               },
               itemBuilder: (BuildContext context) => <PopupMenuEntry<CommentMenuElement>>[
-                if (userId == widget.comment.owner.id)
-                  PopupMenuItem<CommentMenuElement>(value: CommentMenuElement.edit, child: Text('Edit', style: Theme.of(context).textTheme.bodyMedium)),
+                if (userId == widget.comment.owner.id) PopupMenuItem<CommentMenuElement>(value: CommentMenuElement.edit, child: Text('Edit', style: Theme.of(context).textTheme.bodyMedium)),
                 if (userId == widget.comment.owner.id || userId == widget.postOwnerId)
                   PopupMenuItem<CommentMenuElement>(value: CommentMenuElement.delete, child: Text('Delete', style: Theme.of(context).textTheme.bodyMedium)),
               ],
@@ -371,6 +410,7 @@ class _CommentCardWidgetState extends State<CommentCardWidget> {
                     validator: commentValidator,
                     maxLines: 5,
                     isEnabled: true,
+                    isLoading: isChildLoading,
                     onCancel: () {
                       createCommentTextController.clear();
                       setState(() {
@@ -379,6 +419,10 @@ class _CommentCardWidgetState extends State<CommentCardWidget> {
                     },
                     onSend: () async {
                       if (createCommentTextController.text.isEmpty) return;
+                      if (!mounted) return;
+                      setState(() {
+                        isChildLoading = true;
+                      });
                       var commentId = await widget.commentsRepository.addComment(AddCommentRequest(postId: widget.postId, text: createCommentTextController.text, parentCommentId: widget.comment.id));
                       if (commentId == null) return;
                       var comment = await widget.commentsRepository.getCommentById(commentId);
@@ -388,6 +432,7 @@ class _CommentCardWidgetState extends State<CommentCardWidget> {
                       commentController.add(comment);
                       if (!mounted) return;
                       setState(() {
+                        isChildLoading = false;
                         isReplySectionActive = false;
                         widget.comment.childCommentsCount++;
                       });

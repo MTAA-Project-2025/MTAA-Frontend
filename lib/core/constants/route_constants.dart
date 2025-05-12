@@ -38,4 +38,6 @@ const String friendsScreenRoute = "/friendsScreen";
 
 const String notificationsScreenRoute = "/notificationsScreen";
 
+const String termsPolicyRoute = "/termsPolicyRoute";
+
 const String schedulePostsScreenRoute = "/schedulePostsScreen";

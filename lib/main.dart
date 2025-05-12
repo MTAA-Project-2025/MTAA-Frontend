@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map_tile_caching/flutter_map_tile_caching.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -27,9 +29,11 @@ import 'package:mtaa_frontend/features/shared/bloc/exceptions_bloc.dart';
 import 'package:mtaa_frontend/features/synchronization/synchronization_service.dart';
 import 'package:mtaa_frontend/features/users/account/bloc/account_bloc.dart';
 import 'package:mtaa_frontend/features/users/account/bloc/account_events.dart';
+import 'package:mtaa_frontend/features/users/account/bloc/account_state.dart';
 import 'package:mtaa_frontend/features/users/account/data/repositories/account_repository.dart';
 import 'package:mtaa_frontend/features/users/authentication/shared/blocs/verification_email_phone_bloc.dart';
 import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
+import 'package:mtaa_frontend/firebase_options.dart';
 import 'package:mtaa_frontend/themes/app_theme.dart';
 import 'package:mtaa_frontend/themes/bloc/theme_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -78,6 +82,12 @@ Future<void> main() async {
   if (token != null && token.isNotEmpty) {
     sse.startSSE(token);
   }
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+
+  await requestNotificationPermissions();
 
   runApp(MultiBlocProvider(
     providers: [
@@ -106,6 +116,10 @@ Future<void> main() async {
   ));
 }
 
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+}
+
 Future<bool> isAuthorized() async {
   final tokenStorage = getIt<TokenStorage>();
   final token = await tokenStorage.getToken();
@@ -118,6 +132,20 @@ Future<String> getInitialRoute() async {
     return userRecommendationsScreenRoute;
   }
   return '/';
+}
+
+Future requestNotificationPermissions() async {
+  FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+ await messaging.requestPermission(
+    alert: true,
+    badge: true,
+    sound: true,
+    provisional: false,
+  );
+}
+
+class Permission {
 }
 
 class MyApp extends StatefulWidget {
@@ -185,28 +213,38 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ThemeBloc, ThemeState>(
-      builder: (context, state) {
-        setInitialRoute();
-        ThemeData themeData;
-        switch (state.appThemeMode) {
-          case AppThemeMode.dark:
-            themeData = AppTheme.darkTheme(context);
-            break;
-          case AppThemeMode.inclusive:
-            themeData = AppTheme.inclusiveTheme(context);
-            break;
-          case AppThemeMode.light:
-          default:
-            themeData = AppTheme.lightTheme(context);
-            break;
-        }
-        return MaterialApp.router(
-          title: 'Likely',
-          theme: themeData,
-          routerConfig: router.AppRouter.createRouter(initialRoute),
-        );
-      },
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<AccountBloc, AccountState>(
+          listenWhen: (previous, current) => previous != current,
+          listener: (context, state) {
+            setInitialRoute();
+          },
+        ),
+      ],
+      child: BlocBuilder<ThemeBloc, ThemeState>(
+        builder: (context, themeState) {
+          ThemeData themeData;
+          switch (themeState.appThemeMode) {
+            case AppThemeMode.dark:
+              themeData = AppTheme.darkTheme(context);
+              break;
+            case AppThemeMode.inclusive:
+              themeData = AppTheme.inclusiveTheme(context);
+              break;
+            case AppThemeMode.light:
+            default:
+              themeData = AppTheme.lightTheme(context);
+              break;
+          }
+
+          return MaterialApp.router(
+            title: 'Likely',
+            theme: themeData,
+            routerConfig: router.AppRouter.createRouter(initialRoute),
+          );
+        },
+      ),
     );
   }
 }

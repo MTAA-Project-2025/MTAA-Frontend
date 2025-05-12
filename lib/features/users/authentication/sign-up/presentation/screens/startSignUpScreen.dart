@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mtaa_frontend/core/constants/colors.dart';
 import 'package:mtaa_frontend/core/constants/route_constants.dart';
 import 'package:mtaa_frontend/features/users/authentication/shared/blocs/verification_email_phone_bloc.dart';
 import 'package:mtaa_frontend/features/users/authentication/shared/blocs/verification_email_phone_event.dart';
@@ -66,7 +65,8 @@ class _StartSignUpScreenState extends State<StartSignUpScreen> {
             child: Column(
               children: [
                 Text(
-                  'Enter phone or email',
+                  //'Enter phone or email',
+                  'Enter email',
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.headlineLarge,
                 ),
@@ -75,7 +75,7 @@ class _StartSignUpScreenState extends State<StartSignUpScreen> {
                     constraints: const BoxConstraints.tightFor(width: 400),
                     child: Column(
                       children: [
-                        Container(
+                        /*Container(
                           padding: const EdgeInsets.all(3),
                           height: 43,
                           decoration: BoxDecoration(
@@ -130,16 +130,20 @@ class _StartSignUpScreenState extends State<StartSignUpScreen> {
                             ],
                           ),
                         ),
-                        const SizedBox(height: 19),
+                        *///const SizedBox(height: 19),
                         isShowEmailForm ? StartSignUpByEmailForm(formKey: _emailformKey, emailController: emailController) : const SizedBox(height: 10), //TODO: change to LogInByPhoneForm,
                         const SizedBox(height: 4),
                         Align(
                           alignment: Alignment.centerLeft,
-                          child: Text(
+                          child: GestureDetector(
+                            onTap: () {
+                              GoRouter.of(context).push(termsPolicyRoute);
+                            },
+                            child: Text(
                             'View Terms of Service and Privacy Policy',
                             style: Theme.of(context).textTheme.labelSmall,
-                          ),
-                        ), //Todo % change to navigation to privacy policy
+                          )),
+                        ),
                       ],
                     )),
                 const SizedBox(height: 19),

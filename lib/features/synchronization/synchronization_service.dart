@@ -21,6 +21,7 @@ import 'package:mtaa_frontend/features/synchronization/data/version_post_item_re
 import 'package:mtaa_frontend/features/users/account/bloc/account_bloc.dart';
 import 'package:mtaa_frontend/features/users/account/bloc/account_events.dart';
 import 'package:mtaa_frontend/features/users/account/data/network/account_api.dart';
+import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
 import 'package:mtaa_frontend/features/users/versioning/api/VersionItemsApi.dart';
 import 'package:mtaa_frontend/features/users/versioning/data/VersionItem.dart';
 import 'package:mtaa_frontend/features/users/versioning/shared/VersionItemTypes.dart';
@@ -41,6 +42,7 @@ class SynchronizationServiceImpl extends SynchronizationService {
   final PostsStorage postsStorage;
   final VersionItemsApi versionItemsApi;
   final VersionItemsStorage versionItemsStorage;
+  final TokenStorage tokenStorage;
 
   bool isPostsSynchronizing = false;
   bool isSynchronizeLoading = false;
@@ -52,13 +54,14 @@ class SynchronizationServiceImpl extends SynchronizationService {
   this.postsStorage,
   this.versionItemsApi,
   this.versionItemsStorage, 
-  this.accountApi);
+  this.accountApi,
+  this.tokenStorage);
 
   @override
   Future initializeSyncLoad() async{
     InternetChecker.connectionStream.listen((hasConnection) async {
       if (hasConnection) {
-        await synchronize();
+        await synchronizeLoad();
       }
     });
 
@@ -71,6 +74,7 @@ class SynchronizationServiceImpl extends SynchronizationService {
 
   
   Future synchronizeLoad() async {
+    if(await tokenStorage.getToken() == null) return;
     if (!getIt.isRegistered<BuildContext>()) return;
     var context = getIt.get<BuildContext>();
     if (!context.mounted) return;
@@ -98,6 +102,7 @@ class SynchronizationServiceImpl extends SynchronizationService {
   @override
   Future synchronize() async {
     try {
+      if(await tokenStorage.getToken() == null) return;
       var newVersions = await versionItemsApi.getVersionItems();
       if (newVersions.isEmpty) return;
       var oldPostsVersion = await versionItemsStorage.getVersionItem(VersionItemTypes.AccountPosts);
@@ -134,6 +139,7 @@ class SynchronizationServiceImpl extends SynchronizationService {
   @override
   Future synchronizeAccount(int newFollowersVersion, int newFriendsVersion, int newAccountVersion, int newLikedPostsVersion) async {
     try {
+      if(await tokenStorage.getToken() == null) return;
       if (!getIt.isRegistered<BuildContext>()) return;
       var context = getIt.get<BuildContext>();
       var account = await accountApi.getFullAccount();
@@ -165,6 +171,7 @@ class SynchronizationServiceImpl extends SynchronizationService {
   @override
   Future synchronizePosts(int versionDifferency, int newVersion) async {
     try {
+      if(await tokenStorage.getToken() == null) return;
       if (isPostsSynchronizing) return;
       isPostsSynchronizing = true;
 

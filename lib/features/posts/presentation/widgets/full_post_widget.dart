@@ -126,7 +126,12 @@ class _FullPostWidgetState extends State<FullPostWidget> {
               children: [
                 InkWell(
                   onTap: () {
-                    GoRouter.of(context).push(publicAccountInformationScreenRoute, extra: widget.post.owner.id);
+                    if(userId==widget.post.owner.id){
+                      GoRouter.of(context).push(accountProfileScreenRoute);
+                    }
+                    else {
+                      GoRouter.of(context).push(publicAccountInformationScreenRoute, extra: widget.post.owner.id);
+                    }
                   },
                   child: Row(
                     children: [

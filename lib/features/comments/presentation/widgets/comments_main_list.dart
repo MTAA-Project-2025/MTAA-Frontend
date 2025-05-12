@@ -40,6 +40,7 @@ class CommentsMainList extends StatefulWidget {
 class _CommentsMainListState extends State<CommentsMainList> {
   PageParameters pageParameters = PageParameters(pageNumber: 0, pageSize: 10);
   bool isLoading = false;
+  bool isNewLoading = false;
   bool isLoadMoreAvailable = true;
   final TextEditingController createCommentTextController = TextEditingController();
 
@@ -91,6 +92,7 @@ class _CommentsMainListState extends State<CommentsMainList> {
           return BlocBuilder<CommentsBloc, CommentsState>(builder: (context, commentsState) {
             return Column(children: [
               CommentsTextInput(
+                  key: const Key('mainCommentInput'),
                   placeholder: 'Write a comment',
                   controller: createCommentTextController,
                   validator: commentValidator,
@@ -99,7 +101,12 @@ class _CommentsMainListState extends State<CommentsMainList> {
                   onCancel: () {
                     createCommentTextController.clear();
                   },
+                  isLoading: isNewLoading,
                   onSend: () async {
+                    if(!mounted)return;
+                    setState(() {
+                      isNewLoading = true;
+                    });
                     if (createCommentTextController.text.isEmpty) return;
                     var commentId = await widget.commentsRepository.addComment(AddCommentRequest(postId: widget.postId, text: createCommentTextController.text));
                     if (commentId == null) return;
@@ -107,6 +114,10 @@ class _CommentsMainListState extends State<CommentsMainList> {
                     if (comment == null || !mounted || !context.mounted) return;
                     context.read<CommentsBloc>().add(AddFirstCommentEvent(comment: comment));
                     createCommentTextController.clear();
+                    if(!mounted)return;
+                    setState(() {
+                      isNewLoading = false;
+                    });
                   }),
               ListView.builder(
                 shrinkWrap: true,

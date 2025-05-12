@@ -81,6 +81,7 @@ class NotificationsServiceImpl extends NotificationsService {
   void stopSSE() {
     _subscription?.cancel();
     _subscription = null;
+    isSSEStarted=false;
     print('SSE subscription cancelled');
   }
 }

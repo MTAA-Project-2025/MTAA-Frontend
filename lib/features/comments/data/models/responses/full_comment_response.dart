@@ -4,7 +4,7 @@ import 'package:uuid/uuid.dart';
 
 class FullCommentResponse {
   final UuidValue id;
-  final String text;
+  String text;
   final PublicBaseAccountResponse owner;
   int likesCount;
   int dislikesCount;

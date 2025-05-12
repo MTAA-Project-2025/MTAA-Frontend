@@ -46,6 +46,7 @@ void setupDependencies() {
   dio.interceptors.add(ErrorInterceptor());
 
   getIt.registerSingleton<Dio>(dio);
+  getIt.get<TokenStorage>().initializeDio(dio);
 
   getIt.registerSingleton<MyToastService>(
     MyToastServiceImpl(),
@@ -138,7 +139,8 @@ void setupDependencies() {
         getIt<PostsStorage>(),
         getIt<VersionItemsApi>(),
         getIt<VersionItemsStorage>(),
-        getIt<AccountApi>())
+        getIt<AccountApi>(),
+        getIt<TokenStorage>())
   );
 
   getIt.registerSingleton<NotificationsService>(
