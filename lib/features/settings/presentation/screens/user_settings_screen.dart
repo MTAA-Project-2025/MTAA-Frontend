@@ -1,3 +1,4 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -20,6 +21,8 @@ class UserSettingsScreen extends StatefulWidget {
 }
 
 class _UserSettingsScreenState extends State<UserSettingsScreen> {
+  final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+  
   void _changeTheme(AppThemeMode mode) {
     context.read<ThemeBloc>().add(ChangeThemeEvent(mode));
   }
@@ -45,6 +48,7 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
                 width: double.infinity,
                 child: TextButton(
                   onPressed: () {
+                    analytics.logEvent(name: 'logout');
                     widget.tokenStorage.deleteToken();
                     GoRouter.of(context).go('/');
                   },

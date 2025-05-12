@@ -1,3 +1,4 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -33,6 +34,7 @@ class _CreateAccountState extends State<CreateAccountScreen> {
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
   bool isLoading = false;
+  final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
   @override
   void dispose() {
@@ -96,6 +98,7 @@ class _CreateAccountState extends State<CreateAccountScreen> {
                         if(res != null)
                         {
                           widget.tokenStorage.saveToken(res.token);
+                          await analytics.logSignUp(signUpMethod: 'email');
                           _navigateToFirstUpdateDisplayNameScreenRoute();
                         }
                       }

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:drift/drift.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:hive/hive.dart';
 import 'package:mtaa_frontend/core/constants/images/image_size_type.dart';
 import 'package:mtaa_frontend/core/constants/storages/storage_boxes.dart';
@@ -65,13 +66,15 @@ abstract class PostsStorage {
 
 class PostsStorageImpl extends PostsStorage {
   final String recommendedPosts = 'recommendedPosts';
+  final String scheduledPosts = 'scheduledPosts';
   final String tempAddPost = 'teamAddPost';
   final MyDbContext dbContext;
   final MyImageStorage imageStorage;
   final Dio dio;
   final PhoneNotificationsService notificationsService;
   final TokenStorage tokenStorage;
-
+  final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+  
   PostsStorageImpl(this.dbContext, this.imageStorage, this.dio, this.notificationsService, this.tokenStorage);
 
   @override
@@ -89,7 +92,14 @@ class PostsStorageImpl extends PostsStorage {
   Future<AddPostHive?> getTempPostAddForm() async {
     var box = await Hive.openBox<AddPostHive>(tempAddPostDataBox);
 
-    return box.get(tempAddPost);
+    var res = box.get(tempAddPost);
+    if(res!=null){
+      await analytics.logEvent(name: 'get_temp_post_add_form', parameters: {
+        'box': tempAddPostDataBox,
+        'key': tempAddPost,
+      });
+    }
+    return res;
   }
 
   @override
@@ -142,6 +152,12 @@ class PostsStorageImpl extends PostsStorage {
       }
     }
     var box = await Hive.openBox<AddPostHive>(tempAddPostDataBox);
+
+    await analytics.logEvent(name: 'delete_temp_post_add_form', parameters: {
+        'box': tempAddPostDataBox,
+        'key': tempAddPost,
+    });
+
     await box.delete(tempAddPost);
   }
 
@@ -178,7 +194,7 @@ class PostsStorageImpl extends PostsStorage {
   @override
   Future<List<AddPostRequest>> getScheduledPostsHive() async {
     var box = await Hive.openBox<List>(scheduledAddPostDataBox);
-    List<dynamic>? oldPosts = box.get(scheduledAddPostDataBox);
+    List<dynamic>? oldPosts = box.get(scheduledPosts);
 
     if (oldPosts == null) return [];
     var mappedPosts = oldPosts.map((e) => e as AddPostHive).toList();
@@ -202,10 +218,16 @@ class PostsStorageImpl extends PostsStorage {
   @override
   Future setScheduledPostsHive(List<AddPostRequest> requests) async {
     var box = await Hive.openBox<List>(scheduledAddPostDataBox);
-    List<dynamic>? oldPosts = box.get(scheduledAddPostDataBox);
+    List<dynamic>? oldPosts = box.get(scheduledPosts);
 
     if (oldPosts == null) return [];
     var mappedPosts = oldPosts.map((e) => e as AddPostHive).toList();
+
+    await analytics.logEvent(name: 'set_scheduled_posts_hive', parameters: {
+        'box': scheduledAddPostDataBox,
+        'key': scheduledPosts,
+        'count': requests.length
+    });
 
     List<AddPostRequest> postsToAdd = [];
     List<AddPostHive> hivePosts = [];
@@ -317,6 +339,10 @@ class PostsStorageImpl extends PostsStorage {
 
   @override
   Future<int> updatePost(FullPostResponse newPost, LocationPostResponse? locationPost, int newVersion) async {
+    await analytics.logEvent(name: 'update_post_locally', parameters: {
+        'newVersion': newVersion,
+    });
+
     final oldPost = await (dbContext.select(dbContext.posts)..where((tbl) => tbl.id.equals(newPost.id.uuid))).getSingleOrNull();
 
     if (oldPost == null) {
@@ -441,6 +467,9 @@ class PostsStorageImpl extends PostsStorage {
 
   @override
   Future<int> updateSchedulePost(SchedulePostResponse newPost, int newVersion) async {
+    await analytics.logEvent(name: 'update_scheduled_post_locally', parameters: {
+        'newVersion': newVersion,
+    });
     final oldPost = await (dbContext.select(dbContext.schedulePosts)..where((tbl) => tbl.id.equals(newPost.id.uuid))).getSingleOrNull();
 
     if (oldPost == null) {
@@ -478,6 +507,9 @@ class PostsStorageImpl extends PostsStorage {
 
   @override
   Future saveSchedulePost(SchedulePostResponse post) async {
+    await analytics.logEvent(name: 'save_scheduled_post_locally', parameters: {
+        'postId': post.id.uuid
+    });
     final query = dbContext.selectOnly(dbContext.schedulePosts)
       ..addColumns([dbContext.schedulePosts.id])
       ..where(dbContext.schedulePosts.id.equals(post.id.uuid));
@@ -535,6 +567,10 @@ class PostsStorageImpl extends PostsStorage {
 
   @override
   Future removeSchedulePost(SchedulePostResponse post) async {
+    await analytics.logEvent(name: 'remove_scheduled_post_locally', parameters: {
+        'postId': post.id.uuid
+    });
+
     final query = dbContext.selectOnly(dbContext.schedulePosts)
       ..addColumns([dbContext.schedulePosts.id])
       ..where(dbContext.schedulePosts.id.equals(post.id.uuid));
@@ -665,6 +701,9 @@ class PostsStorageImpl extends PostsStorage {
 
   @override
   Future saveLocationPost(LocationPostResponse post) async {
+    await analytics.logEvent(name: 'save_location_post_locally', parameters: {
+        'postId': post.id.uuid
+    });
     final query = dbContext.selectOnly(dbContext.locationPosts)
       ..addColumns([dbContext.locationPosts.id])
       ..where(dbContext.locationPosts.id.equals(post.id.uuid));
@@ -738,6 +777,9 @@ class PostsStorageImpl extends PostsStorage {
 
   @override
   Future removeLocationPost(LocationPostResponse post) async {
+    await analytics.logEvent(name: 'remove_location_post_locally', parameters: {
+        'postId': post.id.uuid
+    });
     final query = dbContext.selectOnly(dbContext.locationPosts)
       ..addColumns([dbContext.locationPosts.id])
       ..addColumns([dbContext.locationPosts.notificationId])
@@ -908,6 +950,9 @@ class PostsStorageImpl extends PostsStorage {
 
   @override
   Future saveSimple(SimplePostResponse post, int version) async {
+    await analytics.logEvent(name: 'save_simple_post_locally', parameters: {
+        'postId': post.id.uuid
+    });
     final query = dbContext.selectOnly(dbContext.posts)
       ..addColumns([dbContext.posts.id])
       ..where(dbContext.posts.id.equals(post.id.uuid));
@@ -965,6 +1010,9 @@ class PostsStorageImpl extends PostsStorage {
 
   @override
   Future deletePost(UuidValue id) async {
+    await analytics.logEvent(name: 'remove_simple_post_locally', parameters: {
+        'postId': id.uuid
+    });
     final query = dbContext.select(dbContext.posts)..where((e) => dbContext.posts.id.equals(id.uuid));
 
     final row = await query.getSingleOrNull();

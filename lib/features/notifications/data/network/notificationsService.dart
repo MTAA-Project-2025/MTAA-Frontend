@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter_client_sse/constants/sse_request_type_enum.dart';
 import 'package:flutter_client_sse/flutter_client_sse.dart';
 import 'package:mtaa_frontend/core/config/app_config.dart';
@@ -15,6 +16,8 @@ class NotificationsServiceImpl extends NotificationsService {
   final MyToastService toastService;
   final SynchronizationService synchronizationService;
 
+  final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
   NotificationsServiceImpl(this.toastService, this.synchronizationService);
 
   bool isSSEStarted = false;
@@ -23,6 +26,8 @@ class NotificationsServiceImpl extends NotificationsService {
   Future startSSE(String token) async {
     if (isSSEStarted) return;
     isSSEStarted = true;
+
+    await analytics.logEvent(name: 'start_sse');
 
     _subscription = SSEClient.subscribeToSSE(
       method: SSERequestType.GET,
@@ -83,5 +88,7 @@ class NotificationsServiceImpl extends NotificationsService {
     _subscription = null;
     isSSEStarted=false;
     print('SSE subscription cancelled');
+
+    analytics.logEvent(name: 'stop_sse');
   }
 }

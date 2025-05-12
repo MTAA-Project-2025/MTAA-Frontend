@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:hive/hive.dart';
 import 'package:mtaa_frontend/core/constants/storages/storage_boxes.dart';
@@ -12,6 +13,8 @@ class TokenStorage {
   late SynchronizationService synchronizationService;
   late NotificationsService notificationsService;
   Dio? dio;
+  final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
   Future<void> initialize(SynchronizationService synchronizationService, NotificationsService notificationsService) async {
     this.synchronizationService = synchronizationService;
     this.notificationsService = notificationsService;
@@ -25,6 +28,8 @@ class TokenStorage {
     await synchronizationService.synchronize();
 
     await saveFirebaseToken();
+
+    await analytics.logEvent(name: 'save_token');
   }
   Future saveFirebaseToken() async{
     if(dio == null)return;
@@ -36,6 +41,8 @@ class TokenStorage {
       await dio!.post(fullUrl, data: {
         'token' : token
       });
+
+      await analytics.logEvent(name: 'save_firebase_token');
     } catch (e) {
       print('Error saving Firebase token: $e');
     }
@@ -54,6 +61,7 @@ class TokenStorage {
     var box = Hive.box(currentUserDataBox);
     await box.delete(tokenKey);
     notificationsService.stopSSE();
+    await analytics.logEvent(name: 'delete_token');
   }
 
   Future<String?> getUserId() async {
@@ -69,7 +77,9 @@ class TokenStorage {
       final payload = utf8.decode(base64Url.decode(base64Url.normalize(parts[1])));
       final Map<String, dynamic> decodedPayload = jsonDecode(payload);
 
-      return decodedPayload['Id']?.toString();
+      var id = decodedPayload['Id']?.toString();
+      if(id == null) return null;
+      return id;
     } catch (e) {
       return null;
     }

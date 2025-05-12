@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:mtaa_frontend/core/services/exceptions_service.dart';
 import 'package:mtaa_frontend/features/posts/data/models/requests/add_post_request.dart';
 import 'package:mtaa_frontend/features/posts/data/models/requests/get_global_posts_request.dart';
@@ -33,6 +34,7 @@ class PostsApiImpl extends PostsApi {
   final String controllerName = 'Posts';
   final ExceptionsService exceptionsService;
   CancelToken cancelToken = CancelToken();
+  final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
   PostsApiImpl(this.dio, this.exceptionsService);
 
@@ -41,7 +43,13 @@ class PostsApiImpl extends PostsApi {
     final fullUrl = '$controllerName/add';
     try {
       var res = await dio.post(fullUrl,data: request.toFormData());
-      return UuidValue.fromString(res.data);
+
+      var id = UuidValue.fromString(res.data);
+
+      await analytics.logEvent(name: 'add_post', parameters: {
+        'postId': id.uuid,
+      });
+      return id;
     } on DioException catch (e) {
       exceptionsService.httpError(e);
       return null;
@@ -53,6 +61,8 @@ class PostsApiImpl extends PostsApi {
     final fullUrl = '$controllerName/update';
     try {
       await dio.put(fullUrl,data: request.toFormData());
+
+      await analytics.logEvent(name: 'update_post');
       return true;
     } on DioException catch (e) {
       exceptionsService.httpError(e);
@@ -167,6 +177,10 @@ class PostsApiImpl extends PostsApi {
     final fullUrl = '$controllerName/${id.uuid}';
     try {
       await dio.delete(fullUrl);
+
+      await analytics.logEvent(name: 'delete_post', parameters: {
+        'postId': id.uuid,
+      });
       return true;
     } on DioException catch (e) {
       exceptionsService.httpError(e);
@@ -179,6 +193,10 @@ class PostsApiImpl extends PostsApi {
     final fullUrl = '$controllerName/add-like/${id.uuid}';
     try {
       await dio.post(fullUrl);
+
+      await analytics.logEvent(name: 'like_post', parameters: {
+        'postId': id.uuid,
+      });
       return true;
     } on DioException catch (e) {
       exceptionsService.httpError(e);
@@ -191,6 +209,10 @@ class PostsApiImpl extends PostsApi {
     final fullUrl = '$controllerName/remove-like/${id.uuid}';
     try {
       await dio.delete(fullUrl);
+
+      await analytics.logEvent(name: 'like_post', parameters: {
+        'postId': id.uuid,
+      });
       return true;
     } on DioException catch (e) {
       exceptionsService.httpError(e);

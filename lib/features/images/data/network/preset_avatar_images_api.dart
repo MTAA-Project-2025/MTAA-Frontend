@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:mtaa_frontend/core/services/internet_checker.dart';
 import 'package:mtaa_frontend/features/images/data/models/responses/myImageGroupResponse.dart';
@@ -11,6 +12,7 @@ abstract class PresetAvatarImagesApi {
 class PresetAvatarImagesApiImpl extends PresetAvatarImagesApi {
   final Dio dio;
   final String controllerName = 'PresetAvatarImages';
+  final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
   CancelToken cancelToken = CancelToken();
 
   PresetAvatarImagesApiImpl(this.dio);
@@ -18,6 +20,7 @@ class PresetAvatarImagesApiImpl extends PresetAvatarImagesApi {
   @override
   Future<List<MyImageGroupResponse>> getAllPresetImages() async {
     if(await InternetChecker.fullIsFlightMode()) return [];
+    await analytics.logEvent(name: 'get_all_preset_images', parameters: {});
     final fullUrl = '$controllerName/get-all';
     try {
       var res = await dio.get(fullUrl);

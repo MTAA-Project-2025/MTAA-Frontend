@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart';
 import 'package:timezone/timezone.dart' as tz;
@@ -11,6 +12,7 @@ abstract class PhoneNotificationsService {
 
 class PhoneNotificationsServiceImpl extends PhoneNotificationsService {
   final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
   PhoneNotificationsServiceImpl();
 
@@ -31,6 +33,7 @@ class PhoneNotificationsServiceImpl extends PhoneNotificationsService {
 
     bool? granted = await requestPermissions();
     if (granted == null || !granted) {
+      await analytics.logEvent(name: 'schedule_phone_notification_permissions_not_granted');
       return -1;
     }
 
@@ -44,6 +47,14 @@ class PhoneNotificationsServiceImpl extends PhoneNotificationsService {
       ),
       androidScheduleMode: AndroidScheduleMode.inexact,
     );
+
+    await analytics.logEvent(name: 'schedule_phone_notification', parameters: {
+      'id': id,
+      'title': title,
+      'description': description,
+      'time': time.toIso8601String(),
+    });
+
     return id;
   }
 

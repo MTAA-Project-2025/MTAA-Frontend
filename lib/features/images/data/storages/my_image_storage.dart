@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:drift/drift.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
@@ -13,6 +14,7 @@ abstract class MyImageStorage {
 }
 
 class MyImageStorageImpl extends MyImageStorage {
+  final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
   @override
   Future<String> saveTempImage(Uint8List data, String name) async {
     final tempDir = await getApplicationDocumentsDirectory();
@@ -37,6 +39,9 @@ class MyImageStorageImpl extends MyImageStorage {
   @override
   Future deleteImage(String path) async {
     File file = File(path);
+    await analytics.logEvent(name: 'delete_image', parameters: {
+      'path': path,
+    });
     if (await file.exists()) {
       await file.delete();
     }

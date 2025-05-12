@@ -14,6 +14,7 @@ class ResendEmailButton extends StatefulWidget {
   State<ResendEmailButton> createState() => _ResendEmailButtonState();
 }
 
+//GPT
 class _ResendEmailButtonState extends State<ResendEmailButton> {
   Timer _timer = Timer(Duration.zero, () => {});
   int _remainingSeconds = 0;

@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:mtaa_frontend/core/services/exceptions_service.dart';
 import 'package:mtaa_frontend/core/services/internet_checker.dart';
 import 'package:mtaa_frontend/features/users/versioning/api/VersionItemsApi.dart';
@@ -10,6 +11,8 @@ class VersionItemsApiImpl implements VersionItemsApi {
   final ExceptionsService exceptionsService;
   CancelToken cancelToken = CancelToken();
 
+  final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
   VersionItemsApiImpl(this.dio, this.exceptionsService);
 
   @override
@@ -19,6 +22,9 @@ class VersionItemsApiImpl implements VersionItemsApi {
     try {
       var res = await dio.get(fullUrl);
       List<dynamic> data = res.data;
+
+      await analytics.logEvent(name: 'get_version_items');
+
       return data.map((item) => VersionItem.fromJson(item)).toList();
     } on DioException catch (e) {
       exceptionsService.httpError(e);

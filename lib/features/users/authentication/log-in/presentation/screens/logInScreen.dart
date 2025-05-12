@@ -1,3 +1,4 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -30,6 +31,7 @@ class _LogInScreenState extends State<LogInScreen> {
   final loginController = TextEditingController();
   final passwordController = TextEditingController();
   bool isLoading = false;
+  final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
   @override
   void dispose() {
@@ -102,6 +104,7 @@ class _LogInScreenState extends State<LogInScreen> {
 
                               if (res != null) {
                                 widget.tokenStorage.saveToken(res.token);
+                                await analytics.logLogin(loginMethod: 'email');
                                 _navigateToMainScreen();
                               }
                             }

@@ -1,3 +1,4 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mtaa_frontend/core/constants/route_constants.dart';
@@ -19,6 +20,7 @@ class PostLocationSaveSection extends StatefulWidget {
 }
 
 class _PostLocationSaveSectionState extends State<PostLocationSaveSection> {
+  final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
   bool isSaved = false;
   @override
   void initState() {
@@ -102,6 +104,7 @@ class _PostLocationSaveSectionState extends State<PostLocationSaveSection> {
                 bool res = false;
 
                 if (isSaved) {
+                  analytics.logSelectItem(itemListId: widget.post?.id.toString(), itemListName: 'saved_posts');
                   if (widget.locationPost != null) {
                     await widget.repository.saveLocationPost(widget.locationPost!);
                     res = true;

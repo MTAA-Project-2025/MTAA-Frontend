@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:airplane_mode_checker/airplane_mode_checker.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mtaa_frontend/core/services/internet_checker.dart';
@@ -44,6 +45,8 @@ class SynchronizationServiceImpl extends SynchronizationService {
   final VersionItemsStorage versionItemsStorage;
   final TokenStorage tokenStorage;
 
+  final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
   bool isPostsSynchronizing = false;
   bool isSynchronizeLoading = false;
 
@@ -59,10 +62,14 @@ class SynchronizationServiceImpl extends SynchronizationService {
 
   @override
   Future initializeSyncLoad() async{
+    await analytics.logEvent(name: 'initialize_sync_load');
     InternetChecker.connectionStream.listen((hasConnection) async {
       if (hasConnection) {
         await synchronizeLoad();
       }
+      await analytics.logEvent(name: 'change_connection', parameters: {
+        'hasConnection': hasConnection.toString(),
+      });
     });
 
     syncTimer = Timer.periodic(const Duration(seconds: 5), (timer) async {
@@ -102,6 +109,7 @@ class SynchronizationServiceImpl extends SynchronizationService {
   @override
   Future synchronize() async {
     try {
+      await analytics.logEvent(name: 'synchronize');
       if(await tokenStorage.getToken() == null) return;
       var newVersions = await versionItemsApi.getVersionItems();
       if (newVersions.isEmpty) return;

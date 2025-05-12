@@ -1,4 +1,5 @@
 import 'package:airplane_mode_checker/airplane_mode_checker.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mtaa_frontend/core/services/my_toast_service.dart';
@@ -37,6 +38,7 @@ class _PostsGlobalSearchScreenState extends State<PostsGlobalSearchScreen> {
   bool isLoading = false;
   final searchController = TextEditingController();
   String filterStr = '';
+  final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
   @override
   void initState() {
@@ -131,6 +133,7 @@ class _PostsGlobalSearchScreenState extends State<PostsGlobalSearchScreen> {
                         controller: searchController,
                         textInputType: TextInputType.text,
                         onSearch: () {
+                          analytics.logSearch(searchTerm: searchController.text);
                           filterStr = searchController.text;
                           loadFirst();
                         },

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map_tile_caching/flutter_map_tile_caching.dart';
@@ -65,6 +66,12 @@ Future<void> main() async {
   await Hive.openBox<UserPositionHive>(prevUserLocationDataBox);
   await Hive.openBox(accountDataBox);
 
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+
   tz.initializeTimeZones();
 
   const environment = String.fromEnvironment('ENV', defaultValue: 'development');
@@ -82,10 +89,6 @@ Future<void> main() async {
   if (token != null && token.isNotEmpty) {
     sse.startSSE(token);
   }
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
   await requestNotificationPermissions();
 
