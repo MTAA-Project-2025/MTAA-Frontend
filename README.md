@@ -1,6 +1,6 @@
 # mtaa_frontend
 
-A new Flutter project.
+Branch feature/account-pages was merged in a wrong way, so in the main and develop branches are not many Volodymyr's commits.
 
 ## Getting Started
 
