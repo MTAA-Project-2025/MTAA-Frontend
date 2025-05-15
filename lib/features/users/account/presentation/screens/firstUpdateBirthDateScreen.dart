@@ -88,7 +88,7 @@ class _FirstUpdateBirthDateScreenState extends State<FirstUpdateBirthDateScreen>
                     children: [
                       TextButton(
                         onPressed: () {
-                          GoRouter.of(context).goNamed(userRecommendationsScreenRoute);
+                          GoRouter.of(context).go(userRecommendationsScreenRoute);
                         },
                         style: TextButton.styleFrom(
                           foregroundColor: Theme.of(context).colorScheme.secondary,

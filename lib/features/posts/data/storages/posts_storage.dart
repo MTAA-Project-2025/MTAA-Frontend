@@ -74,7 +74,7 @@ class PostsStorageImpl extends PostsStorage {
   final PhoneNotificationsService notificationsService;
   final TokenStorage tokenStorage;
   final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
-  
+
   PostsStorageImpl(this.dbContext, this.imageStorage, this.dio, this.notificationsService, this.tokenStorage);
 
   @override
@@ -88,12 +88,22 @@ class PostsStorageImpl extends PostsStorage {
     return posts.map((e) => FullPostResponse.fromHive(e)).toList();
   }
 
+  Future<List<FullPostHive>> getRecommendedOrig() async {
+    var box = await Hive.openBox<List>(postsDataBox);
+
+    List<dynamic>? posts = box.get(recommendedPosts);
+
+    if (posts == null) return [];
+
+    return posts.map((e) => e as FullPostHive).toList();
+  }
+
   @override
   Future<AddPostHive?> getTempPostAddForm() async {
     var box = await Hive.openBox<AddPostHive>(tempAddPostDataBox);
 
     var res = box.get(tempAddPost);
-    if(res!=null){
+    if (res != null) {
       await analytics.logEvent(name: 'get_temp_post_add_form', parameters: {
         'box': tempAddPostDataBox,
         'key': tempAddPost,
@@ -104,34 +114,42 @@ class PostsStorageImpl extends PostsStorage {
 
   @override
   Future setRecommended(List<FullPostResponse> posts) async {
-    List<FullPostResponse> postsToAddImg = [];
-    var postsHive = posts.map((e) => FullPostHive.fromResponse(e)).toList();
+    List<FullPostHive> postsToAddImg = [];
+    List<FullPostHive> postsToAdd = [];
 
-    var oldPosts = await getRecommended();
+    var oldPosts = await getRecommendedOrig();
     for (var post in oldPosts) {
-      if (!posts.any((e) => e.id == post.id && e.isLocal)) {
+      if (!posts.any((e) => e.id.uuid == post.id)) {
         for (var imgGroup in post.images) {
           for (var img in imgGroup.images) {
             await imageStorage.deleteImage(img.fullPath);
           }
         }
-        postsToAddImg.add(post);
+      }
+    }
+
+    for (var post in posts) {
+      if (oldPosts.any((e) => e.id == post.id.uuid)) {
+        var res = oldPosts.firstWhere((e) => e.id == post.id.uuid);
+        postsToAdd.add(res);
+      } else {
+        var hive = FullPostHive.fromResponse(post);
+        postsToAdd.add(hive);
+        postsToAddImg.add(hive);
       }
     }
     var box = await Hive.openBox<List>(postsDataBox);
 
-    for (var post in posts) {
-      var origPost = postsHive.firstWhere((e) => e.id == post.id.uuid, orElse: () => FullPostHive.fromResponse(post));
-
-      for (var imgGroup in origPost.images) {
+    for (var post in postsToAddImg) {
+      for (var imgGroup in post.images) {
         var img = imgGroup.images.firstWhere((e) => e.type == ImageSizeType.large.index);
         var uint8List = await imageStorage.urlToUint8List(img.fullPath);
         if (uint8List == null) continue;
         var path = await imageStorage.saveTempImage(uint8List, 'postImg_${imgGroup.title}_${img.id}');
         img.localPath = path;
       }
-      if (origPost.owner.avatar != null) {
-        for (var img in origPost.owner.avatar!.images) {
+      if (post.owner.avatar != null) {
+        for (var img in post.owner.avatar!.images) {
           var uint8List = await imageStorage.urlToUint8List(img.fullPath);
           if (uint8List == null) continue;
           var path = await imageStorage.saveTempImage(uint8List, 'recommend_system_avatar_${img.id}');
@@ -139,7 +157,7 @@ class PostsStorageImpl extends PostsStorage {
         }
       }
     }
-    await box.put(recommendedPosts, postsHive);
+    await box.put(recommendedPosts, postsToAdd);
   }
 
   @override
@@ -154,8 +172,8 @@ class PostsStorageImpl extends PostsStorage {
     var box = await Hive.openBox<AddPostHive>(tempAddPostDataBox);
 
     await analytics.logEvent(name: 'delete_temp_post_add_form', parameters: {
-        'box': tempAddPostDataBox,
-        'key': tempAddPost,
+      'box': tempAddPostDataBox,
+      'key': tempAddPost,
     });
 
     await box.delete(tempAddPost);
@@ -199,17 +217,18 @@ class PostsStorageImpl extends PostsStorage {
     if (oldPosts == null) return [];
     var mappedPosts = oldPosts.map((e) => e as AddPostHive).toList();
 
-    List<AddPostRequest> res=[];
+    List<AddPostRequest> res = [];
 
-    for(var post in mappedPosts){
+    for (var post in mappedPosts) {
       List<AddImageRequest> images = [];
       for (var img in post.images) {
         File imageFile = File(img.imagePath);
         AddImageRequest newImage = AddImageRequest(image: imageFile, position: img.position);
         images.add(newImage);
       }
-      var request =AddPostRequest(images: images, description: post.description, location: post.location != null ? AddLocationRequest.fromHive(post.location!) : null, scheduledDate: post.scheduledDate);
-      request.id=UuidValue.fromString(post.id);
+      var request =
+          AddPostRequest(images: images, description: post.description, location: post.location != null ? AddLocationRequest.fromHive(post.location!) : null, scheduledDate: post.scheduledDate);
+      request.id = UuidValue.fromString(post.id);
       res.add(request);
     }
     return res;
@@ -223,11 +242,7 @@ class PostsStorageImpl extends PostsStorage {
     if (oldPosts == null) return [];
     var mappedPosts = oldPosts.map((e) => e as AddPostHive).toList();
 
-    await analytics.logEvent(name: 'set_scheduled_posts_hive', parameters: {
-        'box': scheduledAddPostDataBox,
-        'key': scheduledPosts,
-        'count': requests.length
-    });
+    await analytics.logEvent(name: 'set_scheduled_posts_hive', parameters: {'box': scheduledAddPostDataBox, 'key': scheduledPosts, 'count': requests.length});
 
     List<AddPostRequest> postsToAdd = [];
     List<AddPostHive> hivePosts = [];
@@ -260,7 +275,8 @@ class PostsStorageImpl extends PostsStorage {
 
         imagesHive.add(newImageHive);
       }
-      hivePosts.add(AddPostHive(images: imagesHive, location: request.location != null ? AddLocationHive.fromRequest(request.location!) : null, description: request.description, id: request.id!.uuid));
+      hivePosts
+          .add(AddPostHive(images: imagesHive, location: request.location != null ? AddLocationHive.fromRequest(request.location!) : null, description: request.description, id: request.id!.uuid));
     }
     await box.put(scheduledAddPostDataBox, hivePosts);
   }
@@ -305,6 +321,7 @@ class PostsStorageImpl extends PostsStorage {
           type: ImageSizeType.values[imageTable.type],
           width: imageTable.width);
 
+      if(posts.any((e)=>e.id.uuid==postTable.id))continue;
       var post = SimplePostResponse(id: UuidValue.fromString(postTable.id), smallFirstImage: image, dataCreationTime: postTable.dataCreationTime, isLocal: true);
 
       posts.add(post);
@@ -340,7 +357,7 @@ class PostsStorageImpl extends PostsStorage {
   @override
   Future<int> updatePost(FullPostResponse newPost, LocationPostResponse? locationPost, int newVersion) async {
     await analytics.logEvent(name: 'update_post_locally', parameters: {
-        'newVersion': newVersion,
+      'newVersion': newVersion,
     });
 
     final oldPost = await (dbContext.select(dbContext.posts)..where((tbl) => tbl.id.equals(newPost.id.uuid))).getSingleOrNull();
@@ -468,7 +485,7 @@ class PostsStorageImpl extends PostsStorage {
   @override
   Future<int> updateSchedulePost(SchedulePostResponse newPost, int newVersion) async {
     await analytics.logEvent(name: 'update_scheduled_post_locally', parameters: {
-        'newVersion': newVersion,
+      'newVersion': newVersion,
     });
     final oldPost = await (dbContext.select(dbContext.schedulePosts)..where((tbl) => tbl.id.equals(newPost.id.uuid))).getSingleOrNull();
 
@@ -507,9 +524,7 @@ class PostsStorageImpl extends PostsStorage {
 
   @override
   Future saveSchedulePost(SchedulePostResponse post) async {
-    await analytics.logEvent(name: 'save_scheduled_post_locally', parameters: {
-        'postId': post.id.uuid
-    });
+    await analytics.logEvent(name: 'save_scheduled_post_locally', parameters: {'postId': post.id.uuid});
     final query = dbContext.selectOnly(dbContext.schedulePosts)
       ..addColumns([dbContext.schedulePosts.id])
       ..where(dbContext.schedulePosts.id.equals(post.id.uuid));
@@ -567,9 +582,7 @@ class PostsStorageImpl extends PostsStorage {
 
   @override
   Future removeSchedulePost(SchedulePostResponse post) async {
-    await analytics.logEvent(name: 'remove_scheduled_post_locally', parameters: {
-        'postId': post.id.uuid
-    });
+    await analytics.logEvent(name: 'remove_scheduled_post_locally', parameters: {'postId': post.id.uuid});
 
     final query = dbContext.selectOnly(dbContext.schedulePosts)
       ..addColumns([dbContext.schedulePosts.id])
@@ -701,9 +714,7 @@ class PostsStorageImpl extends PostsStorage {
 
   @override
   Future saveLocationPost(LocationPostResponse post) async {
-    await analytics.logEvent(name: 'save_location_post_locally', parameters: {
-        'postId': post.id.uuid
-    });
+    await analytics.logEvent(name: 'save_location_post_locally', parameters: {'postId': post.id.uuid});
     final query = dbContext.selectOnly(dbContext.locationPosts)
       ..addColumns([dbContext.locationPosts.id])
       ..where(dbContext.locationPosts.id.equals(post.id.uuid));
@@ -777,9 +788,7 @@ class PostsStorageImpl extends PostsStorage {
 
   @override
   Future removeLocationPost(LocationPostResponse post) async {
-    await analytics.logEvent(name: 'remove_location_post_locally', parameters: {
-        'postId': post.id.uuid
-    });
+    await analytics.logEvent(name: 'remove_location_post_locally', parameters: {'postId': post.id.uuid});
     final query = dbContext.selectOnly(dbContext.locationPosts)
       ..addColumns([dbContext.locationPosts.id])
       ..addColumns([dbContext.locationPosts.notificationId])
@@ -950,9 +959,7 @@ class PostsStorageImpl extends PostsStorage {
 
   @override
   Future saveSimple(SimplePostResponse post, int version) async {
-    await analytics.logEvent(name: 'save_simple_post_locally', parameters: {
-        'postId': post.id.uuid
-    });
+    await analytics.logEvent(name: 'save_simple_post_locally', parameters: {'postId': post.id.uuid});
     final query = dbContext.selectOnly(dbContext.posts)
       ..addColumns([dbContext.posts.id])
       ..where(dbContext.posts.id.equals(post.id.uuid));
@@ -1010,9 +1017,7 @@ class PostsStorageImpl extends PostsStorage {
 
   @override
   Future deletePost(UuidValue id) async {
-    await analytics.logEvent(name: 'remove_simple_post_locally', parameters: {
-        'postId': id.uuid
-    });
+    await analytics.logEvent(name: 'remove_simple_post_locally', parameters: {'postId': id.uuid});
     final query = dbContext.select(dbContext.posts)..where((e) => dbContext.posts.id.equals(id.uuid));
 
     final row = await query.getSingleOrNull();

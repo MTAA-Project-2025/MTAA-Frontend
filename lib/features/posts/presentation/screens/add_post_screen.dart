@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:mtaa_frontend/core/constants/route_constants.dart';
 import 'package:mtaa_frontend/core/constants/validators.dart';
+import 'package:mtaa_frontend/core/services/internet_checker.dart';
 import 'package:mtaa_frontend/core/services/my_toast_service.dart';
 import 'package:mtaa_frontend/domain/hive_data/add-posts/add_image_hive.dart';
 import 'package:mtaa_frontend/features/images/data/models/requests/add_image_request.dart';
@@ -145,14 +146,14 @@ class _AddPostScreenState extends State<AddPostScreen> {
     return aspectRatioPreset;
   }
 
-  void uploadImg(XFile orig, File cropped) {
+  Future uploadImg(XFile orig, File cropped) async {
     if (!mounted) return;
     AddPostImageScreenDTO newImage = AddPostImageScreenDTO(position: images.length);
     newImage.originalImage = orig;
+
     newImage.image = cropped;
 
-    ImageDTO newImageDTO =
-        ImageDTO(image: Image(image: FileImage(cropped), fit: BoxFit.fitHeight), originalPath: orig.path, isAspectRatioError: false, aspectRatioPreset: CropAspectRatioPresetCustom(1, 1, '1x1'));
+    ImageDTO newImageDTO = ImageDTO(image: Image(image: FileImage(cropped), fit: BoxFit.fitHeight), originalPath: orig.path, isAspectRatioError: false, aspectRatioPreset: CropAspectRatioPresetCustom(1, 1, '1x1'));
 
     Future.microtask(() async {
       var res = await rewiewAspectRatio(cropped);
@@ -399,7 +400,12 @@ class _AddPostScreenState extends State<AddPostScreen> {
                                 scheduledDate: addScheduleDateDTO.date);
                                 UuidValue? id;
                                 if(addScheduleDateDTO.date == null){
-                                  id = await widget.repository.addPost(request);
+                                  if(!await InternetChecker.isInternetEnabled()){
+                                    await widget.toastService.showError('You are offline. Please try again later or create scheduled post');
+                                  }
+                                  else{
+                                    id = await widget.repository.addPost(request);
+                                  }
                                 }
                                 else {
                                   id = UuidValue.fromString(Uuid().v4());
@@ -410,6 +416,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                                 if (!mounted) return;
                                 setState(() => isLoading = false);
                                 if (id != null) {
+                                  await widget.toastService.showMsg('Post created successfully');
                                   _navigateToGroupListScreen();
                                 }
                               }

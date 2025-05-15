@@ -42,7 +42,7 @@ class AddPostRequest {
       formData.fields.add(MapEntry('location.eventTime', location!.eventTime.toIso8601String()));
     }
     if(scheduledDate != null) {
-      formData.fields.add(MapEntry('scheduledDate', scheduledDate!.toIso8601String()));
+      formData.fields.add(MapEntry('schedulePublishDate', scheduledDate!.toIso8601String()));
     }
 
     return formData;

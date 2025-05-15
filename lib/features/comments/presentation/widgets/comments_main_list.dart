@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mtaa_frontend/core/constants/validators.dart';
+import 'package:mtaa_frontend/core/services/my_toast_service.dart';
 import 'package:mtaa_frontend/core/services/number_formating_service.dart';
 import 'package:mtaa_frontend/core/services/time_formating_service.dart';
 import 'package:mtaa_frontend/core/utils/app_injections.dart';
@@ -52,7 +53,7 @@ class _CommentsMainListState extends State<CommentsMainList> {
   }
 
   Future loadFirst() async {
-    isLoadMoreAvailable=true;
+    isLoadMoreAvailable = true;
     if (context.mounted) {
       context.read<CommentsBloc>().add(ClearCommentsEvent());
       pageParameters.pageNumber = 0;
@@ -67,8 +68,8 @@ class _CommentsMainListState extends State<CommentsMainList> {
       isLoading = true;
     });
     var comments = await widget.commentsRepository.getPostComments(widget.postId, pageParameters);
-    if(comments.length<pageParameters.pageSize) {
-      if(!mounted) return;
+    if (comments.length < pageParameters.pageSize) {
+      if (!mounted) return;
       setState(() {
         isLoadMoreAvailable = false;
       });
@@ -84,129 +85,139 @@ class _CommentsMainListState extends State<CommentsMainList> {
     pageParameters.pageNumber++;
   }
 
-  FullCommentResponse? mainComment=null;
+  FullCommentResponse? mainComment = null;
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ExceptionsBloc, ExceptionsState>(builder: (context, state) {
-          return BlocBuilder<CommentsBloc, CommentsState>(builder: (context, commentsState) {
-            return Column(children: [
-              CommentsTextInput(
-                  key: const Key('mainCommentInput'),
-                  placeholder: 'Write a comment',
-                  controller: createCommentTextController,
-                  validator: commentValidator,
-                  maxLines: 5,
-                  isEnabled: false,
-                  onCancel: () {
-                    createCommentTextController.clear();
+      return BlocBuilder<CommentsBloc, CommentsState>(builder: (context, commentsState) {
+        return Column(children: [
+          CommentsTextInput(
+              key: const Key('mainCommentInput'),
+              placeholder: 'Write a comment',
+              controller: createCommentTextController,
+              validator: commentValidator,
+              maxLines: 5,
+              isEnabled: false,
+              onCancel: () {
+                createCommentTextController.clear();
+                setState(() {
+                  isNewLoading = false;
+                });
+              },
+              isLoading: isNewLoading,
+              onSend: () async {
+                if (createCommentTextController.text.isEmpty) {
+                  getIt.get<MyToastService>().showMsg('Comment cannot be empty');
+                  return;
+                }
+                if (!mounted) return;
+                setState(() {
+                  isNewLoading = true;
+                });
+                if (createCommentTextController.text.isEmpty) return;
+                var commentId = await widget.commentsRepository.addComment(AddCommentRequest(postId: widget.postId, text: createCommentTextController.text));
+                if (commentId == null) return;
+                var comment = await widget.commentsRepository.getCommentById(commentId);
+                if (comment == null || !mounted || !context.mounted) return;
+                context.read<CommentsBloc>().add(AddFirstCommentEvent(comment: comment));
+                createCommentTextController.clear();
+                if (!mounted) return;
+                setState(() {
+                  isNewLoading = false;
+                });
+              }),
+          ListView.builder(
+            shrinkWrap: true,
+            cacheExtent: 9999,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: commentsState.comments.length + 1,
+            itemBuilder: (context, index) {
+              if (index < commentsState.comments.length) {
+                final comment = commentsState.comments[index];
+                final commentId = comment.id;
+                final isMovedToTop = comment.isMovedToTop;
+
+                if (isMovedToTop) {
+                  if (mainComment == null) {
+                    mainComment = commentsState.comments[index - 1];
+                  }
+
+                  return CommentsChildList(
+                    key: ValueKey(commentId),
+                    postId: widget.postId,
+                    commentsRepository: widget.commentsRepository,
+                    postOwnerId: widget.postOwnerId,
+                    parentCommentId: commentId,
+                    mainParent: mainComment,
+                    depth: 1,
+                    commentController: CommentController(),
+                    isMovedToTop: true,
+                    tokenStorage: widget.tokenStorage,
+                  );
+                }
+                mainComment = null;
+                return CommentCardWidget(
+                  numberFormatingService: getIt<NumberFormatingService>(),
+                  comment: commentsState.comments[index],
+                  commentsRepository: widget.commentsRepository,
+                  timeFormatingService: getIt<TimeFormatingService>(),
+                  postId: widget.postId,
+                  postOwnerId: widget.postOwnerId,
+                  parentCommentId: null,
+                  mainParent: commentsState.comments[index],
+                  depth: 1,
+                  tokenStorage: widget.tokenStorage,
+                );
+              }
+              if (isLoading) {
+                return Column(
+                  children: [
+                    const SizedBox(height: 20),
+                    DotLoader(),
+                  ],
+                );
+              }
+              if (state.isException && state.exceptionType == ExceptionTypes.flightMode) {
+                return AirModeErrorNotificationSectionWidget(
+                  onPressed: () {
+                    loadFirst();
                   },
-                  isLoading: isNewLoading,
-                  onSend: () async {
-                    if(!mounted)return;
-                    setState(() {
-                      isNewLoading = true;
-                    });
-                    if (createCommentTextController.text.isEmpty) return;
-                    var commentId = await widget.commentsRepository.addComment(AddCommentRequest(postId: widget.postId, text: createCommentTextController.text));
-                    if (commentId == null) return;
-                    var comment = await widget.commentsRepository.getCommentById(commentId);
-                    if (comment == null || !mounted || !context.mounted) return;
-                    context.read<CommentsBloc>().add(AddFirstCommentEvent(comment: comment));
-                    createCommentTextController.clear();
-                    if(!mounted)return;
-                    setState(() {
-                      isNewLoading = false;
-                    });
-                  }),
-              ListView.builder(
-                shrinkWrap: true,
-                cacheExtent: 9999,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: commentsState.comments.length + 1,
-                itemBuilder: (context, index) {
-                  if (index < commentsState.comments.length) {
-                    final comment = commentsState.comments[index];
-                    final commentId = comment.id;
-                    final isMovedToTop = comment.isMovedToTop;
-
-                    if(isMovedToTop) {
-                      if(mainComment==null){
-                        mainComment=commentsState.comments[index-1];
-                      }
-
-                      return CommentsChildList(
-                        key: ValueKey(commentId),
-                        postId: widget.postId,
-                        commentsRepository: widget.commentsRepository,
-                        postOwnerId: widget.postOwnerId,
-                        parentCommentId: commentId,
-                        mainParent: mainComment,
-                        depth: 1,
-                        commentController: CommentController(),
-                        isMovedToTop: true,
-                        tokenStorage: widget.tokenStorage,);
-                    }
-                    mainComment=null;
-                    return CommentCardWidget(
-                      numberFormatingService: getIt<NumberFormatingService>(),
-                      comment: commentsState.comments[index],
-                      commentsRepository: widget.commentsRepository,
-                      timeFormatingService: getIt<TimeFormatingService>(),
-                      postId: widget.postId,
-                      postOwnerId: widget.postOwnerId,
-                      parentCommentId: null,
-                      mainParent: commentsState.comments[index],
-                      depth: 1,
-                      tokenStorage: widget.tokenStorage,
-                    );
-                  }
-                  if (isLoading) {
-                    return Column(
-                      children: [
-                        const SizedBox(height: 20),
-                        DotLoader(),
-                      ],
-                    );
-                  }
-                  if (state.isException && state.exceptionType == ExceptionTypes.flightMode) {
-                    return AirModeErrorNotificationSectionWidget(
-                      onPressed: () {
-                        loadFirst();
-                      },
-                    );
-                  }
-                  if (state.isException && state.exceptionType == ExceptionTypes.serverError) {
-                    return ServerErrorNotificationSectionWidget(
-                      onPressed: () {
-                        loadFirst();
-                      },
-                    );
-                  }
-                  if (commentsState.comments.isEmpty) {
-                    return EmptyErrorNotificationSectionWidget(
-                      onPressed: null,
-                      title: 'No comments found',
-                    );
-                  }
-                  if(isLoadMoreAvailable){
-                    return Center(
-                      child: TextButton(onPressed: (){
-                        loadComments();
-                      },
-                      style: TextButton.styleFrom(
-                        minimumSize: const Size(0, 0),
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                      ),
-                      child: const Text('Load more'),),
-                    );
-                  }
-                  return null;
-                },
-              ),
-            ]);
-          });
-        });
+                );
+              }
+              if (state.isException && state.exceptionType == ExceptionTypes.serverError) {
+                return ServerErrorNotificationSectionWidget(
+                  onPressed: () {
+                    loadFirst();
+                  },
+                );
+              }
+              if (commentsState.comments.isEmpty) {
+                return EmptyErrorNotificationSectionWidget(
+                  onPressed: null,
+                  title: 'No comments found',
+                );
+              }
+              if (isLoadMoreAvailable) {
+                return Center(
+                  child: TextButton(
+                    onPressed: () {
+                      loadComments();
+                    },
+                    style: TextButton.styleFrom(
+                      minimumSize: const Size(0, 0),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                    ),
+                    child: const Text('Load more'),
+                  ),
+                );
+              }
+              return null;
+            },
+          ),
+        ]);
+      });
+    });
   }
 }
 

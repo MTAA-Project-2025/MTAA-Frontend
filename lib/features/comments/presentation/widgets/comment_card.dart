@@ -120,7 +120,11 @@ class _CommentCardWidgetState extends State<CommentCardWidget> {
           children: [
             InkWell(
               onTap: () {
-                GoRouter.of(context).push(publicAccountInformationScreenRoute, extra: widget.comment.owner.id);
+                if (userId == widget.comment.owner.id) {
+                  GoRouter.of(context).push(accountProfileScreenRoute);
+                } else {
+                  GoRouter.of(context).push(publicAccountInformationScreenRoute, extra: widget.comment.owner.id);
+                }
               },
               child: Row(
                 children: [
@@ -415,10 +419,14 @@ class _CommentCardWidgetState extends State<CommentCardWidget> {
                       createCommentTextController.clear();
                       setState(() {
                         isReplySectionActive = false;
+                         isChildLoading = false;
                       });
                     },
                     onSend: () async {
-                      if (createCommentTextController.text.isEmpty) return;
+                      if (createCommentTextController.text.isEmpty) {
+                        getIt.get<MyToastService>().showMsg('Comment cannot be empty');
+                        return;
+                      }
                       if (!mounted) return;
                       setState(() {
                         isChildLoading = true;

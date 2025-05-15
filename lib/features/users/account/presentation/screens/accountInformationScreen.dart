@@ -9,6 +9,7 @@ import 'package:mtaa_frontend/features/posts/data/repositories/posts_repository.
 import 'package:mtaa_frontend/features/posts/presentation/widgets/account_post_list.dart';
 import 'package:mtaa_frontend/features/posts/presentation/widgets/liked_posts_list.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/dotLoader.dart';
+import 'package:mtaa_frontend/features/shared/presentation/widgets/phone_bottom_drawer.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/phone_bottom_menu.dart';
 import 'package:mtaa_frontend/features/users/account/bloc/account_bloc.dart';
 import 'package:mtaa_frontend/features/users/account/bloc/account_events.dart';
@@ -74,6 +75,8 @@ class _AccountInformationScreenState extends State<AccountInformationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
+
     return BlocBuilder<AccountBloc, AccountState>(builder: (context, accountState) {
       return Scaffold(
           appBar: AppBar(
@@ -124,7 +127,8 @@ class _AccountInformationScreenState extends State<AccountInformationScreen> {
                     ],
                   ),
                 ),
-          bottomNavigationBar: PhoneBottomMenu(sellectedType: MenuButtons.Profile));
+                drawer: isPortrait ? null : PhoneBottomDrawer(sellectedType: MenuButtons.Profile),
+          bottomNavigationBar: isPortrait? PhoneBottomMenu(sellectedType: MenuButtons.Profile): null);
     });
   }
 }

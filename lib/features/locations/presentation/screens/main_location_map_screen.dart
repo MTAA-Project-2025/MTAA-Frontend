@@ -21,6 +21,7 @@ import 'package:mtaa_frontend/features/locations/presentation/widgets/map_widget
 import 'package:mtaa_frontend/features/shared/bloc/exception_type.dart';
 import 'package:mtaa_frontend/features/shared/bloc/exceptions_bloc.dart';
 import 'package:mtaa_frontend/features/shared/bloc/exceptions_event.dart';
+import 'package:mtaa_frontend/features/shared/presentation/widgets/phone_bottom_drawer.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/phone_bottom_menu.dart';
 
 class MainLocationMapScreen extends StatefulWidget {
@@ -42,6 +43,7 @@ class _MainLocationMapScreenState extends State<MainLocationMapScreen> {
 
   late StreamSubscription<bool> internetSubscription;
   bool isConnected = false;
+  bool isInitialied = false;
 
   @override
   void initState() {
@@ -108,9 +110,10 @@ class _MainLocationMapScreenState extends State<MainLocationMapScreen> {
           floor: userPos.floor);
     }
     List<SimpleLocationPointResponse> points = await widget.repository.getPreviousLocationPoints();
-    if(!mounted)return;
+    if (!mounted) return;
     setState(() {
       locationPoints = points;
+      isInitialied= true;
     });
   }
 
@@ -124,7 +127,7 @@ class _MainLocationMapScreenState extends State<MainLocationMapScreen> {
     final center = mapController.camera.center;
     final zoom = mapController.camera.zoom.round();
 
-    final radius = 100_000 * (20 - zoom);
+    final radius = 40_000_000;
 
     final request = GetLocationPointsRequest(
       latitude: center.latitude,
@@ -162,6 +165,8 @@ class _MainLocationMapScreenState extends State<MainLocationMapScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
+
     return Scaffold(
         appBar: AppBar(
           title: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
@@ -193,12 +198,13 @@ class _MainLocationMapScreenState extends State<MainLocationMapScreen> {
           locationPoints: locationPoints,
           mapController: mapController,
           isLoading: isLoading,
-          onDispose: (Position userPos) {
-            saveLocation(userPos);
+          onDispose: (Position userPos) async{
+            await saveLocation(userPos);
           },
           initialUserPos: userInitPos,
         ),
-        bottomNavigationBar: PhoneBottomMenu(sellectedType: MenuButtons.Map));
+        drawer: isPortrait ? null : PhoneBottomDrawer(sellectedType: MenuButtons.Map),
+        bottomNavigationBar: isPortrait ? PhoneBottomMenu(sellectedType: MenuButtons.Map) : null);
   }
 
   Widget buildPoint(SimpleLocationPointResponse point) {

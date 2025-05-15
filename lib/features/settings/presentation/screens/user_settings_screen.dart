@@ -6,6 +6,7 @@ import 'package:mtaa_frontend/core/constants/colors.dart';
 import 'package:mtaa_frontend/core/constants/menu_buttons.dart';
 import 'package:mtaa_frontend/core/constants/route_constants.dart';
 import 'package:mtaa_frontend/core/utils/app_injections.dart';
+import 'package:mtaa_frontend/features/shared/presentation/widgets/phone_bottom_drawer.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/phone_bottom_menu.dart';
 import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
 import 'package:mtaa_frontend/themes/bloc/theme_bloc.dart';
@@ -22,7 +23,7 @@ class UserSettingsScreen extends StatefulWidget {
 
 class _UserSettingsScreenState extends State<UserSettingsScreen> {
   final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
-  
+
   void _changeTheme(AppThemeMode mode) {
     context.read<ThemeBloc>().add(ChangeThemeEvent(mode));
   }
@@ -38,10 +39,18 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
+
     return Scaffold(
         appBar: AppBar(),
         body: Column(
           children: [
+            Text(
+              'Settings',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.headlineLarge,
+            ),
+            const SizedBox(height: 10),
             ConstrainedBox(
               constraints: const BoxConstraints.tightFor(width: 300),
               child: SizedBox(
@@ -59,6 +68,7 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
                 ),
               ),
             ),
+            const SizedBox(height: 20),
             ConstrainedBox(
               constraints: const BoxConstraints.tightFor(width: 300),
               child: SizedBox(
@@ -86,7 +96,8 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
                           shape: WidgetStateProperty.all(RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(999),
                           )),
-                          backgroundColor: state.appThemeMode == AppThemeMode.light ? WidgetStateProperty.all(secondary1InvincibleColor) : WidgetStateProperty.all(Theme.of(context).scaffoldBackgroundColor),
+                          backgroundColor:
+                              state.appThemeMode == AppThemeMode.light ? WidgetStateProperty.all(secondary1InvincibleColor) : WidgetStateProperty.all(Theme.of(context).scaffoldBackgroundColor),
                         ),
                     child: Icon(
                       Icons.light_mode,
@@ -102,7 +113,8 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
                           shape: WidgetStateProperty.all(RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(999),
                           )),
-                          backgroundColor: state.appThemeMode == AppThemeMode.dark ? WidgetStateProperty.all(secondary1InvincibleColor) : WidgetStateProperty.all(Theme.of(context).scaffoldBackgroundColor),
+                          backgroundColor:
+                              state.appThemeMode == AppThemeMode.dark ? WidgetStateProperty.all(secondary1InvincibleColor) : WidgetStateProperty.all(Theme.of(context).scaffoldBackgroundColor),
                         ),
                     child: Icon(
                       Icons.dark_mode,
@@ -118,7 +130,8 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
                             borderRadius: BorderRadius.circular(999),
                           )),
                           padding: WidgetStateProperty.all(const EdgeInsets.all(10)),
-                          backgroundColor: state.appThemeMode == AppThemeMode.inclusive ? WidgetStateProperty.all(secondary1InvincibleColor) : WidgetStateProperty.all(Theme.of(context).scaffoldBackgroundColor),
+                          backgroundColor:
+                              state.appThemeMode == AppThemeMode.inclusive ? WidgetStateProperty.all(secondary1InvincibleColor) : WidgetStateProperty.all(Theme.of(context).scaffoldBackgroundColor),
                         ),
                     child: Icon(
                       Icons.color_lens,
@@ -132,6 +145,7 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
             }),
           ],
         ),
-        bottomNavigationBar: PhoneBottomMenu(sellectedType: MenuButtons.Settings));
+        drawer: isPortrait ? null : PhoneBottomDrawer(sellectedType: MenuButtons.Settings),
+        bottomNavigationBar: isPortrait ? PhoneBottomMenu(sellectedType: MenuButtons.Settings) : null);
   }
 }

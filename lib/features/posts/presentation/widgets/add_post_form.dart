@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_exif_rotation/flutter_exif_rotation.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mtaa_frontend/core/constants/colors.dart';
@@ -15,7 +16,7 @@ class AddPostForm extends StatefulWidget {
   final TextEditingController descriptionController;
   final List<ImageDTO> images;
   final void Function(int) onDelete;
-  final void Function(XFile, File) onUpload;
+  final Future Function(XFile, File) onUpload;
   final void Function(int, File) onUpdate;
 
   final bool isAspectRatioError;
@@ -85,12 +86,14 @@ class _AddPostFormState extends State<AddPostForm> {
                                 height: 200,
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(8),
-                                  child: ColorFiltered(
+                                  child: AspectRatio(
+                                    aspectRatio: widget.images[index].aspectRatioPreset.width / widget.images[index].aspectRatioPreset.height,
+                                    child: ColorFiltered(
                                     colorFilter: widget.images[index].isAspectRatioError
                                         ? ColorFilter.mode(errorColor.withAlpha(200), BlendMode.multiply)
                                         : ColorFilter.mode(Colors.transparent, BlendMode.multiply),
                                     child: widget.images[index].image,
-                                  ),
+                                  )),
                                 ),
                               ),
                             ),
@@ -212,8 +215,8 @@ class _AddPostFormState extends State<AddPostForm> {
         }
       }
 
-      if (!mounted) return;
 
+      if (!mounted) return;
       final croppedFile = await ImageCropper().cropImage(
         sourcePath: originalPath,
         compressFormat: ImageCompressFormat.jpg,
@@ -247,9 +250,10 @@ class _AddPostFormState extends State<AddPostForm> {
           ),
         ],
       );
+
       if (croppedFile != null) {
         if (isFromUpload) {
-          widget.onUpload.call(pickedFile!, File(croppedFile.path));
+          await widget.onUpload.call(pickedFile!, File(croppedFile.path));
         } else {
           widget.onUpdate.call(currentPos, File(croppedFile.path));
         }
