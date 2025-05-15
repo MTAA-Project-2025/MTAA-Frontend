@@ -24,6 +24,7 @@ class TokenStorage {
     var box = Hive.box(currentUserDataBox);
 
     await box.put(tokenKey, token);
+    if(token.isEmpty) return;
     await notificationsService.startSSE(token);
     await synchronizationService.synchronize();
 

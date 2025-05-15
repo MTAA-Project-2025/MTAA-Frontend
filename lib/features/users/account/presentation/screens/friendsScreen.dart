@@ -12,6 +12,7 @@ import 'package:mtaa_frontend/features/shared/presentation/widgets/airmode_error
 import 'package:mtaa_frontend/features/shared/presentation/widgets/customSearchInput.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/dotLoader.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/empty_data_notification_section.dart';
+import 'package:mtaa_frontend/features/shared/presentation/widgets/phone_bottom_drawer.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/phone_bottom_menu.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/server_error_notification_section.dart';
 import 'package:mtaa_frontend/features/users/account/data/models/responses/publicBaseAccountResponse.dart';
@@ -121,6 +122,8 @@ class _FriendsScreenState extends State<FriendsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -187,8 +190,9 @@ class _FriendsScreenState extends State<FriendsScreen> {
           );
         },
       ),
-      bottomNavigationBar:
-          const PhoneBottomMenu(sellectedType: MenuButtons.Friends),
+      drawer: isPortrait ? null : PhoneBottomDrawer(sellectedType: MenuButtons.Friends),
+      bottomNavigationBar: isPortrait?
+          const PhoneBottomMenu(sellectedType: MenuButtons.Friends) : null,
     );
   }
 }

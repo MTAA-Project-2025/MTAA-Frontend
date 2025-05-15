@@ -137,7 +137,9 @@ class SynchronizationServiceImpl extends SynchronizationService {
       VersionItem newLikedPostsVersionItem = newVersions.firstWhere((element) => element.type == VersionItemTypes.LikedPosts);
       int accountLikedPostsDifferency = newLikedPostsVersionItem.version - oldLikedPostsVersion;
 
-      synchronizeAccount(followersVersionDifferency, friendsVersionDifferency, accountVersionDifferency, accountLikedPostsDifferency);
+      if(followersVersionDifferency!=0 || friendsVersionDifferency!=0 || accountVersionDifferency!=0 || accountLikedPostsDifferency!=0){
+        synchronizeAccount(newFollowersVersionItem.version, newFriendsVersionItem.version, newAccountVersionItem.version, newLikedPostsVersionItem.version);
+      }
     } catch (e) {
       print('Error while synchronization: $e');
       return;
@@ -221,23 +223,21 @@ class SynchronizationServiceImpl extends SynchronizationService {
             }
           }
         }
-        if (versionDifferency > 0) {
           for (var oldPost in oldPosts) {
             VersionPostItemResponse? resp = newPosts.where((e) => e.id == oldPost.id).firstOrNull;
             if (resp == null) {
               DateTime? dateTime = await postsStorage.getSimplePostDateTime(oldPost.id);
-              if (dateTime != null && lastPost != null) {
+              if (dateTime != null) {
                 await postsStorage.deletePost(oldPost.id);
                 versionDifferency--;
               }
             }
           }
-        }
         for (var oldPost in oldScheduledPosts) {
           VersionPostItemResponse? resp = newPosts.where((e) => e.id == oldPost.id).firstOrNull;
           if (resp == null) {
             DateTime? dateTime = await postsStorage.getSimplePostDateTime(oldPost.id);
-            if (dateTime != null && lastPost != null) {
+            if (dateTime != null) {
               var sPost = await postsApi.getSchedulePostById(oldPost.id);
               if (sPost != null) {
                 await postsStorage.removeSchedulePost(sPost);

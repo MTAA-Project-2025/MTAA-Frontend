@@ -33,6 +33,7 @@ class MapWidget extends StatefulWidget {
   final Position? initialUserPos;
   final bool isDisplaySavedLocations;
   final bool isUserPos;
+  final bool isInitialized;
 
   const MapWidget(
       {super.key,
@@ -47,7 +48,8 @@ class MapWidget extends StatefulWidget {
       this.onTap,
       this.initialUserPos,
       this.isDisplaySavedLocations = true,
-      this.isUserPos = true});
+      this.isUserPos = true,
+      this.isInitialized = true});
 
   @override
   State<MapWidget> createState() => _MapWidgetState();
@@ -106,6 +108,7 @@ class _MapWidgetState extends State<MapWidget> {
       if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
         await loadLastPosition();
         await moveToCurrentUserPosition();
+        startPositionStream();
         return;
       }
     }
@@ -115,6 +118,7 @@ class _MapWidgetState extends State<MapWidget> {
       await loadLastPosition();
       await moveToCurrentUserPosition();
       listenForGPS();
+      startPositionStream();
     } else {
       startPositionStream();
     }
@@ -122,32 +126,26 @@ class _MapWidgetState extends State<MapWidget> {
 
   Future loadLastPosition() async {
     if (!mounted) return;
+    if(!widget.isInitialized)return;
     setState(() {
       if (widget.initialUserPos != null) {
         userPos = widget.initialUserPos;
-      } else {
-        userPos = Position(
-            accuracy: 100,
-            altitude: 0,
-            heading: 0,
-            latitude: 30.0,
-            longitude: 38.0,
-            speed: 0,
-            speedAccuracy: 0,
-            timestamp: DateTime.now(),
-            altitudeAccuracy: 100,
-            isMocked: false,
-            headingAccuracy: 100,
-            floor: 12);
+
+        locationController.add(LocationMarkerPosition(latitude: userPos!.latitude, longitude: userPos!.longitude, accuracy: userPos!.accuracy));
+        userLocationStream = locationController.stream;
       }
 
-      locationController.add(LocationMarkerPosition(latitude: userPos!.latitude, longitude: userPos!.longitude, accuracy: userPos!.accuracy));
-      userLocationStream = locationController.stream;
     });
   }
 
   Future moveToCurrentUserPosition() async {
-    if (userPos == null) return;
+    if (userPos == null) {
+      if(widget.initialUserPos != null) {
+        widget.mapController.move(LatLng(widget.initialUserPos!.latitude, widget.initialUserPos!.longitude), widget.mapController.camera.zoom);
+        return;
+      }
+      return;
+    }
 
     widget.mapController.move(LatLng(userPos!.latitude, userPos!.longitude), widget.mapController.camera.zoom);
   }
@@ -180,23 +178,10 @@ class _MapWidgetState extends State<MapWidget> {
     }
 
     if (!mounted) return;
-    setState(() {
-      userPos = Position(
-          accuracy: 100,
-          altitude: 0,
-          heading: 0,
-          latitude: 30.0,
-          longitude: 38.0,
-          speed: 0,
-          speedAccuracy: 0,
-          timestamp: DateTime.now(),
-          altitudeAccuracy: 100,
-          isMocked: false,
-          headingAccuracy: 100,
-          floor: 0);
-      locationController.add(LocationMarkerPosition(latitude: userPos!.latitude, longitude: userPos!.longitude, accuracy: userPos!.accuracy));
-      userLocationStream = locationController.stream;
-    });
+    if(widget.initialUserPos != null) {
+        widget.mapController.move(LatLng(widget.initialUserPos!.latitude, widget.initialUserPos!.longitude), widget.mapController.camera.zoom);
+        return;
+    }
   }
 
   void listenForGPS() {
@@ -204,6 +189,7 @@ class _MapWidgetState extends State<MapWidget> {
       if (status == ServiceStatus.enabled) {
         isGPSEnabled = true;
         setCurrentPosition();
+        startPositionStream();
       } else {
         isGPSEnabled = false;
       }
@@ -214,7 +200,7 @@ class _MapWidgetState extends State<MapWidget> {
         Geolocator.isLocationServiceEnabled().then((enabled) {
           if (enabled) {
             isGPSEnabled = true;
-            setCurrentPosition();
+            startPositionStream();
           } else {
             isGPSEnabled = false;
           }

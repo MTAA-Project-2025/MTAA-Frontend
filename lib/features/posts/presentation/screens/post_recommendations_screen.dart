@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mtaa_frontend/core/constants/menu_buttons.dart';
 import 'package:mtaa_frontend/core/constants/route_constants.dart';
+import 'package:mtaa_frontend/core/services/internet_checker.dart';
 import 'package:mtaa_frontend/core/services/my_toast_service.dart';
 import 'package:mtaa_frontend/core/services/time_formating_service.dart';
 import 'package:mtaa_frontend/core/utils/app_injections.dart';
@@ -19,6 +20,7 @@ import 'package:mtaa_frontend/features/shared/data/controllers/pagination_scroll
 import 'package:mtaa_frontend/features/shared/presentation/widgets/airmode_error_notification_section.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/dotLoader.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/empty_data_notification_section.dart';
+import 'package:mtaa_frontend/features/shared/presentation/widgets/phone_bottom_drawer.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/phone_bottom_menu.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/server_error_notification_section.dart';
 import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
@@ -51,18 +53,22 @@ class _PostRecommendationsScreenState extends State<PostRecommendationsScreen> {
     context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: false, exceptionType: ExceptionTypes.none, message: ''));
 
     Future.microtask(() async {
-      if(!mounted)return;
+      if (!mounted) return;
       posts.addAll(await widget.repository.getPreviousRecommendedPosts());
-      if(!mounted)return;
-      final status = await AirplaneModeChecker.instance.checkAirplaneMode();
-      if (status == AirplaneModeStatus.on && mounted) {
+      if (!mounted) return;
+      final status = await InternetChecker.fullIsFlightMode();
+      if (status) {
+        if (!mounted) return;
         context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: true, exceptionType: ExceptionTypes.flightMode, message: 'Flight mode is enabled'));
+      }
+      if (posts.length < paginationScrollController.pageParameters.pageSize) {
+        loadPosts();
       }
     });
 
     _listener = AppLifecycleListener(
       onResume: () async {
-        if(!mounted)return;
+        if (!mounted) return;
         Future.microtask(() async {
           if (context.mounted && mounted) {
             final status = await AirplaneModeChecker.instance.checkAirplaneMode();
@@ -74,14 +80,12 @@ class _PostRecommendationsScreenState extends State<PostRecommendationsScreen> {
         });
       },
     );
-
-    loadFirst();
   }
 
   Future loadPosts() async {
-    if(!mounted)return;
+    if (!mounted) return;
     var res = await widget.repository.getRecommendedPosts(paginationScrollController.pageParameters);
-    if(!mounted)return;
+    if (!mounted) return;
     paginationScrollController.pageParameters.pageNumber++;
     if (res.length < paginationScrollController.pageParameters.pageSize) {
       if (!mounted) return false;
@@ -90,7 +94,7 @@ class _PostRecommendationsScreenState extends State<PostRecommendationsScreen> {
       });
     }
     if (res.isNotEmpty) {
-      if(!mounted)return;
+      if (!mounted) return;
       setState(() {
         posts.addAll(res);
       });
@@ -102,7 +106,7 @@ class _PostRecommendationsScreenState extends State<PostRecommendationsScreen> {
     paginationScrollController.dispose();
     widget.repository.setPreviousRecommendedPosts(posts.reversed.take(paginationScrollController.pageParameters.pageSize).toList());
     _listener.dispose();
-    
+
     super.dispose();
   }
 
@@ -111,13 +115,13 @@ class _PostRecommendationsScreenState extends State<PostRecommendationsScreen> {
     paginationScrollController.dispose();
     paginationScrollController.init(loadAction: () => loadPosts());
 
-    if(!mounted)return;
+    if (!mounted) return;
     setState(() {
       paginationScrollController.isLoading = true;
     });
-    if(!mounted)return;
+    if (!mounted) return;
     await loadPosts();
-    if(!mounted)return;
+    if (!mounted) return;
     setState(() {
       paginationScrollController.isLoading = false;
     });
@@ -125,6 +129,8 @@ class _PostRecommendationsScreenState extends State<PostRecommendationsScreen> {
 
   @override
   Widget build(BuildContext contex) {
+    final isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
+
     return Scaffold(
         appBar: AppBar(
           actions: <Widget>[
@@ -198,6 +204,7 @@ class _PostRecommendationsScreenState extends State<PostRecommendationsScreen> {
             ),
           ]);
         }),
-        bottomNavigationBar: PhoneBottomMenu(sellectedType: MenuButtons.Home));
+        drawer: isPortrait ? null : PhoneBottomDrawer(sellectedType: MenuButtons.Home),
+        bottomNavigationBar: isPortrait ? PhoneBottomMenu(sellectedType: MenuButtons.Home) : null);
   }
 }

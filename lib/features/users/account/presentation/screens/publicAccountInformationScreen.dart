@@ -39,7 +39,7 @@ class _PublicAccountInformationScreenState extends State<PublicAccountInformatio
   }
 
   Future<void> _loadUser() async {
-    if(!mounted) return;
+    if (!mounted) return;
     setState(() => isLoading = true);
 
     final res = await widget.repository.getPublicFullAccount(widget.userId);
@@ -56,7 +56,7 @@ class _PublicAccountInformationScreenState extends State<PublicAccountInformatio
 
     final wasFollowing = user!.isFollowing;
 
-    if(!mounted)return;
+    if (!mounted) return;
     setState(() {
       user?.isFollowing = !wasFollowing;
     });
@@ -93,29 +93,28 @@ class _PublicAccountInformationScreenState extends State<PublicAccountInformatio
         ],
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: isLoading
-            ? const DotLoader()
-            : Column(
-                children: [
-                  if (user != null)
-                    PublicProfileInfoWidget(
-                      user: user!,
-                      onFollowToggle: _toggleFollow,
-                    ),
-                    PublicTabNavigation(),
-                    const SizedBox(height: 10),
-                  if (user != null)
-                    Expanded(
-                      child: AccountPostListWidget(
-                        repository: getIt<PostsRepository>(),
-                        userId: user!.id,
-                        isOwner: false,
-                      ),
-                    ),
-                ],
-              ),
-      ),
+          padding: const EdgeInsets.all(16.0),
+          child: isLoading
+              ? const DotLoader()
+              : SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      if (user != null)
+                        PublicProfileInfoWidget(
+                          user: user!,
+                          onFollowToggle: _toggleFollow,
+                        ),
+                      PublicTabNavigation(),
+                      const SizedBox(height: 10),
+                      if (user != null)
+                        AccountPostListWidget(
+                          repository: getIt<PostsRepository>(),
+                          userId: user!.id,
+                          isOwner: false,
+                        ),
+                    ],
+                  ),
+                )),
       bottomNavigationBar: const PhoneBottomMenu(sellectedType: MenuButtons.Home),
     );
   }

@@ -81,13 +81,16 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   String initialRoute = await getInitialRoute();
 
+
   await FMTCObjectBoxBackend().initialise();
   await FMTCStore(tilesBox).manage.create();
   var sse = getIt<NotificationsService>();
   var tokenStorage = getIt<TokenStorage>();
+  var synchronizationService = getIt<SynchronizationService>();
   var token = await tokenStorage.getToken();
   if (token != null && token.isNotEmpty) {
     sse.startSSE(token);
+    synchronizationService.synchronize();
   }
 
   await requestNotificationPermissions();

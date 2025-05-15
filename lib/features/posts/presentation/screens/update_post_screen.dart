@@ -134,7 +134,7 @@ class _UpdatePostScreenState extends State<UpdatePostScreen> {
     return aspectRatioPreset;
   }
 
-  void uploadImg(XFile orig, File cropped) {
+  Future uploadImg(XFile orig, File cropped) async {
     UpdatePostImageScreenDTO newImage = UpdatePostImageScreenDTO(position: images.length);
     newImage.originalImage = orig;
     newImage.image = cropped;
