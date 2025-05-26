@@ -21,16 +21,19 @@ import 'package:mtaa_frontend/features/users/account/data/repositories/account_r
 import 'package:mtaa_frontend/themes/bloc/theme_bloc.dart';
 import 'package:mtaa_frontend/themes/bloc/theme_event.dart';
 
+/// Screen for updating the user's profile picture.
 class UpdateAvatarScreen extends StatefulWidget {
   final AccountRepository repository;
   final MyToastService toastService;
 
+  /// Creates an [UpdateAvatarScreen] with required dependencies.
   const UpdateAvatarScreen({super.key, required this.repository, required this.toastService});
 
   @override
   State<UpdateAvatarScreen> createState() => _UpdateAvatarScreenState();
 }
 
+/// Manages the state for avatar selection and upload.
 class _UpdateAvatarScreenState extends State<UpdateAvatarScreen> {
   final displayNameController = TextEditingController();
   bool isLoading = false;
@@ -39,12 +42,14 @@ class _UpdateAvatarScreenState extends State<UpdateAvatarScreen> {
   File? selectedCustomImage;
   XFile? _pickedFile;
 
+  /// Cleans up resources on widget disposal.
   @override
   void dispose() {
     displayNameController.dispose();
     super.dispose();
   }
 
+  /// Navigates back to the previous screen.
   void _navigateBackScreen() {
     Future.microtask(() {
       if (!mounted) return;
@@ -52,6 +57,7 @@ class _UpdateAvatarScreenState extends State<UpdateAvatarScreen> {
     });
   }
 
+  /// Builds the UI with avatar selection options and actions.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -163,9 +169,7 @@ class _UpdateAvatarScreenState extends State<UpdateAvatarScreen> {
                           foregroundColor: Theme.of(context).colorScheme.secondary,
                           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                         ),
-                        child: Text(
-                          'Cancel',
-                        ),
+                        child: Text('Cancel'),
                       ),
                       const SizedBox(width: 5),
                       TextButton(
@@ -178,7 +182,6 @@ class _UpdateAvatarScreenState extends State<UpdateAvatarScreen> {
                           } else {
                             isError = false;
                             setState(() => isLoading = true);
-
                             MyImageGroupResponse? res;
                             if (selectedPresetImage != null) {
                               res = await widget.repository.presetUpdateAccountAvatar(PresetUpdateAccountAvatarRequest(imageGroupId: selectedPresetImage!.id));
@@ -195,18 +198,17 @@ class _UpdateAvatarScreenState extends State<UpdateAvatarScreen> {
                           }
                         },
                         style: Theme.of(context).textButtonTheme.style,
-                        child: Text(
-                          'Update',
-                        ),
+                        child: Text('Update'),
                       ),
                     ],
-                  )
+                  ),
           ],
         ),
       ),
     );
   }
 
+  /// Handles image selection from gallery and validation.
   Future<void> _uploadImage(BuildContext context) async {
     final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
@@ -216,7 +218,6 @@ class _UpdateAvatarScreenState extends State<UpdateAvatarScreen> {
         }
         return;
       }
-
       setState(() {
         _pickedFile = pickedFile;
         _cropImage(context);
@@ -224,6 +225,7 @@ class _UpdateAvatarScreenState extends State<UpdateAvatarScreen> {
     }
   }
 
+  /// Crops the selected image with a square aspect ratio.
   Future<void> _cropImage(BuildContext context) async {
     if (_pickedFile != null) {
       final croppedFile = await ImageCropper().cropImage(
@@ -237,9 +239,7 @@ class _UpdateAvatarScreenState extends State<UpdateAvatarScreen> {
             toolbarWidgetColor: Theme.of(context).appBarTheme.foregroundColor,
             initAspectRatio: CropAspectRatioPreset.square,
             lockAspectRatio: true,
-            aspectRatioPresets: [
-              CropAspectRatioPreset.square,
-            ],
+            aspectRatioPresets: [CropAspectRatioPreset.square],
           ),
           IOSUiSettings(
             title: 'Cropper',
@@ -253,10 +253,7 @@ class _UpdateAvatarScreenState extends State<UpdateAvatarScreen> {
             context: context,
             presentStyle: WebPresentStyle.dialog,
             initialAspectRatio: 1,
-            size: const CropperSize(
-              width: 300,
-              height: 300,
-            ),
+            size: const CropperSize(width: 300, height: 300),
           ),
         ],
       );

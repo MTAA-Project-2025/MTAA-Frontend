@@ -22,16 +22,19 @@ import 'package:mtaa_frontend/features/shared/presentation/widgets/dotLoader.dar
 import 'package:mtaa_frontend/themes/bloc/theme_bloc.dart';
 import 'package:mtaa_frontend/themes/bloc/theme_event.dart';
 
+/// Screen for selecting or uploading a user profile picture.
 class FirstUpdateAvatarScreen extends StatefulWidget {
   final AccountApi accountApi;
   final MyToastService toastService;
 
+  /// Creates a [FirstUpdateAvatarScreen] with required dependencies.
   const FirstUpdateAvatarScreen({super.key, required this.accountApi, required this.toastService});
 
   @override
   State<FirstUpdateAvatarScreen> createState() => _FirstUpdateAvatarScreenState();
 }
 
+/// Manages the state for avatar selection and upload.
 class _FirstUpdateAvatarScreenState extends State<FirstUpdateAvatarScreen> {
   final displayNameController = TextEditingController();
   bool isLoading = false;
@@ -40,12 +43,14 @@ class _FirstUpdateAvatarScreenState extends State<FirstUpdateAvatarScreen> {
   File? selectedCustomImage;
   XFile? _pickedFile;
 
+  /// Cleans up resources on widget disposal.
   @override
   void dispose() {
     displayNameController.dispose();
     super.dispose();
   }
 
+  /// Navigates to the recommendations screen.
   void _navigateToGroupListScreen() {
     Future.microtask(() {
       if (!mounted) return;
@@ -53,6 +58,7 @@ class _FirstUpdateAvatarScreenState extends State<FirstUpdateAvatarScreen> {
     });
   }
 
+  /// Builds the UI with avatar selection options and actions.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -164,9 +170,7 @@ class _FirstUpdateAvatarScreenState extends State<FirstUpdateAvatarScreen> {
                           foregroundColor: Theme.of(context).colorScheme.secondary,
                           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                         ),
-                        child: Text(
-                          'Skip',
-                        ),
+                        child: Text('Skip'),
                       ),
                       const SizedBox(width: 5),
                       TextButton(
@@ -181,7 +185,6 @@ class _FirstUpdateAvatarScreenState extends State<FirstUpdateAvatarScreen> {
                             isError = false;
                             if (!mounted) return;
                             setState(() => isLoading = true);
-
                             MyImageGroupResponse? res;
                             if (selectedPresetImage != null) {
                               res = await widget.accountApi.presetUpdateAccountAvatar(PresetUpdateAccountAvatarRequest(imageGroupId: selectedPresetImage!.id));
@@ -199,18 +202,17 @@ class _FirstUpdateAvatarScreenState extends State<FirstUpdateAvatarScreen> {
                           }
                         },
                         style: Theme.of(context).textButtonTheme.style,
-                        child: Text(
-                          'Create',
-                        ),
+                        child: Text('Create'),
                       ),
                     ],
-                  )
+                  ),
           ],
         ),
       ),
     );
   }
 
+  /// Handles image selection from gallery and validation.
   Future<void> _uploadImage(BuildContext context) async {
     final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
@@ -220,7 +222,6 @@ class _FirstUpdateAvatarScreenState extends State<FirstUpdateAvatarScreen> {
         }
         return;
       }
-
       if (!mounted) return;
       setState(() {
         _pickedFile = pickedFile;
@@ -229,6 +230,7 @@ class _FirstUpdateAvatarScreenState extends State<FirstUpdateAvatarScreen> {
     }
   }
 
+  /// Crops the selected image with a square aspect ratio.
   Future<void> _cropImage(BuildContext context) async {
     if (_pickedFile != null) {
       final croppedFile = await ImageCropper().cropImage(

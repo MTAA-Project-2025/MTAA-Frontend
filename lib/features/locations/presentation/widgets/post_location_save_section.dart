@@ -7,35 +7,43 @@ import 'package:mtaa_frontend/features/posts/data/models/responses/full_post_res
 import 'package:mtaa_frontend/features/posts/data/models/responses/location_post_response.dart';
 import 'package:mtaa_frontend/features/posts/data/repositories/posts_repository.dart';
 
+/// Displays a section for saving or navigating to a post's location.
 class PostLocationSaveSection extends StatefulWidget {
   final PostsRepository repository;
   final LocationsRepository locationsRepository;
   final FullPostResponse? post;
   final LocationPostResponse? locationPost;
 
-  const PostLocationSaveSection({super.key, required this.repository, this.post, this.locationPost, required this.locationsRepository});
+  /// Creates a [PostLocationSaveSection] with required dependencies and optional post data.
+  const PostLocationSaveSection({
+    super.key,
+    required this.repository,
+    this.post,
+    this.locationPost,
+    required this.locationsRepository,
+  });
 
   @override
   State<PostLocationSaveSection> createState() => _PostLocationSaveSectionState();
 }
 
+/// Manages the state for saving and navigating to a post's location.
 class _PostLocationSaveSectionState extends State<PostLocationSaveSection> {
   final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
   bool isSaved = false;
+
+  /// Initializes state and checks if the post is saved.
   @override
   void initState() {
     super.initState();
-
     Future.microtask(() async {
       if (!mounted) return;
-
       bool res = false;
       if (widget.locationPost != null) {
         res = await widget.repository.isLocationPostSaved(widget.locationPost!.id);
       } else if (widget.post != null) {
         res = await widget.repository.isLocationPostSaved(widget.post!.id);
       }
-
       if (!mounted) return;
       setState(() {
         isSaved = res;
@@ -43,6 +51,7 @@ class _PostLocationSaveSectionState extends State<PostLocationSaveSection> {
     });
   }
 
+  /// Builds the UI with location and save/unsave buttons.
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -64,9 +73,7 @@ class _PostLocationSaveSectionState extends State<PostLocationSaveSection> {
             ),
             onPressed: () async {
               if (widget.locationPost != null) {
-                if (widget.locationPost != null) {
-                  GoRouter.of(context).push(onePointScreenRoute, extra: widget.locationPost!.point);
-                }
+                GoRouter.of(context).push(onePointScreenRoute, extra: widget.locationPost!.point);
                 widget.locationPost!.isSaved = !widget.locationPost!.isSaved;
               } else if (widget.post != null) {
                 if (widget.post!.locationId != null) {
@@ -101,7 +108,7 @@ class _PostLocationSaveSectionState extends State<PostLocationSaveSection> {
                   }
                 });
 
-                bool res = false;
+              bool res = false;
 
                 if (isSaved) {
                   analytics.logSelectItem(itemListId: widget.post?.id.toString(), itemListName: 'saved_posts');

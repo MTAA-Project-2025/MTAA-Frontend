@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:mtaa_frontend/core/constants/colors.dart';
 
+/// Widget for navigating between account-related tabs (Posts, SavedPosts, LikedPosts).
 class TabNavigation extends StatelessWidget {
   final AccountTabType activeTab;
   final Function(AccountTabType) onTabChange;
 
+  /// Creates a [TabNavigation] with the active tab and a callback for tab changes.
   const TabNavigation({
     Key? key,
     required this.activeTab,
     required this.onTabChange,
   }) : super(key: key);
 
+  /// Builds the UI with a row of tab icons and indicators.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -26,6 +29,7 @@ class TabNavigation extends StatelessWidget {
     );
   }
 
+  /// Builds a single tab with an icon and active state indicator.
   Widget _buildTab(AccountTabType tabId, BuildContext context) {
     return GestureDetector(
       onTap: () => onTabChange(tabId),
@@ -59,7 +63,8 @@ class TabNavigation extends StatelessWidget {
   }
 }
 
-enum AccountTabType{
+/// Enum representing the types of account tabs.
+enum AccountTabType {
   Posts,
   SavedPosts,
   LikedPosts,

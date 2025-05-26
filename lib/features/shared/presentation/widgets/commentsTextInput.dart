@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:form_field_validator/form_field_validator.dart';
 import 'package:mtaa_frontend/core/constants/colors.dart';
 
+/// A text input field for entering comments with cancel and save actions.
 class CommentsTextInput extends StatefulWidget {
   final String placeholder;
   final MultiValidator? validator;
@@ -14,6 +15,7 @@ class CommentsTextInput extends StatefulWidget {
   final void Function() onSend;
   final bool isLoading;
 
+  /// Creates a [CommentsTextInput] with required properties and callbacks.
   const CommentsTextInput({
     super.key,
     required this.placeholder,
@@ -32,14 +34,17 @@ class CommentsTextInput extends StatefulWidget {
   State<CommentsTextInput> createState() => _CommentsTextInputState();
 }
 
+/// Manages the state for the comment input field, including focus and button visibility.
 class _CommentsTextInputState extends State<CommentsTextInput> {
   bool _isFocused = false;
 
+  /// Cleans up resources on widget disposal.
   @override
   void dispose() {
     super.dispose();
   }
 
+  /// Builds the UI with a text input field and conditional action buttons.
   @override
   Widget build(BuildContext context) {
     return FocusScope(

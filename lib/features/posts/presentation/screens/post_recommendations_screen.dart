@@ -25,21 +25,25 @@ import 'package:mtaa_frontend/features/shared/presentation/widgets/phone_bottom_
 import 'package:mtaa_frontend/features/shared/presentation/widgets/server_error_notification_section.dart';
 import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
 
+/// Displays a screen with recommended posts using pagination.
 class PostRecommendationsScreen extends StatefulWidget {
   final PostsRepository repository;
   final TokenStorage tokenStorage;
 
+  /// Creates a [PostRecommendationsScreen] with required dependencies.
   const PostRecommendationsScreen({super.key, required this.repository, required this.tokenStorage});
 
   @override
   State<PostRecommendationsScreen> createState() => _PostRecommendationsScreenState();
 }
 
+/// Manages the state for loading and displaying recommended posts.
 class _PostRecommendationsScreenState extends State<PostRecommendationsScreen> {
   PaginationScrollController paginationScrollController = PaginationScrollController();
   List<FullPostResponse> posts = [];
   late final AppLifecycleListener _listener;
 
+  /// Initializes state, registers context, and checks airplane mode.
   @override
   void initState() {
     if (getIt.isRegistered<BuildContext>()) {
@@ -82,6 +86,7 @@ class _PostRecommendationsScreenState extends State<PostRecommendationsScreen> {
     );
   }
 
+  /// Loads additional recommended posts for pagination.
   Future loadPosts() async {
     if (!mounted) return;
     var res = await widget.repository.getRecommendedPosts(paginationScrollController.pageParameters);
@@ -101,20 +106,20 @@ class _PostRecommendationsScreenState extends State<PostRecommendationsScreen> {
     }
   }
 
+  /// Disposes controllers, saves recent posts, and cleans up resources.
   @override
   void dispose() {
     paginationScrollController.dispose();
     widget.repository.setPreviousRecommendedPosts(posts.reversed.take(paginationScrollController.pageParameters.pageSize).toList());
     _listener.dispose();
-
     super.dispose();
   }
 
+  /// Resets and loads the first page of recommended posts.
   Future loadFirst() async {
     posts.clear();
     paginationScrollController.dispose();
     paginationScrollController.init(loadAction: () => loadPosts());
-
     if (!mounted) return;
     setState(() {
       paginationScrollController.isLoading = true;
@@ -127,10 +132,10 @@ class _PostRecommendationsScreenState extends State<PostRecommendationsScreen> {
     });
   }
 
+  /// Builds the UI with a paginated list of recommended posts and navigation.
   @override
   Widget build(BuildContext contex) {
     final isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
-
     return Scaffold(
         appBar: AppBar(
           actions: <Widget>[

@@ -20,17 +20,19 @@ import 'package:mtaa_frontend/features/users/account/data/repositories/account_r
 import 'package:mtaa_frontend/features/users/account/presentation/widgets/followersList.dart';
 import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
 
+/// Screen displaying a list of followers with search functionality.
 class FollowersScreen extends StatefulWidget {
   final AccountRepository repository;
   final TokenStorage tokenStorage;
 
-  const FollowersScreen({super.key, required this.repository,
-  required this.tokenStorage});
+  /// Creates a [FollowersScreen] with required dependencies.
+  const FollowersScreen({super.key, required this.repository, required this.tokenStorage});
 
   @override
   State<FollowersScreen> createState() => _FollowersScreenState();
 }
 
+/// Manages the state for loading and displaying followers.
 class _FollowersScreenState extends State<FollowersScreen> {
   String filterStr = "";
   List<PublicBaseAccountResponse> followers = [];
@@ -38,43 +40,33 @@ class _FollowersScreenState extends State<FollowersScreen> {
   final searchController = TextEditingController();
   late final AppLifecycleListener _listener;
 
+  /// Initializes state, registers context, and sets up lifecycle listener.
   @override
   void initState() {
     super.initState();
-    
     if (getIt.isRegistered<BuildContext>()) {
       getIt.unregister<BuildContext>();
     }
     getIt.registerSingleton<BuildContext>(context);
-
     context.read<ExceptionsBloc>().add(
-      SetExceptionsEvent(
-        isException: false, 
-        exceptionType: ExceptionTypes.none, 
-        message: ''
-      )
-    );
-
+          SetExceptionsEvent(isException: false, exceptionType: ExceptionTypes.none, message: ''),
+        );
     _listener = AppLifecycleListener(
       onResume: () async {
-        if(!mounted) return;
+        if (!mounted) return;
         final status = await AirplaneModeChecker.instance.checkAirplaneMode();
         if (status == AirplaneModeStatus.off && mounted) {
           context.read<ExceptionsBloc>().add(
-            SetExceptionsEvent(
-              isException: false, 
-              exceptionType: ExceptionTypes.none, 
-              message: ''
-            )
-          );
+                SetExceptionsEvent(isException: false, exceptionType: ExceptionTypes.none, message: ''),
+              );
           await loadFollowers();
         }
       },
     );
-
     loadFollowers();
   }
 
+  /// Cleans up resources on widget disposal.
   @override
   void dispose() {
     _listener.dispose();
@@ -82,15 +74,14 @@ class _FollowersScreenState extends State<FollowersScreen> {
     super.dispose();
   }
 
+  /// Loads followers from the repository based on search filter.
   Future<void> loadFollowers() async {
     setState(() {
       isLoading = true;
     });
-
-    final response = await widget.repository.getFollowers(GlobalSearch(
-    filterStr: filterStr,
-    pageParameters: PageParameters()));
-    
+    final response = await widget.repository.getFollowers(
+      GlobalSearch(filterStr: filterStr, pageParameters: PageParameters()),
+    );
     if (mounted) {
       setState(() {
         followers = response.map((account) => PublicBaseAccountResponse(
@@ -104,21 +95,20 @@ class _FollowersScreenState extends State<FollowersScreen> {
     }
   }
 
+  /// Triggers follower reload with updated search query.
   void handleSearch() {
     filterStr = searchController.text;
     loadFollowers();
   }
 
+  /// Builds the UI with search bar, follower list, and error handling.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
           'Followers',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
       ),
       body: BlocBuilder<ExceptionsBloc, ExceptionsState>(
@@ -151,14 +141,12 @@ class _FollowersScreenState extends State<FollowersScreen> {
                               onPressed: loadFollowers,
                             );
                           }
-
                           if (followers.isEmpty) {
                             return EmptyErrorNotificationSectionWidget(
                               onPressed: loadFollowers,
                               title: 'No followers found',
                             );
                           }
-
                           return FollowersList(
                             followers: followers,
                             searchQuery: filterStr,

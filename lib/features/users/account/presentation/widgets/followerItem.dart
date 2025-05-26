@@ -8,11 +8,13 @@ import 'package:mtaa_frontend/features/users/account/data/models/responses/publi
 import 'package:mtaa_frontend/features/users/account/data/repositories/account_repository.dart';
 import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
 
+/// Widget representing a single follower item in a list.
 class FollowerItem extends StatefulWidget {
   final PublicBaseAccountResponse follower;
   final AccountRepository repository;
   final TokenStorage tokenStorage;
 
+  /// Creates a [FollowerItem] with required follower data and dependencies.
   const FollowerItem({
     super.key,
     required this.follower,
@@ -24,18 +26,22 @@ class FollowerItem extends StatefulWidget {
   State<FollowerItem> createState() => _FollowerItemState();
 }
 
+/// Manages the state for a follower item, including follow/unfollow actions.
 class _FollowerItemState extends State<FollowerItem> {
-
   String userId = '';
+
+  /// Builds the UI with follower details and follow/unfollow options.
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
     final colorScheme = theme.colorScheme;
+
+    /// Fetches the current user's ID asynchronously.
     Future.microtask(() async {
       if (!mounted) return;
       String? res = await widget.tokenStorage.getUserId();
-      if(res== null || !mounted) return;
+      if (res == null || !mounted) return;
       setState(() {
         userId = res;
       });
@@ -48,10 +54,9 @@ class _FollowerItemState extends State<FollowerItem> {
         children: [
           GestureDetector(
             onTap: () {
-              if(userId== widget.follower.id) {
+              if (userId == widget.follower.id) {
                 GoRouter.of(context).push(accountProfileScreenRoute);
-              }
-              else {
+              } else {
                 GoRouter.of(context).push(
                   publicAccountInformationScreenRoute,
                   extra: widget.follower.id,
@@ -72,9 +77,7 @@ class _FollowerItemState extends State<FollowerItem> {
                             width: 70,
                             height: 70,
                             color: theme.secondaryHeaderColor,
-                            child: const Center(
-                              child: CircularProgressIndicator(),
-                            ),
+                            child: const Center(child: CircularProgressIndicator()),
                           ),
                           errorWidget: (context, url, error) => Container(
                             width: 70,
@@ -96,9 +99,7 @@ class _FollowerItemState extends State<FollowerItem> {
                   children: [
                     Text(
                       widget.follower.displayName,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
                     ),
                     Text(
                       widget.follower.username,
@@ -160,4 +161,5 @@ class _FollowerItemState extends State<FollowerItem> {
   }
 }
 
+/// Enum for follow/unfollow menu actions.
 enum FollowerMenuAction { follow, unfollow }

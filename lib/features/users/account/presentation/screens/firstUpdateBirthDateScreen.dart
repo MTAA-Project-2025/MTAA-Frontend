@@ -9,15 +9,18 @@ import 'package:mtaa_frontend/features/shared/presentation/widgets/dotLoader.dar
 import 'package:mtaa_frontend/themes/bloc/theme_bloc.dart';
 import 'package:mtaa_frontend/themes/bloc/theme_event.dart';
 
+/// Screen for updating the user's birth date during initial setup.
 class FirstUpdateBirthDateScreen extends StatefulWidget {
   final AccountApi accountApi;
 
+  /// Creates a [FirstUpdateBirthDateScreen] with required API dependency.
   const FirstUpdateBirthDateScreen({super.key, required this.accountApi});
 
   @override
   State<FirstUpdateBirthDateScreen> createState() => _FirstUpdateBirthDateScreenState();
 }
 
+/// Manages the state for birth date selection and submission.
 class _FirstUpdateBirthDateScreenState extends State<FirstUpdateBirthDateScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final birthDateController = TextEditingController();
@@ -25,12 +28,14 @@ class _FirstUpdateBirthDateScreenState extends State<FirstUpdateBirthDateScreen>
   DateTime? selectedDate;
   bool isError = false;
 
+  /// Cleans up resources on widget disposal.
   @override
   void dispose() {
     birthDateController.dispose();
     super.dispose();
   }
 
+  /// Navigates to the avatar update screen.
   void _navigateToGroupListScreen() {
     Future.microtask(() {
       if (!mounted) return;
@@ -38,6 +43,7 @@ class _FirstUpdateBirthDateScreenState extends State<FirstUpdateBirthDateScreen>
     });
   }
 
+  /// Builds the UI with birth date form and action buttons.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -73,7 +79,7 @@ class _FirstUpdateBirthDateScreenState extends State<FirstUpdateBirthDateScreen>
             BirthDateForm(
               formKey: _formKey,
               onChanged: (date) async {
-                if(!mounted)return;
+                if (!mounted) return;
                 setState(() {
                   selectedDate = date;
                   isError = false;
@@ -94,15 +100,13 @@ class _FirstUpdateBirthDateScreenState extends State<FirstUpdateBirthDateScreen>
                           foregroundColor: Theme.of(context).colorScheme.secondary,
                           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                         ),
-                        child: Text(
-                          'Skip',
-                        ),
+                        child: Text('Skip'),
                       ),
                       const SizedBox(width: 5),
                       TextButton(
                         onPressed: () async {
                           if (selectedDate == null) {
-                            if(!mounted)return;
+                            if (!mounted) return;
                             setState(() {
                               isError = true;
                             });
@@ -110,7 +114,7 @@ class _FirstUpdateBirthDateScreenState extends State<FirstUpdateBirthDateScreen>
                           } else {
                             isError = false;
                             if (_formKey.currentState!.validate()) {
-                              if(!mounted)return;
+                              if (!mounted) return;
                               setState(() => isLoading = true);
                               bool res = await widget.accountApi.updateAccountBirthDate(UpdateAccountBirthDateRequest(birthDate: selectedDate ?? DateTime.now()));
                               if(!mounted)return;
@@ -122,12 +126,10 @@ class _FirstUpdateBirthDateScreenState extends State<FirstUpdateBirthDateScreen>
                           }
                         },
                         style: Theme.of(context).textButtonTheme.style,
-                        child: Text(
-                          'Create',
-                        ),
+                        child: Text('Create'),
                       ),
                     ],
-                  )
+                  ),
           ],
         ),
       ),

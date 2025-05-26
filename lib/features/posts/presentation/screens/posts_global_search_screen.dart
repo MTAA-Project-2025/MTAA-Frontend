@@ -22,16 +22,19 @@ import 'package:mtaa_frontend/features/shared/presentation/widgets/empty_data_no
 import 'package:mtaa_frontend/features/shared/presentation/widgets/server_error_notification_section.dart';
 import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
 
+/// Displays a screen for searching and viewing global posts with pagination.
 class PostsGlobalSearchScreen extends StatefulWidget {
   final PostsRepository repository;
   final TokenStorage tokenStorage;
 
+  /// Creates a [PostsGlobalSearchScreen] with required dependencies.
   const PostsGlobalSearchScreen({super.key, required this.repository, required this.tokenStorage});
 
   @override
   State<PostsGlobalSearchScreen> createState() => _PostsGlobalSearchScreenState();
 }
 
+/// Manages the state for searching and loading global posts.
 class _PostsGlobalSearchScreenState extends State<PostsGlobalSearchScreen> {
   PaginationScrollController paginationScrollController = PaginationScrollController();
   List<FullPostResponse> posts = [];
@@ -40,6 +43,7 @@ class _PostsGlobalSearchScreenState extends State<PostsGlobalSearchScreen> {
   String filterStr = '';
   final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
+  /// Initializes state, checks airplane mode, and sets up pagination.
   @override
   void initState() {
     paginationScrollController.init(loadAction: () => loadPosts());
@@ -74,6 +78,7 @@ class _PostsGlobalSearchScreenState extends State<PostsGlobalSearchScreen> {
     loadFirst();
   }
 
+  /// Loads additional global posts based on search filter and pagination.
   Future<bool> loadPosts() async {
     var res = await widget.repository.getGlobalPosts(GetGLobalPostsRequest(filterStr: filterStr, pageParameters: paginationScrollController.pageParameters));
     paginationScrollController.pageParameters.pageNumber++;
@@ -93,6 +98,7 @@ class _PostsGlobalSearchScreenState extends State<PostsGlobalSearchScreen> {
     return false;
   }
 
+  /// Disposes controllers to prevent memory leaks.
   @override
   void dispose() {
     paginationScrollController.dispose();
@@ -100,6 +106,7 @@ class _PostsGlobalSearchScreenState extends State<PostsGlobalSearchScreen> {
     super.dispose();
   }
 
+  /// Resets and loads the first page of global posts.
   Future loadFirst() async {
     posts.clear();
     paginationScrollController.dispose();
@@ -116,6 +123,7 @@ class _PostsGlobalSearchScreenState extends State<PostsGlobalSearchScreen> {
     });
   }
 
+  /// Builds the UI with a search bar and paginated list of posts.
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ExceptionsBloc, ExceptionsState>(builder: (context, state) {

@@ -25,6 +25,7 @@ import 'package:mtaa_frontend/features/shared/presentation/widgets/commentsTextI
 import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
 import 'package:uuid/uuid.dart';
 
+/// Displays a comment with interaction options and nested replies.
 class CommentCardWidget extends StatefulWidget {
   final NumberFormatingService numberFormatingService;
   final TimeFormatingService timeFormatingService;
@@ -38,6 +39,7 @@ class CommentCardWidget extends StatefulWidget {
   final double depth;
   final TokenStorage tokenStorage;
 
+  /// Creates a [CommentCardWidget] with required dependencies and configuration.
   const CommentCardWidget(
       {super.key,
       required this.numberFormatingService,
@@ -56,6 +58,7 @@ class CommentCardWidget extends StatefulWidget {
   State<CommentCardWidget> createState() => _CommentCardWidgetState();
 }
 
+/// Manages the state and interactions of a comment card.
 class _CommentCardWidgetState extends State<CommentCardWidget> {
   int commentsCount = 0;
   bool isTextOpen = false;
@@ -69,6 +72,7 @@ class _CommentCardWidgetState extends State<CommentCardWidget> {
   bool isEditLoading = false;
   bool isChildLoading = false;
 
+  /// Initializes state and sets up parent comment controller and user ID.
   @override
   void initState() {
     super.initState();
@@ -99,6 +103,7 @@ class _CommentCardWidgetState extends State<CommentCardWidget> {
     });
   }
 
+  /// Returns the appropriate image provider for a user's avatar.
   ImageProvider<Object> getImage(MyImageResponse img) {
     if (!img.localPath.isNotEmpty) {
       return NetworkImage(img.fullPath);
@@ -111,6 +116,7 @@ class _CommentCardWidgetState extends State<CommentCardWidget> {
     return AssetImage('assets/images/kistune_server_error.png');
   }
 
+  /// Builds the comment card UI with interactions and reply functionality.
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -461,4 +467,5 @@ class _CommentCardWidgetState extends State<CommentCardWidget> {
   }
 }
 
+/// Defines options for the comment menu.
 enum CommentMenuElement { delete, edit }

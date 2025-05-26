@@ -4,21 +4,31 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mtaa_frontend/core/constants/colors.dart';
 import 'package:mtaa_frontend/core/utils/app_injections.dart';
 
+/// Defines methods for displaying toast notifications.
 abstract class MyToastService {
+  /// Shows an error toast with a message.
   Future showError(String msg);
+  
+  /// Shows an error toast with a message using a specific context.
   Future showErrorWithContext(String msg, BuildContext context);
 
+  /// Shows a general message toast.
   Future showMsg(String msg);
+  
+  /// Shows a general message toast using a specific context.
   Future showMsgWithContext(String msg, BuildContext context);
 }
 
+/// Implements toast notifications with custom error and message displays.
 class MyToastServiceImpl extends MyToastService {
+  /// Shows an error toast using the default context.
   @override
   Future showError(String msg) async {
     BuildContext context = getIt<BuildContext>();
     showErrorWithContext(msg, context);
   }
 
+  /// Shows an error toast with a custom UI and message.
   @override
   Future showErrorWithContext(String msg, BuildContext context) async {
     if (!context.mounted) return;
@@ -77,12 +87,14 @@ class MyToastServiceImpl extends MyToastService {
     );
   }
 
+  /// Shows a general message toast using the default context.
   @override
   Future showMsg(String msg) async {
     BuildContext context = getIt<BuildContext>();
     showMsgWithContext(msg, context);
   }
 
+  /// Shows a general message toast with a custom UI.
   @override
   Future showMsgWithContext(String msg, BuildContext context) async {
     if (!context.mounted) return;

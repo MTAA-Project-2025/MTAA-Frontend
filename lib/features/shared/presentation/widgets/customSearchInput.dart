@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:form_field_validator/form_field_validator.dart';
 import 'package:mtaa_frontend/core/constants/colors.dart';
 
+/// A customizable search input field with a search icon and action.
 class CustomSearchInput extends StatefulWidget {
   final String placeholder;
   final MultiValidator? validator;
@@ -9,6 +10,7 @@ class CustomSearchInput extends StatefulWidget {
   final TextEditingController controller;
   final void Function() onSearch;
 
+  /// Creates a [CustomSearchInput] with required properties and search callback.
   const CustomSearchInput({
     super.key,
     this.placeholder = 'Search',
@@ -22,22 +24,25 @@ class CustomSearchInput extends StatefulWidget {
   State<CustomSearchInput> createState() => _CustomSearchInputState();
 }
 
+/// Manages the state for the search input field, including focus and search action.
 class _CustomSearchInputState extends State<CustomSearchInput> {
   bool _isFocused = false;
 
+  /// Cleans up resources on widget disposal.
   @override
   void dispose() {
     super.dispose();
   }
 
+  /// Builds the UI with a search input field and a prefix search icon.
   @override
   Widget build(BuildContext context) {
     return FocusScope(
       child: Focus(
         onFocusChange: (focus) {
-          if(!mounted)return;
+          if (!mounted) return;
           setState(() => _isFocused = focus);
-          if(!_isFocused){
+          if (!_isFocused) {
             widget.onSearch.call();
           }
         },
@@ -58,13 +63,11 @@ class _CustomSearchInputState extends State<CustomSearchInput> {
               icon: Icon(Icons.search_rounded),
               color: Theme.of(context).textTheme.labelMedium?.decorationColor,
               onPressed: () {
-                if(!mounted)return;
-                setState(
-                  () {
-                    _isFocused=!_isFocused;
-                    widget.onSearch.call();
-                  },
-                );
+                if (!mounted) return;
+                setState(() {
+                  _isFocused = !_isFocused;
+                  widget.onSearch.call();
+                });
               },
             ),
             filled: true,

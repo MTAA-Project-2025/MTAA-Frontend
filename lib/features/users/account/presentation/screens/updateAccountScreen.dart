@@ -23,58 +23,50 @@ import 'package:mtaa_frontend/features/users/account/data/models/requests/update
 import 'package:mtaa_frontend/features/users/account/data/repositories/account_repository.dart';
 import 'package:mtaa_frontend/features/users/account/presentation/widgets/birthDateForm.dart';
 
+/// Screen for updating user account details such as username, display name, and birth date.
 class UpdateAccountScreen extends StatefulWidget {
   final AccountRepository repository;
   final MyToastService toastService;
 
+  /// Creates an [UpdateAccountScreen] with required dependencies.
   const UpdateAccountScreen({super.key, required this.repository, required this.toastService});
 
   @override
   State<UpdateAccountScreen> createState() => _UpdateAccountScreenState();
 }
 
+/// Manages the state for updating account information.
 class _UpdateAccountScreenState extends State<UpdateAccountScreen> {
   bool isLoading = false;
   final AccountRepository repository = getIt<AccountRepository>();
   File? selectedCustomImage;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
   DateTime? selectedDate;
 
+  /// Initializes state and loads account if necessary.
   @override
   void initState() {
     super.initState();
-
     final accountState = context.read<AccountBloc>().state;
     if (accountState.account == null) {
       loadAccount();
     }
   }
 
+  /// Opens a dialog to edit a specific account field.
   void _editField(String fieldName, String currentValue, AccountState accountState, {bool isDateField = false}) {
     TextEditingController controller = TextEditingController(text: currentValue);
     final formKey = GlobalKey<FormState>();
-
     final requiredValidator = RequiredValidator(errorText: 'This field is required');
     final minLengthValidator = MinLengthValidator(3, errorText: 'Minimum 3 characters required');
-
     final Map<String, MultiValidator> _validators = {
-      'username': MultiValidator([
-        requiredValidator,
-        minLengthValidator,
-      ]),
-      'full name': MultiValidator([
-        requiredValidator,
-      ]),
+      'username': MultiValidator([requiredValidator, minLengthValidator]),
+      'full name': MultiValidator([requiredValidator]),
     };
-
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(
-          'Edit $fieldName',
-          style: Theme.of(context).textTheme.headlineMedium,
-        ),
+        title: Text('Edit $fieldName', style: Theme.of(context).textTheme.headlineMedium),
         content: isDateField
             ? BirthDateForm(
                 formKey: _formKey,
@@ -104,22 +96,18 @@ class _UpdateAccountScreenState extends State<UpdateAccountScreen> {
               if (!isDateField && !(formKey.currentState?.validate() ?? false)) {
                 return;
               }
-
               switch (fieldName.toLowerCase()) {
                 case 'username':
                   if (accountState.account != null) {
                     var res = await widget.repository.updateAccountUsername(UpdateAccountUsernameRequest(username: controller.text));
-
                     if (res) {
-                      if (!mounted) return;
-                      if (!context.mounted) return;
+                      if (!mounted || !context.mounted) return;
                       context.read<AccountBloc>().add(ChangeAccountUsernameEvent(newUsername: controller.text));
                     }
                   }
                   break;
                 case 'full name':
                   var res = await widget.repository.updateAccountDisplayName(UpdateAccountDisplayNameRequest(displayName: controller.text));
-
                   if (res) {
                     if (accountState.account != null) {
                       if (!mounted) return;
@@ -130,7 +118,6 @@ class _UpdateAccountScreenState extends State<UpdateAccountScreen> {
                 case 'date of birth':
                   if (selectedDate == null) return;
                   var res = await widget.repository.updateAccountBirthDate(UpdateAccountBirthDateRequest(birthDate: selectedDate!));
-
                   if (res) {
                     if (!mounted) return;
                     if (accountState.account != null) {
@@ -153,6 +140,7 @@ class _UpdateAccountScreenState extends State<UpdateAccountScreen> {
     );
   }
 
+  /// Loads account data from the repository.
   Future loadAccount() async {
     if (isLoading) return;
     if (!mounted) return;
@@ -161,8 +149,7 @@ class _UpdateAccountScreenState extends State<UpdateAccountScreen> {
     });
     var res = await widget.repository.getFullAccount();
     if (res != null) {
-      if (!mounted) return;
-      if (!context.mounted) return;
+      if (!mounted || !context.mounted) return;
       context.read<AccountBloc>().add(LoadAccountEvent(account: res));
     }
     if (!mounted) return;
@@ -171,6 +158,7 @@ class _UpdateAccountScreenState extends State<UpdateAccountScreen> {
     });
   }
 
+  /// Builds the main UI with profile content or loading indicator.
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AccountBloc, AccountState>(builder: (context, accountState) {
@@ -189,39 +177,34 @@ class _UpdateAccountScreenState extends State<UpdateAccountScreen> {
     });
   }
 
+  /// Resolves the image provider for the account avatar.
   ImageProvider<Object> getImage(MyImageResponse? img) {
     if (img == null) {
       return const AssetImage('assets/images/kistune_server_error.png');
     }
-
     if (img.fullPath.startsWith('http')) {
       return NetworkImage(img.fullPath);
     }
-
     final file = File(img.localPath);
     if (file.existsSync()) {
       return FileImage(file);
     }
-
     return const AssetImage('assets/images/kistune_server_error.png');
   }
 
+  /// Builds the profile content with editable fields.
   Widget _buildProfileContent(BuildContext context, AccountState accountState) {
     final username = accountState.account?.username ?? "@username";
     final fullName = accountState.account?.displayName ?? "User";
-
     String birthDate = "none";
     if (accountState.account?.birthDate != null) {
       birthDate = DateFormat('dd MMMM yyyy').format(accountState.account!.birthDate!);
     }
-    //final phoneNumber = accountState.account?.phoneNumber??"node";
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 30),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Avatar
           Center(
             child: SizedBox(
               width: 200,
@@ -268,7 +251,6 @@ class _UpdateAccountScreenState extends State<UpdateAccountScreen> {
               ),
             ),
           ),
-          // Divider
           const Padding(
             padding: EdgeInsets.only(top: 20),
             child: Divider(
@@ -276,29 +258,17 @@ class _UpdateAccountScreenState extends State<UpdateAccountScreen> {
               thickness: 1,
             ),
           ),
-
-          // Fields
           _buildEditableField(Icons.person, "Username", username, () => _editField("Username", username.replaceFirst('@', ''), accountState)),
           _buildEditableField(Icons.badge, "Full name", fullName, () => _editField("Full Name", fullName, accountState)),
           _buildEditableField(Icons.calendar_today, "Date of birth", birthDate, () => _editField("Date of Birth", birthDate, accountState, isDateField: true)),
-          //_buildEditableField(Icons.phone, "Phone number", phoneNumber, () => _editField("Phone Number", phoneNumber, accountState)),
-
-          // Divider
-          const Padding(
-            padding: EdgeInsets.only(top: 20),
-            child: Divider(
-              color: Color(0xFFE0E0E0),
-              thickness: 1,
-            ),
-          ),
         ],
       ),
     );
   }
 
+  /// Builds an editable field row with icon, label, and edit button.
   Widget _buildEditableField(IconData icon, String label, String value, VoidCallback onEdit) {
     final theme = Theme.of(context);
-
     return Padding(
       padding: const EdgeInsets.only(top: 20),
       child: Row(

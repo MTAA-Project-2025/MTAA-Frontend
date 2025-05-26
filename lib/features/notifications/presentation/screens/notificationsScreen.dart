@@ -18,15 +18,18 @@ import 'package:mtaa_frontend/features/shared/presentation/widgets/empty_data_no
 import 'package:mtaa_frontend/features/shared/presentation/widgets/phone_bottom_menu.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/server_error_notification_section.dart';
 
+/// Displays a screen for viewing notifications with tabbed filtering.
 class NotificationsScreen extends StatefulWidget {
   final NotificationsRepository repository;
 
+  /// Creates a [NotificationsScreen] with required dependencies.
   const NotificationsScreen({super.key, required this.repository});
 
   @override
   State<NotificationsScreen> createState() => _NotificationsScreenState();
 }
 
+/// Manages the state, pagination, and tabbed navigation for notifications.
 class _NotificationsScreenState extends State<NotificationsScreen> {
   List<NotificationResponse> notifications = [];
   PaginationScrollController paginationScrollController = PaginationScrollController();
@@ -41,6 +44,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   late String activeTab;
 
+  /// Initializes state, pagination, and airplane mode checking.
   @override
   void initState() {
     super.initState();
@@ -75,6 +79,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     loadNotifications();
   }
 
+  /// Resets and loads the first page of notifications.
   Future loadFirst() async {
     notifications.clear();
     paginationScrollController.dispose();
@@ -92,6 +97,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     });
   }
 
+  /// Disposes controllers and listeners to prevent memory leaks.
   @override
   void dispose() {
     paginationScrollController.dispose();
@@ -99,6 +105,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     super.dispose();
   }
 
+  /// Handles tab changes and reloads notifications.
   void onTabChange(String tab) {
     setState(() {
       activeTab = tab;
@@ -106,6 +113,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     loadFirst();
   }
 
+  /// Builds a tab widget for filtering notifications.
   Widget _buildTab(String tabId) {
     final isActive = activeTab == tabId;
     return GestureDetector(
@@ -138,6 +146,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
   }
 
+  /// Loads additional notifications for pagination.
   Future loadNotifications() async {
     if (!mounted) return;
     var res = await widget.repository.getNotifications(paginationScrollController.pageParameters, tabs[activeTab]);
@@ -157,6 +166,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     }
   }
 
+  /// Builds the UI with tabbed navigation and a paginated list of notifications.
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -24,36 +24,35 @@ import 'package:mtaa_frontend/themes/button_theme.dart';
 import 'package:uuid/uuid.dart';
 import 'package:uuid/uuid_value.dart';
 
+/// Displays a screen for creating a new post with images, description, location, and scheduling options.
 class AddPostScreen extends StatefulWidget {
   final PostsRepository repository;
   final MyToastService toastService;
   final MyImageStorage imageStorage;
 
+  /// Creates an [AddPostScreen] with required dependencies.
   const AddPostScreen({super.key, required this.repository, required this.toastService, required this.imageStorage});
 
   @override
   State<AddPostScreen> createState() => _AddPostScreenState();
 }
 
+/// Manages the state for post creation, including image handling and form validation.
 class _AddPostScreenState extends State<AddPostScreen> {
   final descriptionController = TextEditingController();
   String startStr = '';
   bool isLoading = false;
   bool isEdited = false;
   List<AddPostImageScreenDTO> addImagesDTOs = [];
-
   List<ImageDTO> images = [];
-
   bool isAspectRatioError = false;
   final int maxImageCount = 10;
   List<String> imagePathsForDelete = [];
-
   AddScheduleDateDTO addScheduleDateDTO = AddScheduleDateDTO();
-
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-
   AddLocationRequest addLocationRequest = AddLocationRequest(latitude: -200, longitude: -200, eventTime: DateTime.now());
 
+  /// Initializes state and loads any temporary post data from storage.
   @override
   void initState() {
     super.initState();
@@ -67,7 +66,6 @@ class _AddPostScreenState extends State<AddPostScreen> {
           if (hiveData.location != null) {
             addLocationRequest = AddLocationRequest.fromHive(hiveData.location!);
           }
-
           bool flag = false;
           for (var img in hiveData.images) {
             var addImageDTO = AddPostImageScreenDTO.fromHive(img);
@@ -83,29 +81,30 @@ class _AddPostScreenState extends State<AddPostScreen> {
               flag = true;
             }
           }
-
           if (flag) isAspectRatioError = true;
         });
       }
     });
   }
 
+  /// Disposes controllers to prevent memory leaks.
   @override
   void dispose() {
     descriptionController.dispose();
     super.dispose();
   }
 
+  /// Navigates to the group list screen after clearing temporary data.
   void _navigateToGroupListScreen() {
     Future.microtask(() async {
       if (!mounted) return;
       await widget.repository.deleteTempPostAddForm();
-
       if (!mounted && !context.mounted) return;
       GoRouter.of(context).go(userRecommendationsScreenRoute);
     });
   }
 
+  /// Deletes an image from the post and marks it for deletion.
   void deleteImg(int pos) {
     if (!mounted) return;
     setState(() {
@@ -118,7 +117,6 @@ class _AddPostScreenState extends State<AddPostScreen> {
           imagePathsForDelete.add(addImgDTO.imagePath!);
         }
       }
-
       images.removeAt(pos);
       addImagesDTOs.removeAt(pos);
       for (int i = pos; i < addImagesDTOs.length; i++) {
@@ -128,13 +126,13 @@ class _AddPostScreenState extends State<AddPostScreen> {
     isEdited = true;
   }
 
+  /// Validates the aspect ratio of an image.
   Future<CropAspectRatioPresetCustom?> rewiewAspectRatio(File image) async {
     final decodedImage = await decodeImageFromList(image.readAsBytesSync());
     final width = decodedImage.width;
     final height = decodedImage.height;
     final String name = images.isEmpty ? 'first image' : 'other images';
     var aspectRatioPreset = CropAspectRatioPresetCustom(width, height, name);
-
     double aspectRatio = width.toDouble() / height.toDouble();
     if (aspectRatio < minPostImageAspectRatio || aspectRatio > maxPostImageAspectRatio) {
       if (context.mounted && mounted) {
@@ -142,19 +140,16 @@ class _AddPostScreenState extends State<AddPostScreen> {
       }
       return null;
     }
-
     return aspectRatioPreset;
   }
 
+  /// Uploads a new image to the post.
   Future uploadImg(XFile orig, File cropped) async {
     if (!mounted) return;
     AddPostImageScreenDTO newImage = AddPostImageScreenDTO(position: images.length);
     newImage.originalImage = orig;
-
     newImage.image = cropped;
-
     ImageDTO newImageDTO = ImageDTO(image: Image(image: FileImage(cropped), fit: BoxFit.fitHeight), originalPath: orig.path, isAspectRatioError: false, aspectRatioPreset: CropAspectRatioPresetCustom(1, 1, '1x1'));
-
     Future.microtask(() async {
       var res = await rewiewAspectRatio(cropped);
       if (!mounted) return;
@@ -172,6 +167,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
     });
   }
 
+  /// Updates an existing image in the post.
   void updateImg(int pos, File cropped) async {
     var aspectRatio = await rewiewAspectRatio(cropped);
     if (aspectRatio == null) {
@@ -180,7 +176,6 @@ class _AddPostScreenState extends State<AddPostScreen> {
     if (!mounted) return;
     setState(() {
       images[pos].image = Image(image: FileImage(cropped), fit: BoxFit.fitHeight);
-
       if (addImagesDTOs[pos].imagePath != null) {
         imagePathsForDelete.add(addImagesDTOs[pos].imagePath!);
         addImagesDTOs[pos].imagePath = null;
@@ -188,13 +183,10 @@ class _AddPostScreenState extends State<AddPostScreen> {
       }
       images[pos].aspectRatioPreset = aspectRatio;
     });
-
     var firstImg = images[0];
-
     bool flag = false;
     for (var img in images) {
-      if (!((img.aspectRatioPreset.width.toDouble() / img.aspectRatioPreset.height.toDouble() - firstImg.aspectRatioPreset.width.toDouble() / firstImg.aspectRatioPreset.height.toDouble()).abs() <=
-          0.01)) {
+      if (!((img.aspectRatioPreset.width.toDouble() / img.aspectRatioPreset.height.toDouble() - firstImg.aspectRatioPreset.width.toDouble() / firstImg.aspectRatioPreset.height.toDouble()).abs() <= 0.01)) {
         flag = true;
         if (!mounted) return;
         setState(() {
@@ -225,6 +217,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
     isEdited = true;
   }
 
+  /// Handles back navigation with unsaved changes prompt.
   Future<bool> _onWillPop() async {
     if (descriptionController.text.isNotEmpty || images.isNotEmpty || imagePathsForDelete.isNotEmpty) {
       var res = await showDialog(
@@ -268,6 +261,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
     return true;
   }
 
+  /// Builds the UI with form, location, scheduling, and submission options.
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -435,19 +429,19 @@ class _AddPostScreenState extends State<AddPostScreen> {
   }
 }
 
-class AddScheduleDateDTO{
+/// Data transfer object for scheduling a post.
+class AddScheduleDateDTO {
   DateTime? date;
 
   AddScheduleDateDTO({this.date});
 }
 
+/// Data transfer object for managing post images.
 class AddPostImageScreenDTO {
   File? image;
   XFile? originalImage;
-
   String? originalImageLocalPath;
   String? imagePath;
-
   int position;
   bool isLocal = false;
 

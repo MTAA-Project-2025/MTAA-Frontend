@@ -12,21 +12,25 @@ import 'package:mtaa_frontend/themes/bloc/theme_bloc.dart';
 import 'package:mtaa_frontend/themes/bloc/theme_event.dart';
 import 'package:mtaa_frontend/themes/button_theme.dart';
 
+/// Screen for initiating the signup process with email input.
 class StartSignUpScreen extends StatefulWidget {
   final IdentityApi identityApi;
 
+  /// Creates a [StartSignUpScreen] with required identity API.
   const StartSignUpScreen({super.key, required this.identityApi});
 
   @override
   State<StartSignUpScreen> createState() => _StartSignUpScreenState();
 }
 
+/// Manages the state for the signup form and email verification initiation.
 class _StartSignUpScreenState extends State<StartSignUpScreen> {
   final GlobalKey<FormState> _emailformKey = GlobalKey<FormState>();
   bool isShowEmailForm = true;
   final emailController = TextEditingController();
   bool isLoading = false;
 
+  /// Navigates to the email verification screen after successful initiation.
   void navigateToVerificationScreen() {
     if (!mounted) return;
     Future.microtask(() {
@@ -35,12 +39,14 @@ class _StartSignUpScreenState extends State<StartSignUpScreen> {
     });
   }
 
+  /// Cleans up the email controller on widget disposal.
   @override
   void dispose() {
     emailController.dispose();
     super.dispose();
   }
 
+  /// Builds the UI with email input form, theme toggle, and navigation options.
   @override
   Widget build(BuildContext context) {
     final emailPhoneBloc = context.read<VerificationEmailPhoneBloc>();

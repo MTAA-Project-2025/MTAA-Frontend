@@ -29,6 +29,7 @@ import 'package:mtaa_frontend/features/users/versioning/shared/VersionItemTypes.
 import 'package:mtaa_frontend/features/users/versioning/storage/VersionItemsStorage.dart';
 import 'package:uuid/uuid.dart';
 
+/// Interface for synchronization operations.
 abstract class SynchronizationService {
   Future synchronizePosts(int versionDifferency, int newVersion);
   Future synchronizeAccount(int newFollowersVersion, int newFriendsVersion, int newAccountVersion, int newLikedPostsVersion);
@@ -36,6 +37,7 @@ abstract class SynchronizationService {
   Future initializeSyncLoad();
 }
 
+/// Implementation of synchronization service for posts and account data.
 class SynchronizationServiceImpl extends SynchronizationService {
   final PostsApi postsApi;
   final AccountApi accountApi;
@@ -52,16 +54,20 @@ class SynchronizationServiceImpl extends SynchronizationService {
 
   Timer? syncTimer;
 
-  SynchronizationServiceImpl(this.postsApi,
-  this.locationsApi,
-  this.postsStorage,
-  this.versionItemsApi,
-  this.versionItemsStorage, 
-  this.accountApi,
-  this.tokenStorage);
+  /// Creates a [SynchronizationServiceImpl] with required dependencies.
+  SynchronizationServiceImpl(
+    this.postsApi,
+    this.locationsApi,
+    this.postsStorage,
+    this.versionItemsApi,
+    this.versionItemsStorage,
+    this.accountApi,
+    this.tokenStorage,
+  );
 
+  /// Initializes periodic synchronization based on internet connectivity.
   @override
-  Future initializeSyncLoad() async{
+  Future initializeSyncLoad() async {
     await analytics.logEvent(name: 'initialize_sync_load');
     InternetChecker.connectionStream.listen((hasConnection) async {
       if (hasConnection) {
@@ -79,9 +85,9 @@ class SynchronizationServiceImpl extends SynchronizationService {
     });
   }
 
-  
+  /// Synchronizes unsynced scheduled posts to the server.
   Future synchronizeLoad() async {
-    if(await tokenStorage.getToken() == null) return;
+    if (await tokenStorage.getToken() == null) return;
     if (!getIt.isRegistered<BuildContext>()) return;
     var context = getIt.get<BuildContext>();
     if (!context.mounted) return;
@@ -94,7 +100,6 @@ class SynchronizationServiceImpl extends SynchronizationService {
     try {
       await Future.delayed(Duration(seconds: 1));
 
-
       for (final post in state.notSyncedPostsHive) {
         UuidValue? id = await postsApi.addPost(post);
         if (id != null) {
@@ -106,11 +111,12 @@ class SynchronizationServiceImpl extends SynchronizationService {
     }
   }
 
+  /// Performs overall synchronization of posts and account data.
   @override
   Future synchronize() async {
     try {
       await analytics.logEvent(name: 'synchronize');
-      if(await tokenStorage.getToken() == null) return;
+      if (await tokenStorage.getToken() == null) return;
       var newVersions = await versionItemsApi.getVersionItems();
       if (newVersions.isEmpty) return;
       var oldPostsVersion = await versionItemsStorage.getVersionItem(VersionItemTypes.AccountPosts);
@@ -146,10 +152,11 @@ class SynchronizationServiceImpl extends SynchronizationService {
     }
   }
 
+  /// Synchronizes account-related data and updates version items.
   @override
   Future synchronizeAccount(int newFollowersVersion, int newFriendsVersion, int newAccountVersion, int newLikedPostsVersion) async {
     try {
-      if(await tokenStorage.getToken() == null) return;
+      if (await tokenStorage.getToken() == null) return;
       if (!getIt.isRegistered<BuildContext>()) return;
       var context = getIt.get<BuildContext>();
       var account = await accountApi.getFullAccount();
@@ -178,10 +185,11 @@ class SynchronizationServiceImpl extends SynchronizationService {
     }
   }
 
+  /// Synchronizes posts by updating or deleting based on version differences.
   @override
   Future synchronizePosts(int versionDifferency, int newVersion) async {
     try {
-      if(await tokenStorage.getToken() == null) return;
+      if (await tokenStorage.getToken() == null) return;
       if (isPostsSynchronizing) return;
       isPostsSynchronizing = true;
 

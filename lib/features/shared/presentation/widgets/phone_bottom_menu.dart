@@ -5,14 +5,17 @@ import 'package:mtaa_frontend/core/constants/colors.dart';
 import 'package:mtaa_frontend/core/constants/menu_buttons.dart';
 import 'package:mtaa_frontend/core/constants/route_constants.dart';
 
+/// A bottom navigation menu with icon buttons for app navigation.
 class PhoneBottomMenu extends StatelessWidget {
   final MenuButtons sellectedType;
 
+  /// Creates a [PhoneBottomMenu] with a selected menu type.
   const PhoneBottomMenu({
     super.key,
     required this.sellectedType,
   });
 
+  /// Builds the UI with a row of icon buttons for navigation.
   @override
   Widget build(BuildContext context) {
     return BottomAppBar(

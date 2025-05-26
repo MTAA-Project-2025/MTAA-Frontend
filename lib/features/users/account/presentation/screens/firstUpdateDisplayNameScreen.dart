@@ -9,26 +9,31 @@ import 'package:mtaa_frontend/features/shared/presentation/widgets/dotLoader.dar
 import 'package:mtaa_frontend/themes/bloc/theme_bloc.dart';
 import 'package:mtaa_frontend/themes/bloc/theme_event.dart';
 
+/// Screen for updating the user's display name during initial setup.
 class FirstUpdateDisplayNameScreen extends StatefulWidget {
   final AccountApi accountApi;
 
+  /// Creates a [FirstUpdateDisplayNameScreen] with required API dependency.
   const FirstUpdateDisplayNameScreen({super.key, required this.accountApi});
 
   @override
   State<FirstUpdateDisplayNameScreen> createState() => _FirstUpdateDisplayNameScreenState();
 }
 
+/// Manages the state for display name input and submission.
 class _FirstUpdateDisplayNameScreenState extends State<FirstUpdateDisplayNameScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final displayNameController = TextEditingController();
   bool isLoading = false;
 
+  /// Cleans up resources on widget disposal.
   @override
   void dispose() {
     displayNameController.dispose();
     super.dispose();
   }
 
+  /// Navigates to the birth date update screen.
   void _navigateToUpdateBirthDateScreen() {
     Future.microtask(() {
       if (!mounted) return;
@@ -36,6 +41,7 @@ class _FirstUpdateDisplayNameScreenState extends State<FirstUpdateDisplayNameScr
     });
   }
 
+  /// Builds the UI with display name form and action buttons.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -77,15 +83,13 @@ class _FirstUpdateDisplayNameScreenState extends State<FirstUpdateDisplayNameScr
                           foregroundColor: Theme.of(context).colorScheme.secondary,
                           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                         ),
-                        child: Text(
-                          'Skip',
-                        ),
+                        child: Text('Skip'),
                       ),
                       const SizedBox(width: 5),
                       TextButton(
                         onPressed: () async {
                           if (_formKey.currentState!.validate()) {
-                            if(!mounted)return;
+                            if (!mounted) return;
                             setState(() => isLoading = true);
                             bool res = await widget.accountApi.updateAccountDisplayName(UpdateAccountDisplayNameRequest(displayName: displayNameController.text));
                             
@@ -97,12 +101,10 @@ class _FirstUpdateDisplayNameScreenState extends State<FirstUpdateDisplayNameScr
                           }
                         },
                         style: Theme.of(context).textButtonTheme.style,
-                        child: Text(
-                          'Create',
-                        ),
+                        child: Text('Create'),
                       ),
                     ],
-                  )
+                  ),
           ],
         ),
       ),

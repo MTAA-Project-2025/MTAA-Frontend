@@ -8,33 +8,38 @@ import 'package:mtaa_frontend/features/users/account/data/models/responses/publi
 import 'package:mtaa_frontend/features/users/account/data/repositories/account_repository.dart';
 import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
 
+/// Widget representing a single friend item in a list.
 class FriendItem extends StatefulWidget {
   final PublicBaseAccountResponse friend;
   final AccountRepository repository;
   final TokenStorage tokenStorage;
 
+  /// Creates a [FriendItem] with required friend data and dependencies.
   const FriendItem({
     super.key,
     required this.friend,
     required this.repository,
     required this.tokenStorage,
   });
-  
+
   @override
   State<FriendItem> createState() => _FriendItemState();
 }
 
+/// Manages the state for a friend item, including follow/unfollow actions.
 class _FriendItemState extends State<FriendItem> {
-
   String userId = '';
+
+  /// Builds the UI with friend details and follow/unfollow buttons.
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
+    /// Fetches the current user's ID asynchronously.
     Future.microtask(() async {
       if (!mounted) return;
       String? res = await widget.tokenStorage.getUserId();
-      if(res== null || !mounted) return;
+      if (res == null || !mounted) return;
       setState(() {
         userId = res;
       });
@@ -48,10 +53,9 @@ class _FriendItemState extends State<FriendItem> {
         children: [
           GestureDetector(
             onTap: () {
-              if(userId== widget.friend.id) {
+              if (userId == widget.friend.id) {
                 GoRouter.of(context).push(accountProfileScreenRoute);
-              }
-              else {
+              } else {
                 GoRouter.of(context).push(
                   publicAccountInformationScreenRoute,
                   extra: widget.friend.id,
@@ -89,9 +93,7 @@ class _FriendItemState extends State<FriendItem> {
                   children: [
                     Text(
                       widget.friend.displayName,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
                     ),
                     Text(
                       "@${widget.friend.username}",
@@ -104,15 +106,14 @@ class _FriendItemState extends State<FriendItem> {
           ),
           if (widget.friend.isFollowing && (userId != widget.friend.id && userId != ''))
             TextButton(
-              onPressed:() async{
-                if(!mounted) return;
+              onPressed: () async {
+                if (!mounted) return;
                 setState(() {
                   widget.friend.isFollowing = false;
                 });
                 bool res = await widget.repository.unfollow(Unfollow(userId: widget.friend.id));
-
-                if(!res){
-                  if(!mounted) return;
+                if (!res) {
+                  if (!mounted) return;
                   setState(() {
                     widget.friend.isFollowing = true;
                   });
@@ -120,21 +121,20 @@ class _FriendItemState extends State<FriendItem> {
               },
               style: Theme.of(context).textButtonTheme.style!.copyWith(
                 padding: WidgetStatePropertyAll(const EdgeInsets.symmetric(vertical: 5, horizontal: 8)),
-                minimumSize: WidgetStatePropertyAll(Size(0,0)), 
+                minimumSize: WidgetStatePropertyAll(Size(0, 0)),
               ),
               child: const Text("Unfollow"),
             ),
           if (!widget.friend.isFollowing && (userId != widget.friend.id && userId != ''))
             TextButton(
-              onPressed:() async{
-                if(!mounted) return;
+              onPressed: () async {
+                if (!mounted) return;
                 setState(() {
                   widget.friend.isFollowing = true;
                 });
                 bool res = await widget.repository.follow(Follow(userId: widget.friend.id));
-
-                if(!res){
-                  if(!mounted) return;
+                if (!res) {
+                  if (!mounted) return;
                   setState(() {
                     widget.friend.isFollowing = false;
                   });
@@ -143,7 +143,7 @@ class _FriendItemState extends State<FriendItem> {
               style: Theme.of(context).textButtonTheme.style!.copyWith(
                 backgroundColor: WidgetStatePropertyAll(Theme.of(context).colorScheme.secondary),
                 padding: WidgetStatePropertyAll(const EdgeInsets.symmetric(vertical: 5, horizontal: 8)),
-                minimumSize: WidgetStatePropertyAll(Size(0,0)), 
+                minimumSize: WidgetStatePropertyAll(Size(0, 0)),
               ),
               child: const Text("Follow"),
             ),

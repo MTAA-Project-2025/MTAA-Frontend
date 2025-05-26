@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:form_field_validator/form_field_validator.dart';
 import 'package:mtaa_frontend/core/constants/colors.dart';
 
+/// A customizable password input field with visibility toggle.
 class CustomPasswordInput extends StatefulWidget {
   final String placeholder;
   final MultiValidator? validator;
   final TextInputType textInputType;
   final TextEditingController controller;
 
+  /// Creates a [CustomPasswordInput] with required properties and optional validation.
   const CustomPasswordInput({
     super.key,
     this.placeholder = 'Password',
@@ -20,21 +22,25 @@ class CustomPasswordInput extends StatefulWidget {
   State<CustomPasswordInput> createState() => _CustomPasswordInputState();
 }
 
+/// Manages the state for the password input field, including focus and visibility.
 class _CustomPasswordInputState extends State<CustomPasswordInput> {
   bool _isFocused = false;
   bool passwordVisible = false;
 
+  /// Cleans up resources on widget disposal.
   @override
   void dispose() {
     super.dispose();
   }
 
+  /// Initializes state with password visibility set to hidden.
   @override
   void initState() {
     super.initState();
     passwordVisible = false;
   }
 
+  /// Builds the UI with a password input field and visibility toggle icon.
   @override
   Widget build(BuildContext context) {
     return FocusScope(
@@ -58,12 +64,10 @@ class _CustomPasswordInputState extends State<CustomPasswordInput> {
               icon: Icon(passwordVisible ? Icons.visibility : Icons.visibility_off),
               color: Theme.of(context).textTheme.labelMedium?.decorationColor,
               onPressed: () {
-                if(!mounted)return;
-                setState(
-                  () {
-                    passwordVisible = !passwordVisible;
-                  },
-                );
+                if (!mounted) return;
+                setState(() {
+                  passwordVisible = !passwordVisible;
+                });
               },
             ),
             filled: true,

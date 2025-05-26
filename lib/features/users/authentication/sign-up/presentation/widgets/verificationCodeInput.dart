@@ -2,20 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mtaa_frontend/core/constants/colors.dart';
 
+/// Widget for entering a 6-digit verification code.
 class VerificationCodeInput extends StatefulWidget {
   final void Function(String) onCompleted;
 
+  /// Creates a [VerificationCodeInput] with a callback for completed input.
   const VerificationCodeInput({super.key, required this.onCompleted});
 
   @override
   _VerificationCodeInputState createState() => _VerificationCodeInputState();
 }
 
+/// Manages the state for the verification code input field.
 class _VerificationCodeInputState extends State<VerificationCodeInput> {
   final int _codeLength = 6;
   final TextEditingController _controller = TextEditingController();
   final FocusNode _focusNode = FocusNode();
 
+  /// Cleans up controller and focus node on widget disposal.
   @override
   void dispose() {
     _controller.dispose();
@@ -23,6 +27,7 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> {
     super.dispose();
   }
 
+  /// Handles input changes and triggers callback when code is complete.
   void _onChanged(String value) {
     if (value.length == _codeLength) {
       widget.onCompleted(value);
@@ -30,6 +35,7 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> {
     setState(() {});
   }
 
+  /// Builds the UI with a visual code display and hidden input field.
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -74,6 +80,7 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> {
     );
   }
 
+  /// Builds a hidden text field for numeric input.
   Widget buildHiddenInputField() {
     return Opacity(
       opacity: 0.0,

@@ -4,14 +4,17 @@ import 'package:mtaa_frontend/features/shared/bloc/exception_type.dart';
 import 'package:mtaa_frontend/features/shared/bloc/exceptions_bloc.dart';
 import 'package:mtaa_frontend/features/shared/bloc/exceptions_event.dart';
 
+/// Displays a server error notification with a retry action.
 class ServerErrorNotificationSectionWidget extends StatelessWidget {
   final void Function() onPressed;
 
+  /// Creates a [ServerErrorNotificationSectionWidget] with a retry callback.
   const ServerErrorNotificationSectionWidget({
     super.key,
     required this.onPressed,
   });
 
+  /// Builds the UI with an error image, message, and retry button.
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -29,9 +32,7 @@ class ServerErrorNotificationSectionWidget extends StatelessWidget {
           style: Theme.of(context).textButtonTheme.style!.copyWith(
                 minimumSize: WidgetStateProperty.all(Size(100, 39)),
               ),
-          child: Text(
-            'Try again',
-          ),
+          child: Text('Try again'),
         ),
       ],
     );

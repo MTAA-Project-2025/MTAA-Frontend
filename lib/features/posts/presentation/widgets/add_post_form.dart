@@ -11,6 +11,7 @@ import 'package:mtaa_frontend/features/images/data/storages/my_image_storage.dar
 import 'package:mtaa_frontend/features/images/domain/utils/cropAspectRatioPresetCustom.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/customTextInput.dart';
 
+/// A form widget for adding or editing a post with images and description.
 class AddPostForm extends StatefulWidget {
   final GlobalKey<FormState> formKey;
   final TextEditingController descriptionController;
@@ -18,33 +19,36 @@ class AddPostForm extends StatefulWidget {
   final void Function(int) onDelete;
   final Future Function(XFile, File) onUpload;
   final void Function(int, File) onUpdate;
-
   final bool isAspectRatioError;
   final MyToastService toastService;
   final MyImageStorage imageStorage;
 
-  const AddPostForm(
-      {super.key,
-      required this.formKey,
-      required this.descriptionController,
-      required this.images,
-      required this.onDelete,
-      required this.onUpload,
-      required this.onUpdate,
-      required this.isAspectRatioError,
-      required this.toastService,
-      required this.imageStorage});
+  /// Creates an [AddPostForm] with required dependencies and callbacks.
+  const AddPostForm({
+    super.key,
+    required this.formKey,
+    required this.descriptionController,
+    required this.images,
+    required this.onDelete,
+    required this.onUpload,
+    required this.onUpdate,
+    required this.isAspectRatioError,
+    required this.toastService,
+    required this.imageStorage,
+  });
 
   @override
   State<AddPostForm> createState() => _AddPostFormState();
 }
 
+/// Manages the state for the post form, including image selection and cropping.
 class _AddPostFormState extends State<AddPostForm> {
   int currentPos = 0;
   XFile? pickedFile;
   List<String> imagesForDelete = [];
   final int maxImages = 10;
 
+  /// Cleans up temporary image files on disposal.
   @override
   void dispose() {
     Future.microtask(() async {
@@ -52,10 +56,10 @@ class _AddPostFormState extends State<AddPostForm> {
         widget.imageStorage.deleteImage(path);
       }
     });
-
     super.dispose();
   }
 
+  /// Builds the form UI with a horizontal image list and description input.
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -165,6 +169,8 @@ class _AddPostFormState extends State<AddPostForm> {
   }
 
   bool isImageUploadActive = false;
+
+  /// Handles image selection from the gallery.
   Future<void> _uploadImage(BuildContext context) async {
     if (isImageUploadActive) return;
     isImageUploadActive = true;
@@ -183,6 +189,7 @@ class _AddPostFormState extends State<AddPostForm> {
     }
   }
 
+  /// Handles image cropping with aspect ratio constraints.
   Future<void> _cropImage(BuildContext context, bool isFromUpload) async {
     if (currentPos >= 0) {
       List<CropAspectRatioPresetCustom> aspectRatios = [];
@@ -209,12 +216,10 @@ class _AddPostFormState extends State<AddPostForm> {
             }
             return;
           }
-        }
-        else{
+        } else {
           originalPath = widget.images[currentPos].originalPath;
         }
       }
-
 
       if (!mounted) return;
       final croppedFile = await ImageCropper().cropImage(
@@ -262,6 +267,7 @@ class _AddPostFormState extends State<AddPostForm> {
   }
 }
 
+/// Data transfer object for managing image data in the form.
 class ImageDTO {
   Image image;
   String originalPath;

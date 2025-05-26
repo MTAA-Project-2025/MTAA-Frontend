@@ -5,26 +5,31 @@ import 'package:mtaa_frontend/core/services/my_toast_service.dart';
 import 'package:mtaa_frontend/features/posts/presentation/screens/add_post_screen.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/full_data_time_input.dart';
 
+/// Displays a screen for selecting a schedule date for a post.
 class AddSchedulePostDateScreen extends StatefulWidget {
   final MyToastService toastService;
   final AddScheduleDateDTO addDateDTO;
 
+  /// Creates an [AddSchedulePostDateScreen] with required dependencies.
   const AddSchedulePostDateScreen({super.key, required this.toastService, required this.addDateDTO});
 
   @override
   State<AddSchedulePostDateScreen> createState() => _AddSchedulePostDateScreenState();
 }
 
+/// Manages the state for selecting and saving a schedule date.
 class _AddSchedulePostDateScreenState extends State<AddSchedulePostDateScreen> {
   DateTime? selectedDate;
   final GlobalKey<FormState> birthDateFormKey = GlobalKey<FormState>();
   final mapController = MapController();
 
+  /// Initializes state.
   @override
   void initState() {
     super.initState();
   }
 
+  /// Navigates back to the previous screen.
   void navigateBack() {
     Future.microtask(() async {
       if (!mounted && !context.mounted) return;
@@ -32,6 +37,7 @@ class _AddSchedulePostDateScreenState extends State<AddSchedulePostDateScreen> {
     });
   }
 
+  /// Builds the UI with a date input and action buttons.
   @override
   Widget build(BuildContext context) {
     return Scaffold(

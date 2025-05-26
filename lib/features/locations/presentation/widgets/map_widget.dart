@@ -20,6 +20,7 @@ import 'package:mtaa_frontend/features/shared/bloc/exceptions_bloc.dart';
 import 'package:mtaa_frontend/features/shared/bloc/exceptions_event.dart';
 import 'package:open_settings_plus/core/open_settings_plus.dart';
 
+/// Displays a map with location points, user position, and interactive features.
 class MapWidget extends StatefulWidget {
   final LocationsRepository repository;
   final MyToastService toastService;
@@ -35,26 +36,29 @@ class MapWidget extends StatefulWidget {
   final bool isUserPos;
   final bool isInitialized;
 
-  const MapWidget(
-      {super.key,
-      required this.repository,
-      required this.toastService,
-      required this.onMapReady,
-      required this.onMapEvent,
-      required this.locationPoints,
-      required this.isLoading,
-      required this.mapController,
-      this.onDispose,
-      this.onTap,
-      this.initialUserPos,
-      this.isDisplaySavedLocations = true,
-      this.isUserPos = true,
-      this.isInitialized = true});
+  /// Creates a [MapWidget] with required dependencies and configuration.
+  const MapWidget({
+    super.key,
+    required this.repository,
+    required this.toastService,
+    required this.onMapReady,
+    required this.onMapEvent,
+    required this.locationPoints,
+    required this.isLoading,
+    required this.mapController,
+    this.onDispose,
+    this.onTap,
+    this.initialUserPos,
+    this.isDisplaySavedLocations = true,
+    this.isUserPos = true,
+    this.isInitialized = true,
+  });
 
   @override
   State<MapWidget> createState() => _MapWidgetState();
 }
 
+/// Manages the state, location services, and map interactions.
 class _MapWidgetState extends State<MapWidget> {
   late AppLifecycleListener listener;
 
@@ -69,6 +73,7 @@ class _MapWidgetState extends State<MapWidget> {
     stores: const {tilesBox: BrowseStoreStrategy.readUpdateCreate},
   );
 
+  /// Initializes state and location services.
   @override
   void initState() {
     super.initState();
@@ -89,6 +94,7 @@ class _MapWidgetState extends State<MapWidget> {
     initLocation();
   }
 
+  /// Disposes resources to prevent memory leaks.
   @override
   void dispose() {
     if (userPos != null) {
@@ -100,6 +106,7 @@ class _MapWidgetState extends State<MapWidget> {
     super.dispose();
   }
 
+  /// Initializes location permissions and user position.
   Future initLocation() async {
     if (!widget.isUserPos) return;
     LocationPermission permission = await Geolocator.checkPermission();
@@ -124,23 +131,23 @@ class _MapWidgetState extends State<MapWidget> {
     }
   }
 
+  /// Loads the last known user position.
   Future loadLastPosition() async {
     if (!mounted) return;
-    if(!widget.isInitialized)return;
+    if (!widget.isInitialized) return;
     setState(() {
       if (widget.initialUserPos != null) {
         userPos = widget.initialUserPos;
-
         locationController.add(LocationMarkerPosition(latitude: userPos!.latitude, longitude: userPos!.longitude, accuracy: userPos!.accuracy));
         userLocationStream = locationController.stream;
       }
-
     });
   }
 
+  /// Moves the map to the current user position.
   Future moveToCurrentUserPosition() async {
     if (userPos == null) {
-      if(widget.initialUserPos != null) {
+      if (widget.initialUserPos != null) {
         widget.mapController.move(LatLng(widget.initialUserPos!.latitude, widget.initialUserPos!.longitude), widget.mapController.camera.zoom);
         return;
       }
@@ -150,12 +157,12 @@ class _MapWidgetState extends State<MapWidget> {
     widget.mapController.move(LatLng(userPos!.latitude, userPos!.longitude), widget.mapController.camera.zoom);
   }
 
+  /// Starts streaming the user's location.
   void startPositionStream() {
     isGPSEnabled = true;
     userLocationStream = Geolocator.getPositionStream().map((Position position) {
       final locationMarker = LocationMarkerPosition(latitude: position.latitude, longitude: position.longitude, accuracy: position.accuracy);
       userPos = position;
-
       return locationMarker;
     });
 
@@ -163,6 +170,7 @@ class _MapWidgetState extends State<MapWidget> {
     setState(() {});
   }
 
+  /// Sets the map to the current user position with permission checks.
   Future setCurrentPosition() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
@@ -178,12 +186,13 @@ class _MapWidgetState extends State<MapWidget> {
     }
 
     if (!mounted) return;
-    if(widget.initialUserPos != null) {
-        widget.mapController.move(LatLng(widget.initialUserPos!.latitude, widget.initialUserPos!.longitude), widget.mapController.camera.zoom);
-        return;
+    if (widget.initialUserPos != null) {
+      widget.mapController.move(LatLng(widget.initialUserPos!.latitude, widget.initialUserPos!.longitude), widget.mapController.camera.zoom);
+      return;
     }
   }
 
+  /// Listens for GPS service status changes.
   void listenForGPS() {
     Geolocator.getServiceStatusStream().listen((status) {
       if (status == ServiceStatus.enabled) {
@@ -209,6 +218,7 @@ class _MapWidgetState extends State<MapWidget> {
     });
   }
 
+  /// Builds the map UI with location points and user position.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -297,6 +307,7 @@ class _MapWidgetState extends State<MapWidget> {
               ));
   }
 
+  /// Builds a widget for a location point or cluster.
   Widget buildPoint(SimpleLocationPointResponse point) {
     if (point.childCount > 0) {
       return GestureDetector(

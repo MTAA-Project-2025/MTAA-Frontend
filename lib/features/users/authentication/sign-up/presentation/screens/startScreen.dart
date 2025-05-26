@@ -8,9 +8,12 @@ import 'package:mtaa_frontend/themes/bloc/theme_bloc.dart';
 import 'package:mtaa_frontend/themes/bloc/theme_event.dart';
 import 'package:mtaa_frontend/themes/button_theme.dart';
 
+/// Initial screen for the app, providing options to sign up or log in.
 class StartScreen extends StatelessWidget {
+  /// Creates a [StartScreen] widget.
   const StartScreen({super.key});
-  
+
+  /// Builds the UI with a responsive layout, logo, and navigation buttons.
   @override
   Widget build(BuildContext context) {
     if (getIt.isRegistered<BuildContext>()) {
@@ -24,15 +27,9 @@ class StartScreen extends StatelessWidget {
           appBar: AppBar(
             title: constraints.maxHeight <= 900
                 ? Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                    SvgPicture.asset(
-                      'assets/svgs/small_logo.svg',
-                      height: 24,
-                    ),
+                    SvgPicture.asset('assets/svgs/small_logo.svg', height: 24),
                     const SizedBox(width: 4),
-                    SvgPicture.asset(
-                      'assets/svgs/logo_text_white.svg',
-                      height: 18,
-                    ),
+                    SvgPicture.asset('assets/svgs/logo_text_white.svg', height: 18),
                   ])
                 : null,
             actions: <Widget>[
@@ -124,9 +121,7 @@ class StartScreen extends StatelessWidget {
                               GoRouter.of(context).push(startSignUpPageRoute);
                             },
                             style: Theme.of(context).textButtonTheme.style,
-                            child: Text(
-                              'Sign Up',
-                            ),
+                            child: Text('Sign Up'),
                           ),
                         ),
                       ),
@@ -140,13 +135,13 @@ class StartScreen extends StatelessWidget {
                               GoRouter.of(context).push(logInScreenRoute);
                             },
                             style: specialTextButtonThemeData.style,
-                            child: Text(
-                              'Log In',
-                            ),
+                            child: Text('Log In'),
                           ),
                         ),
                       ),
-                    ]))
+                    ],
+                  ),
+                ),
               ],
             ),
           ),

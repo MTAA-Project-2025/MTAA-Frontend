@@ -21,28 +21,30 @@ import 'package:mtaa_frontend/features/shared/presentation/widgets/empty_data_no
 import 'package:mtaa_frontend/features/shared/presentation/widgets/server_error_notification_section.dart';
 import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
 
+/// Displays a list of posts liked by the user.
 class LikedPostsList extends StatefulWidget {
   final PostsRepository repository;
   final TokenStorage tokenStorage;
 
+  /// Creates a [LikedPostsList] with required dependencies.
   const LikedPostsList({super.key, required this.repository, required this.tokenStorage});
 
   @override
   State<LikedPostsList> createState() => _LikedPostsListState();
 }
 
+/// Manages the state for loading and displaying liked posts with pagination.
 class _LikedPostsListState extends State<LikedPostsList> {
   PaginationScrollController paginationScrollController = PaginationScrollController();
   List<FullPostResponse> posts = [];
   late final AppLifecycleListener _listener;
 
+  /// Initializes state, sets up pagination, and checks airplane mode.
   @override
   void initState() {
     super.initState();
     paginationScrollController.init(loadAction: () => loadPosts());
-
     context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: false, exceptionType: ExceptionTypes.none, message: ''));
-
     Future.microtask(() async {
       if (!mounted) return;
       final status = await AirplaneModeChecker.instance.checkAirplaneMode();
@@ -50,7 +52,6 @@ class _LikedPostsListState extends State<LikedPostsList> {
         context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: true, exceptionType: ExceptionTypes.flightMode, message: 'Flight mode is enabled'));
       }
     });
-
     _listener = AppLifecycleListener(
       onResume: () async {
         if (!mounted) return;
@@ -65,10 +66,10 @@ class _LikedPostsListState extends State<LikedPostsList> {
         });
       },
     );
-
     loadFirst();
   }
 
+  /// Loads additional liked posts using pagination.
   Future loadPosts() async {
     if (!mounted) return;
     var res = await widget.repository.getLikedPosts(paginationScrollController.pageParameters);
@@ -88,14 +89,15 @@ class _LikedPostsListState extends State<LikedPostsList> {
     }
   }
 
+  /// Disposes controllers and cleans up resources.
   @override
   void dispose() {
     paginationScrollController.dispose();
     _listener.dispose();
-
     super.dispose();
   }
 
+  /// Resets and loads the first page of liked posts.
   Future loadFirst() async {
     posts.clear();
     paginationScrollController.dispose();
@@ -106,13 +108,13 @@ class _LikedPostsListState extends State<LikedPostsList> {
     });
     if (!mounted) return;
     await loadPosts();
-
     if (!mounted) return;
     setState(() {
       paginationScrollController.isLoading = false;
     });
   }
 
+  /// Builds the UI with a paginated list of liked posts.
   @override
   Widget build(BuildContext contex) {
     return BlocBuilder<ExceptionsBloc, ExceptionsState>(builder: (context, state) {

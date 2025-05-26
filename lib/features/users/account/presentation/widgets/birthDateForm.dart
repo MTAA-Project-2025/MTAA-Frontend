@@ -1,22 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/dataTimeInput.dart';
 
+/// Form widget for selecting a birth date.
 class BirthDateForm extends StatefulWidget {
   final void Function(DateTime) onChanged;
   final GlobalKey<FormState> formKey;
   final String placeholder;
 
-  const BirthDateForm({super.key, required this.formKey, required this.onChanged,
-  this.placeholder = 'Select your birth date'});
+  /// Creates a [BirthDateForm] with required form key and change callback.
+  const BirthDateForm({
+    super.key,
+    required this.formKey,
+    required this.onChanged,
+    this.placeholder = 'Select your birth date',
+  });
 
   @override
   State<BirthDateForm> createState() => _BirthDateFormState();
 }
 
+/// Manages the state for birth date selection.
 class _BirthDateFormState extends State<BirthDateForm> {
   DateTime? birthDate;
   bool isError = false;
 
+  /// Builds the UI with a date input field.
   @override
   Widget build(BuildContext context) {
     return Form(

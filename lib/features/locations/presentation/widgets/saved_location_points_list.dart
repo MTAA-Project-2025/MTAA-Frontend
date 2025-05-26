@@ -17,20 +17,24 @@ import 'package:mtaa_frontend/features/shared/data/controllers/pagination_scroll
 import 'package:mtaa_frontend/features/shared/presentation/widgets/dotLoader.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/empty_data_notification_section.dart';
 
+/// Displays a list of saved location posts with pagination.
 class SavedLocationsPointsList extends StatefulWidget {
   final PostsRepository repository;
 
+  /// Creates a [SavedLocationsPointsList] with required dependencies.
   const SavedLocationsPointsList({super.key, required this.repository});
 
   @override
   State<SavedLocationsPointsList> createState() => _SavedLocationsPointsListState();
 }
 
+/// Manages the state and pagination of saved location posts.
 class _SavedLocationsPointsListState extends State<SavedLocationsPointsList> {
   PaginationScrollController paginationScrollController = PaginationScrollController();
   List<LocationPostResponse> points = [];
   late final AppLifecycleListener _listener;
 
+  /// Initializes state, pagination, and airplane mode checking.
   @override
   void initState() {
     super.initState();
@@ -64,6 +68,7 @@ class _SavedLocationsPointsListState extends State<SavedLocationsPointsList> {
     loadFirst();
   }
 
+  /// Loads additional saved location posts for pagination.
   Future loadPosts() async {
     if (!mounted) return;
     var res = await widget.repository.getSavedLocationPosts(paginationScrollController.pageParameters);
@@ -83,14 +88,15 @@ class _SavedLocationsPointsListState extends State<SavedLocationsPointsList> {
     }
   }
 
+  /// Disposes controllers and listeners to prevent memory leaks.
   @override
   void dispose() {
     paginationScrollController.dispose();
     _listener.dispose();
-
     super.dispose();
   }
 
+  /// Resets and loads the first page of saved location posts.
   Future loadFirst() async {
     points.clear();
     paginationScrollController.dispose();
@@ -101,13 +107,13 @@ class _SavedLocationsPointsListState extends State<SavedLocationsPointsList> {
     });
     if (!mounted) return;
     await loadPosts();
-
     if (!mounted) return;
     setState(() {
       paginationScrollController.isLoading = false;
     });
   }
 
+  /// Builds the UI with a paginated list of saved location posts.
   @override
   Widget build(BuildContext contex) {
     return BlocBuilder<ExceptionsBloc, ExceptionsState>(builder: (context, state) {

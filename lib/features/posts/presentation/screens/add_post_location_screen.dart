@@ -14,16 +14,19 @@ import 'package:mtaa_frontend/features/locations/presentation/widgets/map_widget
 import 'package:mtaa_frontend/features/shared/presentation/widgets/full_data_time_input.dart';
 import 'package:uuid/uuid.dart';
 
+/// Displays a screen for adding a post event with location and date selection.
 class AddPostLocationScreen extends StatefulWidget {
   final MyToastService toastService;
   final AddLocationRequest addLocationRequest;
 
+  /// Creates an [AddPostLocationScreen] with required dependencies.
   const AddPostLocationScreen({super.key, required this.toastService, required this.addLocationRequest});
 
   @override
   State<AddPostLocationScreen> createState() => _AddPostLocationScreenState();
 }
 
+/// Manages the state for selecting a location and event date.
 class _AddPostLocationScreenState extends State<AddPostLocationScreen> {
   DateTime? selectedDate;
   final GlobalKey<FormState> birthDateFormKey = GlobalKey<FormState>();
@@ -31,10 +34,10 @@ class _AddPostLocationScreenState extends State<AddPostLocationScreen> {
 
   SimpleLocationPointResponse? selectedLocationPoint;
 
+  /// Initializes state with a default location point if provided.
   @override
   void initState() {
     super.initState();
-
     if (widget.addLocationRequest.latitude > -200) {
       selectedLocationPoint = SimpleLocationPointResponse(
           childCount: 0,
@@ -47,6 +50,7 @@ class _AddPostLocationScreenState extends State<AddPostLocationScreen> {
     }
   }
 
+  /// Navigates back to the previous screen.
   void navigateBack() {
     Future.microtask(() async {
       if (!mounted && !context.mounted) return;
@@ -54,6 +58,7 @@ class _AddPostLocationScreenState extends State<AddPostLocationScreen> {
     });
   }
 
+  /// Builds the UI with date input, map, and action buttons.
   @override
   Widget build(BuildContext context) {
     return Scaffold(

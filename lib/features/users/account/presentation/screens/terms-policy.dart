@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 
+/// Displays the Terms of Service and Privacy Policy for the Likely platform.
 class TermsPolicyWidget extends StatelessWidget {
+  /// Creates a [TermsPolicyWidget].
   const TermsPolicyWidget({super.key});
 
+  /// Builds the UI with a scrollable list of terms and policy sections.
   @override
   Widget build(BuildContext context) {
     return Scaffold(

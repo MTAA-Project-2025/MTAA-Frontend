@@ -15,20 +15,25 @@ import 'package:mtaa_frontend/features/shared/presentation/widgets/dotLoader.dar
 import 'package:mtaa_frontend/themes/bloc/theme_bloc.dart';
 import 'package:mtaa_frontend/themes/bloc/theme_event.dart';
 
+/// Screen for creating a new user account via email.
 class CreateAccountScreen extends StatefulWidget {
   final IdentityApi identityApi;
   final NotificationsService notificationsService;
   final TokenStorage tokenStorage;
 
-  const CreateAccountScreen({super.key,
-  required this.identityApi,
-  required this.notificationsService,
-  required this.tokenStorage});
+  /// Creates a [CreateAccountScreen] with required dependencies.
+  const CreateAccountScreen({
+    super.key,
+    required this.identityApi,
+    required this.notificationsService,
+    required this.tokenStorage,
+  });
 
   @override
   State<CreateAccountScreen> createState() => _CreateAccountState();
 }
 
+/// Manages the state for the account creation form and authentication process.
 class _CreateAccountState extends State<CreateAccountScreen> {
   final GlobalKey<FormState> _emailformKey = GlobalKey<FormState>();
   final usernameController = TextEditingController();
@@ -36,6 +41,7 @@ class _CreateAccountState extends State<CreateAccountScreen> {
   bool isLoading = false;
   final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
+  /// Cleans up controllers on widget disposal.
   @override
   void dispose() {
     usernameController.dispose();
@@ -43,6 +49,7 @@ class _CreateAccountState extends State<CreateAccountScreen> {
     super.dispose();
   }
 
+  /// Navigates to the first display name update screen after successful signup.
   void _navigateToFirstUpdateDisplayNameScreenRoute() {
     Future.microtask(() async {
       if (!mounted) return;
@@ -50,9 +57,9 @@ class _CreateAccountState extends State<CreateAccountScreen> {
     });
   }
 
+  /// Builds the UI with account creation form, theme toggle, and submission button.
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         actions: <Widget>[

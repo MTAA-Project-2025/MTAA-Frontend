@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:mtaa_frontend/core/constants/colors.dart';
 
+/// Widget for displaying a public profile tab navigation indicator.
 class PublicTabNavigation extends StatelessWidget {
+  /// Creates a [PublicTabNavigation] widget.
   const PublicTabNavigation({Key? key}) : super(key: key);
 
+  /// Builds the UI with an icon and an active tab indicator.
   @override
   Widget build(BuildContext context) {
     return Container(

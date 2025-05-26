@@ -1,8 +1,12 @@
+/// Defines a method for formatting time differences.
 abstract class TimeFormatingService {
+  /// Formats a timestamp into a human-readable "time ago" string.
   String formatTimeAgo(DateTime dateTime);
 }
 
+/// Implements time formatting for relative time descriptions.
 class TimeFormatingServiceImpl extends TimeFormatingService {
+  /// Converts a [DateTime] to a string describing the time elapsed (e.g., "5 minutes ago").
   @override
   String formatTimeAgo(DateTime dateTime) {
     final Duration difference = DateTime.now().difference(dateTime);

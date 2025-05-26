@@ -14,10 +14,12 @@ import 'package:mtaa_frontend/features/users/account/data/repositories/account_r
 import 'package:mtaa_frontend/features/users/account/presentation/widgets/publicProfileInfoWidget.dart';
 import 'package:mtaa_frontend/features/users/account/presentation/widgets/publicTabNavigation.dart';
 
+/// Screen displaying public account information and posts.
 class PublicAccountInformationScreen extends StatefulWidget {
   final AccountRepository repository;
   final String userId;
 
+  /// Creates a [PublicAccountInformationScreen] with required dependencies and user ID.
   const PublicAccountInformationScreen({
     super.key,
     required this.repository,
@@ -28,22 +30,23 @@ class PublicAccountInformationScreen extends StatefulWidget {
   State<PublicAccountInformationScreen> createState() => _PublicAccountInformationScreenState();
 }
 
+/// Manages the state for loading public account data and handling follow actions.
 class _PublicAccountInformationScreenState extends State<PublicAccountInformationScreen> {
   bool isLoading = false;
   PublicFullAccountResponse? user;
 
+  /// Initializes state and loads user data.
   @override
   void initState() {
     super.initState();
     _loadUser();
   }
 
+  /// Loads public account data from the repository.
   Future<void> _loadUser() async {
     if (!mounted) return;
     setState(() => isLoading = true);
-
     final res = await widget.repository.getPublicFullAccount(widget.userId);
-
     if (!mounted) return;
     setState(() {
       user = res;
@@ -51,16 +54,14 @@ class _PublicAccountInformationScreenState extends State<PublicAccountInformatio
     });
   }
 
+  /// Toggles follow/unfollow status for the user.
   Future<void> _toggleFollow() async {
     if (user == null) return;
-
     final wasFollowing = user!.isFollowing;
-
     if (!mounted) return;
     setState(() {
       user?.isFollowing = !wasFollowing;
     });
-
     try {
       if (wasFollowing) {
         await widget.repository.unfollow(Unfollow(userId: user!.id));
@@ -75,6 +76,7 @@ class _PublicAccountInformationScreenState extends State<PublicAccountInformatio
     }
   }
 
+  /// Builds the UI with app bar, profile info, tabs, and post list.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
