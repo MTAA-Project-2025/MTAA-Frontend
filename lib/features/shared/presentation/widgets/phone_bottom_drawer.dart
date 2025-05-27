@@ -4,14 +4,17 @@ import 'package:go_router/go_router.dart';
 import 'package:mtaa_frontend/core/constants/menu_buttons.dart';
 import 'package:mtaa_frontend/core/constants/route_constants.dart';
 
+/// A drawer widget for navigation with menu options.
 class PhoneBottomDrawer extends StatelessWidget {
   final MenuButtons sellectedType;
 
+  /// Creates a [PhoneBottomDrawer] with a selected menu type.
   const PhoneBottomDrawer({
     super.key,
     required this.sellectedType,
   });
 
+  /// Builds the UI with a list of navigable menu items.
   @override
   Widget build(BuildContext context) {
     return Drawer(

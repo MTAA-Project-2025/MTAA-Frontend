@@ -16,27 +16,31 @@ import 'package:mtaa_frontend/features/shared/data/controllers/pagination_scroll
 import 'package:mtaa_frontend/features/shared/presentation/widgets/dotLoader.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/empty_data_notification_section.dart';
 
+/// Displays a list of scheduled posts, including synced and not synced posts.
 class SchedulePostList extends StatefulWidget {
   final PostsRepository repository;
 
+  /// Creates a [SchedulePostList] with required dependencies.
   const SchedulePostList({super.key, required this.repository});
 
   @override
   State<SchedulePostList> createState() => _SchedulePostListState();
 }
 
+/// Manages the state for loading and displaying scheduled posts with pagination.
 class _SchedulePostListState extends State<SchedulePostList> {
   PaginationScrollController paginationScrollController = PaginationScrollController();
   List<SchedulePostResponse> posts = [];
 
+  /// Initializes state and sets up pagination for loading posts.
   @override
   void initState() {
     super.initState();
     paginationScrollController.init(loadAction: () => loadPosts());
-
     loadFirst();
   }
 
+  /// Loads additional scheduled posts using pagination.
   Future loadPosts() async {
     if (!mounted) return;
     var res = await widget.repository.getSavedSchedulePosts(paginationScrollController.pageParameters);
@@ -56,13 +60,14 @@ class _SchedulePostListState extends State<SchedulePostList> {
     }
   }
 
+  /// Disposes controllers to prevent memory leaks.
   @override
   void dispose() {
     paginationScrollController.dispose();
-
     super.dispose();
   }
 
+  /// Resets and loads the first page of scheduled posts.
   Future loadFirst() async {
     posts.clear();
     paginationScrollController.dispose();
@@ -73,13 +78,13 @@ class _SchedulePostListState extends State<SchedulePostList> {
     });
     if (!mounted) return;
     await loadPosts();
-
     if (!mounted) return;
     setState(() {
       paginationScrollController.isLoading = false;
     });
   }
 
+  /// Builds the UI with separate lists for not synced and synced scheduled posts.
   @override
   Widget build(BuildContext contex) {
     return BlocBuilder<ExceptionsBloc, ExceptionsState>(builder: (context, state) {

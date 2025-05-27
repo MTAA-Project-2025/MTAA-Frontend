@@ -20,17 +20,19 @@ import 'package:mtaa_frontend/features/users/account/data/repositories/account_r
 import 'package:mtaa_frontend/features/users/account/presentation/widgets/friendsList.dart';
 import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
 
+/// Screen displaying a list of friends with search functionality.
 class FriendsScreen extends StatefulWidget {
   final AccountRepository repository;
   final TokenStorage tokenStorage;
 
-  const FriendsScreen({super.key, required this.repository,
-    required this.tokenStorage});
+  /// Creates a [FriendsScreen] with required dependencies.
+  const FriendsScreen({super.key, required this.repository, required this.tokenStorage});
 
   @override
   State<FriendsScreen> createState() => _FriendsScreenState();
 }
 
+/// Manages the state for loading and displaying friends.
 class _FriendsScreenState extends State<FriendsScreen> {
   String filterStr = "";
   List<PublicBaseAccountResponse> friends = [];
@@ -38,37 +40,29 @@ class _FriendsScreenState extends State<FriendsScreen> {
   final searchController = TextEditingController();
   late final AppLifecycleListener _listener;
 
+  /// Initializes state, sets up lifecycle listener, and loads friends.
   @override
   void initState() {
     super.initState();
     context.read<ExceptionsBloc>().add(
-      SetExceptionsEvent(
-        isException: false,
-        exceptionType: ExceptionTypes.none,
-        message: '',
-      ),
-    );
-
+          SetExceptionsEvent(isException: false, exceptionType: ExceptionTypes.none, message: ''),
+        );
     _listener = AppLifecycleListener(
       onResume: () async {
         if (!mounted) return;
         final status = await AirplaneModeChecker.instance.checkAirplaneMode();
         if (status == AirplaneModeStatus.off && mounted) {
           context.read<ExceptionsBloc>().add(
-            SetExceptionsEvent(
-              isException: false,
-              exceptionType: ExceptionTypes.none,
-              message: '',
-            ),
-          );
+                SetExceptionsEvent(isException: false, exceptionType: ExceptionTypes.none, message: ''),
+              );
           await loadFriends();
         }
       },
     );
-
     loadFriends();
   }
 
+  /// Cleans up resources on widget disposal.
   @override
   void dispose() {
     _listener.dispose();
@@ -76,16 +70,14 @@ class _FriendsScreenState extends State<FriendsScreen> {
     super.dispose();
   }
 
+  /// Loads friends from the repository based on search filter.
   Future<void> loadFriends() async {
     setState(() {
       isLoading = true;
     });
-
-    final response = await widget.repository.getFriends(GlobalSearch(
-      filterStr: filterStr,
-      pageParameters: PageParameters(),
-    ));
-
+    final response = await widget.repository.getFriends(
+      GlobalSearch(filterStr: filterStr, pageParameters: PageParameters()),
+    );
     if (mounted) {
       setState(() {
         friends = response
@@ -102,16 +94,14 @@ class _FriendsScreenState extends State<FriendsScreen> {
     }
   }
 
+  /// Loads filtered friends based on search query.
   Future<void> loadFilteredFriends() async {
     setState(() {
       isLoading = true;
     });
-
-    final response = await widget.repository.getFriends(GlobalSearch(
-      filterStr: filterStr,
-      pageParameters: PageParameters(),
-    ));
-
+    final response = await widget.repository.getFriends(
+      GlobalSearch(filterStr: filterStr, pageParameters: PageParameters()),
+    );
     if (mounted) {
       setState(() {
         friends = response;
@@ -120,18 +110,15 @@ class _FriendsScreenState extends State<FriendsScreen> {
     }
   }
 
+  /// Builds the UI with search bar, friends list, and error handling.
   @override
   Widget build(BuildContext context) {
     final isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
-
     return Scaffold(
       appBar: AppBar(
         title: const Text(
           'Friends',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
       ),
       body: BlocBuilder<ExceptionsBloc, ExceptionsState>(
@@ -169,14 +156,12 @@ class _FriendsScreenState extends State<FriendsScreen> {
                               onPressed: loadFriends,
                             );
                           }
-
                           if (friends.isEmpty) {
                             return EmptyErrorNotificationSectionWidget(
                               onPressed: loadFriends,
                               title: 'No friends found',
                             );
                           }
-
                           return FriendsList(
                             friends: friends,
                             searchQuery: filterStr,
@@ -191,8 +176,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
         },
       ),
       drawer: isPortrait ? null : PhoneBottomDrawer(sellectedType: MenuButtons.Friends),
-      bottomNavigationBar: isPortrait?
-          const PhoneBottomMenu(sellectedType: MenuButtons.Friends) : null,
+      bottomNavigationBar: isPortrait ? const PhoneBottomMenu(sellectedType: MenuButtons.Friends) : null,
     );
   }
 }

@@ -26,18 +26,27 @@ import 'package:mtaa_frontend/features/shared/presentation/widgets/server_error_
 import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
 import 'package:uuid/uuid.dart';
 
+/// Displays the main list of comments for a post with input for new comments.
 class CommentsMainList extends StatefulWidget {
   final UuidValue postId;
   final CommentsRepository commentsRepository;
   final String postOwnerId;
   final TokenStorage tokenStorage;
 
-  const CommentsMainList({super.key, required this.postId, required this.commentsRepository, required this.postOwnerId, required this.tokenStorage});
+  /// Creates a [CommentsMainList] with required dependencies.
+  const CommentsMainList({
+    super.key,
+    required this.postId,
+    required this.commentsRepository,
+    required this.postOwnerId,
+    required this.tokenStorage,
+  });
 
   @override
   State<CommentsMainList> createState() => _CommentsMainListState();
 }
 
+/// Manages the state and loading of the main comments list.
 class _CommentsMainListState extends State<CommentsMainList> {
   PageParameters pageParameters = PageParameters(pageNumber: 0, pageSize: 10);
   bool isLoading = false;
@@ -45,13 +54,14 @@ class _CommentsMainListState extends State<CommentsMainList> {
   bool isLoadMoreAvailable = true;
   final TextEditingController createCommentTextController = TextEditingController();
 
+  /// Initializes state and loads the first page of comments.
   @override
   void initState() {
     super.initState();
-
     loadFirst();
   }
 
+  /// Loads the first page of comments, resetting the list.
   Future loadFirst() async {
     isLoadMoreAvailable = true;
     if (context.mounted) {
@@ -61,6 +71,7 @@ class _CommentsMainListState extends State<CommentsMainList> {
     await loadComments();
   }
 
+  /// Loads additional comments for pagination.
   Future loadComments() async {
     if (isLoading) return;
     if (!mounted) return;
@@ -87,6 +98,7 @@ class _CommentsMainListState extends State<CommentsMainList> {
 
   FullCommentResponse? mainComment = null;
 
+  /// Builds the UI for the comments list with input and error handling.
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ExceptionsBloc, ExceptionsState>(builder: (context, state) {
@@ -221,4 +233,5 @@ class _CommentsMainListState extends State<CommentsMainList> {
   }
 }
 
+/// Defines options for the comment menu.
 enum CommentMenuElement { delete, edit }

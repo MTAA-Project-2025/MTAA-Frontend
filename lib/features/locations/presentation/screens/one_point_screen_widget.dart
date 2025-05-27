@@ -17,29 +17,41 @@ import 'package:mtaa_frontend/features/posts/data/models/responses/location_post
 import 'package:mtaa_frontend/features/shared/presentation/widgets/phone_bottom_menu.dart';
 import 'package:uuid/uuid_value.dart';
 
+/// Displays a map focused on a single location point or cluster.
 class OnePointScreenScreen extends StatefulWidget {
   final LocationsRepository repository;
   final MyToastService toastService;
   final SimpleLocationPointResponse? point;
   final UuidValue? pointId;
-  const OnePointScreenScreen({super.key, required this.repository, required this.toastService, this.point, this.pointId});
+
+  /// Creates a [OnePointScreenScreen] with required dependencies and optional point data.
+  const OnePointScreenScreen({
+    super.key,
+    required this.repository,
+    required this.toastService,
+    this.point,
+    this.pointId,
+  });
 
   @override
   State<OnePointScreenScreen> createState() => _OnePointScreenScreenState();
 }
 
+/// Manages the state and map display for a single location point.
 class _OnePointScreenScreenState extends State<OnePointScreenScreen> {
   List<SimpleLocationPointResponse> locationPoints = [];
   bool isLoading = false;
 
   final mapController = MapController();
 
+  /// Initializes state and loads the specified location point.
   @override
   void initState() {
     super.initState();
     initialize();
   }
 
+  /// Loads the location point from provided data or fetches it by ID.
   Future initialize() async {
     if (!mounted) return;
     setState(() {
@@ -71,6 +83,7 @@ class _OnePointScreenScreenState extends State<OnePointScreenScreen> {
     });
   }
 
+  /// Builds the map UI with a single location point or cluster.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -109,6 +122,7 @@ class _OnePointScreenScreenState extends State<OnePointScreenScreen> {
         bottomNavigationBar: PhoneBottomMenu(sellectedType: MenuButtons.Map));
   }
 
+  /// Builds a widget for a location point or cluster.
   Widget buildPoint(SimpleLocationPointResponse point) {
     if (point.childCount > 0) {
       return GestureDetector(

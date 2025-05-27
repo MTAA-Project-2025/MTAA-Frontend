@@ -3,10 +3,13 @@ import 'package:mtaa_frontend/core/constants/validators.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/customPasswordInput.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/customTextInput.dart';
 
+/// Form widget for user login input fields.
 class StartLogInForm extends StatelessWidget {
   final TextEditingController loginController;
   final TextEditingController passwordController;
+  final GlobalKey<FormState> formKey;
 
+  /// Creates a [StartLogInForm] with required form key and controllers.
   const StartLogInForm({
     super.key,
     required this.formKey,
@@ -14,8 +17,7 @@ class StartLogInForm extends StatelessWidget {
     required this.passwordController,
   });
 
-  final GlobalKey<FormState> formKey;
-
+  /// Builds the UI with email/phone and password input fields.
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -43,8 +45,8 @@ class StartLogInForm extends StatelessWidget {
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text(
-               'Forgot Password?',
-               style: Theme.of(context).textTheme.labelSmall,
+                'Forgot Password?',
+                style: Theme.of(context).textTheme.labelSmall,
               ),
             ),
           ),

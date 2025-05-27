@@ -2,17 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:mtaa_frontend/core/constants/validators.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/customTextInput.dart';
 
+/// Form widget for entering a display name.
 class DisplayNameForm extends StatelessWidget {
   final TextEditingController displayNameController;
+  final GlobalKey<FormState> formKey;
 
+  /// Creates a [DisplayNameForm] with required form key and controller.
   const DisplayNameForm({
     super.key,
     required this.formKey,
     required this.displayNameController,
   });
 
-  final GlobalKey<FormState> formKey;
-
+  /// Builds the UI with a constrained text input for display name.
   @override
   Widget build(BuildContext context) {
     return Form(

@@ -6,13 +6,17 @@ import 'package:mtaa_frontend/features/shared/bloc/exceptions_bloc.dart';
 import 'package:mtaa_frontend/features/shared/bloc/exceptions_event.dart';
 import 'package:open_settings_plus/core/open_settings_plus.dart';
 
+/// Displays an error notification for airplane mode with options to open settings or retry.
 class AirModeErrorNotificationSectionWidget extends StatelessWidget {
   final void Function() onPressed;
 
+  /// Creates an [AirModeErrorNotificationSectionWidget] with a retry callback.
   const AirModeErrorNotificationSectionWidget({
     super.key,
     required this.onPressed,
   });
+
+  /// Builds the UI with an SVG image, error message, and action buttons.
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -40,9 +44,7 @@ class AirModeErrorNotificationSectionWidget extends StatelessWidget {
                 foregroundColor: Theme.of(context).colorScheme.secondary,
                 backgroundColor: Theme.of(context).scaffoldBackgroundColor,
               ),
-              child: Text(
-                'Open settings',
-              ),
+              child: Text('Open settings'),
             ),
             const SizedBox(width: 5),
             TextButton(
@@ -53,9 +55,7 @@ class AirModeErrorNotificationSectionWidget extends StatelessWidget {
               style: Theme.of(context).textButtonTheme.style!.copyWith(
                     minimumSize: WidgetStateProperty.all(Size(100, 39)),
                   ),
-              child: Text(
-                'Try again',
-              ),
+              child: Text('Try again'),
             ),
           ],
         )

@@ -5,14 +5,17 @@ import 'package:mtaa_frontend/features/notifications/data/models/responses/notif
 import 'package:mtaa_frontend/features/notifications/data/models/shared/notificationType.dart';
 import 'package:mtaa_frontend/core/constants/colors.dart';
 
+/// Displays a single notification item with icon, title, and text.
 class NotificationItem extends StatelessWidget {
   final NotificationResponse notification;
 
+  /// Creates a [NotificationItem] with required notification data.
   const NotificationItem({
     super.key,
     required this.notification,
   });
 
+  /// Builds the UI for a notification item with tap navigation.
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
@@ -38,9 +41,9 @@ class NotificationItem extends StatelessWidget {
                   Row(
                     children: [
                       Text(
-                          notification.title,
-                          style: textTheme.labelSmall?.copyWith(fontWeight: FontWeight.bold),
-                        ),
+                        notification.title,
+                        style: textTheme.labelSmall?.copyWith(fontWeight: FontWeight.bold),
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         _getTimeAgo(notification.dataCreationTime),
@@ -64,6 +67,7 @@ class NotificationItem extends StatelessWidget {
     );
   }
 
+  /// Returns an icon widget based on the notification type.
   Widget _getNotificationIcon(NotificationType type, Color iconColor) {
     IconData iconData;
 
@@ -96,6 +100,7 @@ class NotificationItem extends StatelessWidget {
     );
   }
 
+  /// Formats the time difference for display.
   String _getTimeAgo(DateTime dateTime) {
     final now = DateTime.now();
     final difference = now.difference(dateTime);

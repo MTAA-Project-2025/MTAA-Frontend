@@ -23,6 +23,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/dotLoader.dart';
 import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
 
+/// Displays a detailed view of a post with images, description, and interactions.
 class FullPostWidget extends StatefulWidget {
   final FullPostResponse post;
   final TimeFormatingService timeFormatingService;
@@ -32,32 +33,34 @@ class FullPostWidget extends StatefulWidget {
   final MyToastService toaster;
   final TokenStorage tokenStorage;
 
-  const FullPostWidget({super.key,
-  required this.post,
-  required this.timeFormatingService,
-  required this.isFull,
-  required this.repository,
-  required this.locationsRepository,
-  required this.toaster,
-  required this.tokenStorage});
+  /// Creates a [FullPostWidget] with required dependencies and post data.
+  const FullPostWidget({
+    super.key,
+    required this.post,
+    required this.timeFormatingService,
+    required this.isFull,
+    required this.repository,
+    required this.locationsRepository,
+    required this.toaster,
+    required this.tokenStorage,
+  });
 
   @override
   State<FullPostWidget> createState() => _FullPostWidgetState();
 }
 
+/// Manages the state for displaying post content and handling interactions.
 class _FullPostWidgetState extends State<FullPostWidget> {
   CarouselSliderController carouselController = CarouselSliderController();
-
   bool isNextImageAllowed = false;
   bool isTextOpen = false;
   int currentPos = 0;
   late int maxPos;
   late String userId = '';
-
   bool isSaved = false;
-
   List<MyImageGroupResponse> images = [];
 
+  /// Initializes state, sets up image carousel, and checks save status.
   @override
   void initState() {
     super.initState();
@@ -82,12 +85,12 @@ class _FullPostWidgetState extends State<FullPostWidget> {
     });
   }
 
+  /// Retrieves the appropriate image provider based on post locality.
   ImageProvider<Object> getImage(MyImageResponse img) {
     if (!widget.post.isLocal) {
       return NetworkImage(img.fullPath);
     }
     File file = File(img.localPath);
-
     if (file.existsSync()) {
       return FileImage(file);
     }
@@ -95,6 +98,8 @@ class _FullPostWidgetState extends State<FullPostWidget> {
   }
 
   var isDeleteLoading = false;
+
+  /// Deletes the post and navigates to recommendations screen.
   Future deleteMicrotask() async {
     if (!mounted) return;
     setState(() {
@@ -114,6 +119,7 @@ class _FullPostWidgetState extends State<FullPostWidget> {
     }
   }
 
+  /// Builds the UI with post details, image carousel, and interaction buttons.
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -350,4 +356,5 @@ class _FullPostWidgetState extends State<FullPostWidget> {
   }
 }
 
+/// Enum for post menu options.
 enum PostMenuElements { delete, edit, share }

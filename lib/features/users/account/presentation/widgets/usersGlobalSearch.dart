@@ -17,17 +17,19 @@ import 'package:mtaa_frontend/features/users/account/data/repositories/account_r
 import 'package:mtaa_frontend/features/users/account/presentation/widgets/friendItem.dart';
 import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
 
+/// Widget for global search of users with pagination and error handling.
 class UsersGlobalSearch extends StatefulWidget {
   final AccountRepository repository;
   final TokenStorage tokenStorage;
 
-  const UsersGlobalSearch({super.key, required this.repository,
-  required this.tokenStorage});
+  /// Creates a [UsersGlobalSearch] with required dependencies.
+  const UsersGlobalSearch({super.key, required this.repository, required this.tokenStorage});
 
   @override
   State<UsersGlobalSearch> createState() => _UsersGlobalSearchState();
 }
 
+/// Manages the state for user search, pagination, and lifecycle events.
 class _UsersGlobalSearchState extends State<UsersGlobalSearch> {
   PaginationScrollController paginationScrollController = PaginationScrollController();
   List<PublicBaseAccountResponse> users = [];
@@ -35,13 +37,12 @@ class _UsersGlobalSearchState extends State<UsersGlobalSearch> {
   final searchController = TextEditingController();
   String filterStr = '';
 
+  /// Initializes state, sets up pagination, and checks airplane mode.
   @override
   void initState() {
     paginationScrollController.init(loadAction: () => loadUsers());
     super.initState();
-
     context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: false, exceptionType: ExceptionTypes.none, message: ''));
-
     Future.microtask(() async {
       if (!context.mounted || !mounted) return;
       final status = await AirplaneModeChecker.instance.checkAirplaneMode();
@@ -49,14 +50,13 @@ class _UsersGlobalSearchState extends State<UsersGlobalSearch> {
         context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: true, exceptionType: ExceptionTypes.flightMode, message: 'Flight mode is enabled'));
       }
     });
-
     AppLifecycleListener(
       onResume: () async {
         Future.microtask(() async {
           if (mounted && context.mounted) {
             final status = await AirplaneModeChecker.instance.checkAirplaneMode();
             if (status == AirplaneModeStatus.off) {
-              if(mounted && context.mounted){
+              if (mounted && context.mounted) {
                 context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: false, exceptionType: ExceptionTypes.none, message: ''));
               }
               loadFirst();
@@ -65,10 +65,10 @@ class _UsersGlobalSearchState extends State<UsersGlobalSearch> {
         });
       },
     );
-
     loadFirst();
   }
 
+  /// Loads users with pagination based on search filter.
   Future<bool> loadUsers() async {
     var res = await widget.repository.getGlobalUsers(GlobalSearch(filterStr: filterStr, pageParameters: paginationScrollController.pageParameters));
     paginationScrollController.pageParameters.pageNumber++;
@@ -87,6 +87,7 @@ class _UsersGlobalSearchState extends State<UsersGlobalSearch> {
     return false;
   }
 
+  /// Cleans up resources on widget disposal.
   @override
   void dispose() {
     paginationScrollController.dispose();
@@ -94,22 +95,23 @@ class _UsersGlobalSearchState extends State<UsersGlobalSearch> {
     super.dispose();
   }
 
+  /// Resets and loads the first page of users.
   Future loadFirst() async {
     users.clear();
     paginationScrollController.dispose();
     paginationScrollController.init(loadAction: () => loadUsers());
-
     if (!mounted) return;
     setState(() {
       paginationScrollController.isLoading = true;
     });
     await loadUsers();
-    if(!mounted) return;
+    if (!mounted) return;
     setState(() {
       paginationScrollController.isLoading = false;
     });
   }
 
+  /// Builds the UI with search input, user list, and error notifications.
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ExceptionsBloc, ExceptionsState>(builder: (context, state) {
@@ -174,7 +176,9 @@ class _UsersGlobalSearchState extends State<UsersGlobalSearch> {
                 },
               ),
             ),
-          ]);
-        });
+          ],
+        );
+      },
+    );
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:form_field_validator/form_field_validator.dart';
 import 'package:mtaa_frontend/core/constants/colors.dart';
 
+/// A customizable text input field with validation and styling.
 class CustomTextInput extends StatefulWidget {
   final String placeholder;
   final MultiValidator? validator;
@@ -10,6 +11,7 @@ class CustomTextInput extends StatefulWidget {
   final int? minLines;
   final int? maxLines;
 
+  /// Creates a [CustomTextInput] with required properties and optional validation.
   const CustomTextInput({
     super.key,
     required this.placeholder,
@@ -24,14 +26,17 @@ class CustomTextInput extends StatefulWidget {
   State<CustomTextInput> createState() => _CustomTextInputState();
 }
 
+/// Manages the state for the text input field, including focus handling.
 class _CustomTextInputState extends State<CustomTextInput> {
   bool _isFocused = false;
 
+  /// Cleans up resources on widget disposal.
   @override
   void dispose() {
     super.dispose();
   }
 
+  /// Builds the UI with a styled text input field and dynamic border states.
   @override
   Widget build(BuildContext context) {
     return FocusScope(
@@ -41,7 +46,7 @@ class _CustomTextInputState extends State<CustomTextInput> {
           validator: widget.validator?.call,
           style: Theme.of(context).textTheme.bodyMedium,
           cursorColor: Theme.of(context).textTheme.labelMedium?.decorationColor,
-          controller:widget.controller,
+          controller: widget.controller,
           minLines: widget.minLines,
           maxLines: widget.maxLines,
           decoration: InputDecoration(

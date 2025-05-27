@@ -24,15 +24,19 @@ import 'package:mtaa_frontend/features/shared/bloc/exceptions_event.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/phone_bottom_drawer.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/phone_bottom_menu.dart';
 
+/// Displays a map with location points and clusters.
 class MainLocationMapScreen extends StatefulWidget {
   final LocationsRepository repository;
   final MyToastService toastService;
+
+  /// Creates a [MainLocationMapScreen] with required dependencies.
   const MainLocationMapScreen({super.key, required this.repository, required this.toastService});
 
   @override
   State<MainLocationMapScreen> createState() => _MainLocationMapScreenState();
 }
 
+/// Manages the state, map interactions, and location points.
 class _MainLocationMapScreenState extends State<MainLocationMapScreen> {
   late AppLifecycleListener listener;
   List<SimpleLocationPointResponse> locationPoints = [];
@@ -45,6 +49,7 @@ class _MainLocationMapScreenState extends State<MainLocationMapScreen> {
   bool isConnected = false;
   bool isInitialied = false;
 
+  /// Initializes state, internet monitoring, and user position.
   @override
   void initState() {
     super.initState();
@@ -78,6 +83,7 @@ class _MainLocationMapScreenState extends State<MainLocationMapScreen> {
     );
   }
 
+  /// Disposes resources to prevent memory leaks.
   @override
   void dispose() {
     listener.dispose();
@@ -87,6 +93,8 @@ class _MainLocationMapScreenState extends State<MainLocationMapScreen> {
   }
 
   Position? userInitPos;
+
+  /// Loads initial user position and location points.
   Future initialize() async {
     if (!mounted) return;
     isConnected = await InternetChecker.isInternetEnabled();
@@ -113,10 +121,11 @@ class _MainLocationMapScreenState extends State<MainLocationMapScreen> {
     if (!mounted) return;
     setState(() {
       locationPoints = points;
-      isInitialied= true;
+      isInitialied = true;
     });
   }
 
+  /// Fetches location points based on map position and zoom.
   Future<void> loadPoints() async {
     if (isLoading || !isConnected) return;
     if (!mounted) return;
@@ -145,14 +154,15 @@ class _MainLocationMapScreenState extends State<MainLocationMapScreen> {
     });
   }
 
+  /// Debounces map interaction to load points after a delay.
   void debouncedLoadPoints() {
     debounceTimer?.cancel();
-
     debounceTimer = Timer(const Duration(milliseconds: 300), () {
       loadPoints();
     });
   }
 
+  /// Saves the current user position and location points.
   Future saveLocation(Position userPos) async {
     await widget.repository.setPreviousLocationPoints(locationPoints);
     await widget.repository.setPreviousUserPosition(UserPositionHive(
@@ -163,6 +173,7 @@ class _MainLocationMapScreenState extends State<MainLocationMapScreen> {
     ));
   }
 
+  /// Builds the map UI with navigation and location points.
   @override
   Widget build(BuildContext context) {
     final isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
@@ -207,6 +218,7 @@ class _MainLocationMapScreenState extends State<MainLocationMapScreen> {
         bottomNavigationBar: isPortrait ? PhoneBottomMenu(sellectedType: MenuButtons.Map) : null);
   }
 
+  /// Builds a widget for a location point or cluster.
   Widget buildPoint(SimpleLocationPointResponse point) {
     if (point.childCount > 0) {
       return GestureDetector(

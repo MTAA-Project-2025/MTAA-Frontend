@@ -21,6 +21,7 @@ import 'package:mtaa_frontend/features/posts/presentation/widgets/add_post_form.
 import 'package:mtaa_frontend/features/shared/presentation/widgets/dotLoader.dart';
 import 'package:mtaa_frontend/themes/button_theme.dart';
 
+/// Displays a screen for updating an existing post with images, description, and location.
 class UpdatePostScreen extends StatefulWidget {
   final PostsRepository repository;
   final LocationsRepository locationsRepository;
@@ -28,48 +29,49 @@ class UpdatePostScreen extends StatefulWidget {
   final MyImageStorage imageStorage;
   final FullPostResponse post;
 
-  const UpdatePostScreen({super.key, required this.repository, required this.toastService, required this.imageStorage, required this.post, required this.locationsRepository});
+  /// Creates an [UpdatePostScreen] with required dependencies and post data.
+  const UpdatePostScreen({
+    super.key,
+    required this.repository,
+    required this.toastService,
+    required this.imageStorage,
+    required this.post,
+    required this.locationsRepository,
+  });
 
   @override
   State<UpdatePostScreen> createState() => _UpdatePostScreenState();
 }
 
+/// Manages the state for updating post details, including images and location.
 class _UpdatePostScreenState extends State<UpdatePostScreen> {
   final descriptionController = TextEditingController();
   String startStr = '';
   bool isLoading = false;
   List<UpdatePostImageScreenDTO> addImagesDTOs = [];
-
   List<ImageDTO> images = [];
-
   bool isAspectRatioError = false;
   final int maxImageCount = 10;
   List<String> imagePathsForDelete = [];
-
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-
   AddLocationRequest addLocationRequest = AddLocationRequest(latitude: -200, longitude: -200, eventTime: DateTime.now());
 
+  /// Initializes state with existing post data and location.
   @override
   void initState() {
     super.initState();
-
     Future.microtask(() async {
       if (!mounted) return;
-
       LocationPostResponse? location;
       if (widget.post.locationId != null) {
-        location =  await widget.locationsRepository.getLocationPostById(widget.post.locationId!);
+        location = await widget.locationsRepository.getLocationPostById(widget.post.locationId!);
       }
-
       if (!mounted) return;
       setState(() {
         descriptionController.text = widget.post.description;
-
         if (location != null) {
-            addLocationRequest = AddLocationRequest(latitude: location.point.latitude, longitude: location.point.longitude, eventTime: location.eventTime);
+          addLocationRequest = AddLocationRequest(latitude: location.point.latitude, longitude: location.point.longitude, eventTime: location.eventTime);
         }
-
         for (var img in widget.post.images) {
           var middleImg = img.images.where((e) => e.type == ImageSizeType.middle).first;
           var addImageDTO = UpdatePostImageScreenDTO(
@@ -89,24 +91,26 @@ class _UpdatePostScreenState extends State<UpdatePostScreen> {
     });
   }
 
+  /// Disposes controllers to prevent memory leaks.
   @override
   void dispose() {
     descriptionController.dispose();
     super.dispose();
   }
 
+  /// Navigates to the group list screen after clearing temporary data.
   void _navigateToGroupListScreen() {
     Future.microtask(() async {
       if (!mounted) return;
       await widget.repository.deleteTempPostAddForm();
-
       if (!mounted && !context.mounted) return;
       GoRouter.of(context).go(userRecommendationsScreenRoute);
     });
   }
 
+  /// Deletes an image from the post.
   void deleteImg(int pos) {
-    if(!mounted)return;
+    if (!mounted) return;
     setState(() {
       images.removeAt(pos);
       addImagesDTOs.removeAt(pos);
@@ -116,13 +120,13 @@ class _UpdatePostScreenState extends State<UpdatePostScreen> {
     });
   }
 
+  /// Validates the aspect ratio of an image.
   Future<CropAspectRatioPresetCustom?> rewiewAspectRatio(File image) async {
     final decodedImage = await decodeImageFromList(image.readAsBytesSync());
     final width = decodedImage.width;
     final height = decodedImage.height;
     final String name = images.isEmpty ? 'first image' : 'other images';
     var aspectRatioPreset = CropAspectRatioPresetCustom(width, height, name);
-
     double aspectRatio = width.toDouble() / height.toDouble();
     if (aspectRatio < minPostImageAspectRatio || aspectRatio > maxPostImageAspectRatio) {
       if (context.mounted && mounted) {
@@ -130,17 +134,15 @@ class _UpdatePostScreenState extends State<UpdatePostScreen> {
       }
       return null;
     }
-
     return aspectRatioPreset;
   }
 
+  /// Uploads a new image to the post.
   Future uploadImg(XFile orig, File cropped) async {
     UpdatePostImageScreenDTO newImage = UpdatePostImageScreenDTO(position: images.length);
     newImage.originalImage = orig;
     newImage.image = cropped;
-    ImageDTO newImageDTO =
-        ImageDTO(image: Image(image: FileImage(cropped), fit: BoxFit.fitHeight), originalPath: orig.path, isAspectRatioError: false, aspectRatioPreset: CropAspectRatioPresetCustom(1, 1, '1x1'));
-
+    ImageDTO newImageDTO = ImageDTO(image: Image(image: FileImage(cropped), fit: BoxFit.fitHeight), originalPath: orig.path, isAspectRatioError: false, aspectRatioPreset: CropAspectRatioPresetCustom(1, 1, '1x1'));
     Future.microtask(() async {
       var res = await rewiewAspectRatio(cropped);
       if (res != null) {
@@ -154,6 +156,7 @@ class _UpdatePostScreenState extends State<UpdatePostScreen> {
     });
   }
 
+  /// Updates an existing image in the post.
   void updateImg(int pos, File cropped) async {
     var aspectRatio = await rewiewAspectRatio(cropped);
     if (aspectRatio == null) {
@@ -162,18 +165,14 @@ class _UpdatePostScreenState extends State<UpdatePostScreen> {
     if (!mounted) return;
     setState(() {
       images[pos].image = Image(image: FileImage(cropped), fit: BoxFit.fitHeight);
-
       addImagesDTOs[pos].image = cropped;
       addImagesDTOs[pos].onlineImage = null;
     });
     images[pos].aspectRatioPreset = aspectRatio;
-
     var firstImg = images[0];
-
     bool flag = false;
     for (var img in images) {
-      if (!((img.aspectRatioPreset.width.toDouble() / img.aspectRatioPreset.height.toDouble() - firstImg.aspectRatioPreset.width.toDouble() / firstImg.aspectRatioPreset.height.toDouble()).abs() <=
-          0.01)) {
+      if (!((img.aspectRatioPreset.width.toDouble() / img.aspectRatioPreset.height.toDouble() - firstImg.aspectRatioPreset.width.toDouble() / firstImg.aspectRatioPreset.height.toDouble()).abs() <= 0.01)) {
         flag = true;
         if (!mounted) return;
         setState(() {
@@ -205,6 +204,7 @@ class _UpdatePostScreenState extends State<UpdatePostScreen> {
     });
   }
 
+  /// Builds the UI with form, location, and update submission options.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -314,13 +314,12 @@ class _UpdatePostScreenState extends State<UpdatePostScreen> {
   }
 }
 
+/// Data transfer object for managing images during post update.
 class UpdatePostImageScreenDTO {
   File? image;
   XFile? originalImage;
-
   MyImageResponse? onlineOriginalImage;
   MyImageResponse? onlineImage;
-
   int position;
   bool isLocal = false;
 

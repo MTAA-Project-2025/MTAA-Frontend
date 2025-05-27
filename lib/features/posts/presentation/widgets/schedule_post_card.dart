@@ -10,39 +10,50 @@ import 'package:mtaa_frontend/features/locations/data/repositories/locations_rep
 import 'package:mtaa_frontend/features/posts/data/models/responses/schedule_post_response.dart';
 import 'package:mtaa_frontend/features/posts/data/repositories/posts_repository.dart';
 
+/// Displays a compact view of a scheduled post with image and details.
 class SchedulePostCardWidget extends StatefulWidget {
   final SchedulePostResponse post;
   final TimeFormatingService timeFormatingService;
   final PostsRepository postsRepository;
   final LocationsRepository locationsRepository;
 
-  const SchedulePostCardWidget({super.key, required this.post, required this.timeFormatingService, required this.postsRepository, required this.locationsRepository});
+  /// Creates a [SchedulePostCardWidget] with required dependencies and post data.
+  const SchedulePostCardWidget({
+    super.key,
+    required this.post,
+    required this.timeFormatingService,
+    required this.postsRepository,
+    required this.locationsRepository,
+  });
 
   @override
   State<SchedulePostCardWidget> createState() => _SchedulePostWidgetState();
 }
 
+/// Manages the state for displaying a scheduled post.
 class _SchedulePostWidgetState extends State<SchedulePostCardWidget> {
+  /// Initializes state for the widget.
   @override
   void initState() {
     super.initState();
   }
 
+  /// Retrieves the appropriate image provider based on post locality or file.
   ImageProvider<Object> getImage(MyImageResponse img) {
-    if(widget.post.imageFile != null) {
+    if (widget.post.imageFile != null) {
       return FileImage(widget.post.imageFile!);
     }
     if (!widget.post.isLocal) {
       return NetworkImage(img.fullPath);
     }
     File file = File(img.localPath);
-
     if (file.existsSync()) {
       return FileImage(file);
     }
     return AssetImage('assets/images/kistune_server_error.png');
   }
 
+  /// Builds the UI with a post image, description, and status indicators.
   @override
   Widget build(BuildContext context) {
     return Container(

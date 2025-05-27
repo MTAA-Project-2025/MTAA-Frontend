@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mtaa_frontend/core/constants/route_constants.dart';
 
+/// Widget displaying user profile information and action buttons.
 class ProfileInfoWidget extends StatelessWidget {
   final String avatarUrl;
   final String name;
@@ -10,6 +11,7 @@ class ProfileInfoWidget extends StatelessWidget {
   final int followers;
   final int likes;
 
+  /// Creates a [ProfileInfoWidget] with required profile data.
   const ProfileInfoWidget({
     super.key,
     required this.avatarUrl,
@@ -20,11 +22,11 @@ class ProfileInfoWidget extends StatelessWidget {
     required this.likes,
   });
 
+  /// Builds the UI with avatar, user details, stats, and navigation buttons.
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
-
     final ImageProvider<Object> avatarImage = avatarUrl.startsWith('http')
         ? NetworkImage(avatarUrl)
         : AssetImage(avatarUrl) as ImageProvider;
@@ -46,20 +48,14 @@ class ProfileInfoWidget extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 10),
-
           // Name
-          Text(
-            name,
-            style: textTheme.headlineMedium,
-          ),
-
+          Text(name, style: textTheme.headlineMedium),
           // Username
           Text(
             username,
             style: textTheme.labelMedium!.copyWith(fontSize: 13),
           ),
           const SizedBox(height: 10),
-
           // Stats
           Padding(
             padding: const EdgeInsets.all(10.0),
@@ -90,7 +86,6 @@ class ProfileInfoWidget extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 10),
-
           // Buttons
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -113,6 +108,7 @@ class ProfileInfoWidget extends StatelessWidget {
     );
   }
 
+  /// Builds a stat item with value, label, and optional navigation.
   Widget _buildStatItem(BuildContext context, String value, String label, VoidCallback? onTap) {
   final textTheme = Theme.of(context).textTheme;
 
@@ -130,10 +126,9 @@ class ProfileInfoWidget extends StatelessWidget {
   );
 }
 
-
+  /// Builds a button with text and action.
   Widget _buildButton(BuildContext context, String text, VoidCallback onPressed) {
     final textTheme = Theme.of(context).textTheme;
-
     return GestureDetector(
       onTap: onPressed,
       child: Container(

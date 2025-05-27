@@ -12,38 +12,49 @@ import 'package:mtaa_frontend/features/locations/presentation/widgets/post_locat
 import 'package:mtaa_frontend/features/posts/data/models/responses/location_post_response.dart';
 import 'package:mtaa_frontend/features/posts/data/repositories/posts_repository.dart';
 
+/// Displays a compact view of a location-based post with image and details.
 class LocationPostWidget extends StatefulWidget {
   final LocationPostResponse post;
   final TimeFormatingService timeFormatingService;
   final PostsRepository postsRepository;
   final LocationsRepository locationsRepository;
 
-  const LocationPostWidget({super.key, required this.post, required this.timeFormatingService, required this.postsRepository, required this.locationsRepository});
+  /// Creates a [LocationPostWidget] with required dependencies and post data.
+  const LocationPostWidget({
+    super.key,
+    required this.post,
+    required this.timeFormatingService,
+    required this.postsRepository,
+    required this.locationsRepository,
+  });
 
   @override
   State<LocationPostWidget> createState() => _LocationPostWidgetState();
 }
 
+/// Manages the state for displaying a location post.
 class _LocationPostWidgetState extends State<LocationPostWidget> {
   final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
-  
+
+  /// Initializes state for the widget.
   @override
   void initState() {
     super.initState();
   }
 
+  /// Retrieves the appropriate image provider based on post locality.
   ImageProvider<Object> getImage(MyImageResponse img) {
     if (!widget.post.isLocal) {
       return NetworkImage(img.fullPath);
     }
     File file = File(img.localPath);
-
     if (file.existsSync()) {
       return FileImage(file);
     }
     return AssetImage('assets/images/kistune_server_error.png');
   }
 
+  /// Builds the UI with a post image, details, and save option.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -55,7 +66,7 @@ class _LocationPostWidgetState extends State<LocationPostWidget> {
             width: 116,
             height: 116,
             child: InkWell(
-              onTap:(){
+              onTap: () {
                 GoRouter.of(context).push("$fullPostScreenRoute/${widget.post.id}");
               },
               child: ClipRRect(

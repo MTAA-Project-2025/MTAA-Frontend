@@ -4,6 +4,7 @@ import 'package:mtaa_frontend/features/users/account/data/repositories/account_r
 import 'package:mtaa_frontend/features/users/account/presentation/widgets/friendItem.dart';
 import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
 
+/// Widget displaying a list of friends with filtering by search query.
 class FriendsList extends StatefulWidget {
   final List<PublicBaseAccountResponse> friends;
   final Function(int)? onUnfollow;
@@ -11,6 +12,7 @@ class FriendsList extends StatefulWidget {
   final AccountRepository repository;
   final TokenStorage tokenStorage;
 
+  /// Creates a [FriendsList] with required friends data and dependencies.
   const FriendsList({
     super.key,
     required this.friends,
@@ -24,7 +26,9 @@ class FriendsList extends StatefulWidget {
   State<FriendsList> createState() => _FriendsListState();
 }
 
+/// Manages the state for displaying filtered friends.
 class _FriendsListState extends State<FriendsList> {
+  /// Builds the UI with a scrollable list of friend items.
   @override
   Widget build(BuildContext context) {
     final filteredFriends = widget.friends.where((friend) {

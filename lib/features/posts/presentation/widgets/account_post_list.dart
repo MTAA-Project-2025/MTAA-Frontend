@@ -19,38 +19,32 @@ import 'package:mtaa_frontend/features/shared/presentation/widgets/airmode_error
 import 'package:mtaa_frontend/features/shared/presentation/widgets/dotLoader.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/server_error_notification_section.dart';
 
+/// Displays a grid of posts for a user's account.
 class AccountPostListWidget extends StatefulWidget {
   final PostsRepository repository;
   final String userId;
   final bool isOwner;
 
+  /// Creates an [AccountPostListWidget] with required dependencies and user context.
   const AccountPostListWidget({super.key, required this.repository, required this.userId, required this.isOwner});
 
   @override
   State<AccountPostListWidget> createState() => _AccountPostListWidgetState();
 }
 
+/// Manages the state for loading and displaying account posts with pagination.
 class _AccountPostListWidgetState extends State<AccountPostListWidget> {
   PaginationScrollController paginationScrollController = PaginationScrollController();
   List<SimplePostResponse> posts = [];
   late final AppLifecycleListener _listener;
 
+  /// Initializes state, sets up pagination, and checks airplane mode.
   @override
   void initState() {
     paginationScrollController.init(loadAction: () => loadPosts());
     super.initState();
 
     context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: false, exceptionType: ExceptionTypes.none, message: ''));
-
-    /*Future.microtask(() async {
-      if (!mounted) return;
-      posts.addAll(await widget.repository.getPreviousRecommendedPosts());
-      if (!mounted) return;
-      final status = await AirplaneModeChecker.instance.checkAirplaneMode();
-      if (status == AirplaneModeStatus.on && mounted) {
-        context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: true, exceptionType: ExceptionTypes.flightMode, message: 'Flight mode is enabled'));
-      }
-    });*/
 
     _listener = AppLifecycleListener(
       onResume: () async {
@@ -70,6 +64,7 @@ class _AccountPostListWidgetState extends State<AccountPostListWidget> {
     loadFirst();
   }
 
+  /// Loads additional posts for the account using pagination.
   Future loadPosts() async {
     var res = await widget.repository.getAccountPosts(widget.userId, paginationScrollController.pageParameters);
     paginationScrollController.pageParameters.pageNumber++;
@@ -87,20 +82,19 @@ class _AccountPostListWidgetState extends State<AccountPostListWidget> {
     }
   }
 
+  /// Disposes controllers and cleans up resources.
   @override
   void dispose() {
     paginationScrollController.dispose();
-    //widget.repository.setPreviousRecommendedPosts(posts.reversed.take(paginationScrollController.pageParameters.pageSize).toList());
     _listener.dispose();
-
     super.dispose();
   }
 
+  /// Resets and loads the first page of account posts.
   Future loadFirst() async {
     posts.clear();
     paginationScrollController.dispose();
     paginationScrollController.init(loadAction: () => loadPosts());
-
     if (!mounted) return;
     setState(() {
       paginationScrollController.isLoading = true;
@@ -112,6 +106,7 @@ class _AccountPostListWidgetState extends State<AccountPostListWidget> {
     });
   }
 
+  /// Retrieves the appropriate image widget based on ownership and availability.
   Widget getImage(MyImageResponse img) {
     if (!widget.isOwner) {
       return CachedNetworkImage(
@@ -121,13 +116,13 @@ class _AccountPostListWidgetState extends State<AccountPostListWidget> {
       );
     }
     File file = File(img.localPath);
-
     if (file.existsSync()) {
       return Image(image: FileImage(file));
     }
     return Image(image: AssetImage('assets/images/kistune_server_error.png'));
   }
 
+  /// Builds the UI with a grid of posts and optional add post button for owners.
   @override
   Widget build(BuildContext contex) {
     return BlocBuilder<ExceptionsBloc, ExceptionsState>(builder: (context, state) {

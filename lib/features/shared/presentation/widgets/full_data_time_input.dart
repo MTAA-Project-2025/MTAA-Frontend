@@ -2,33 +2,38 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mtaa_frontend/core/constants/colors.dart';
 
+/// A date and time input widget with platform-specific pickers.
 class FullDateTimeInput extends StatefulWidget {
   final void Function(DateTime) onChanged;
   final String placeholder;
   final DateTime minDate;
   final DateTime maxDate;
   final DateTime maxDisplayedDate;
-
   final DateTime initialDate;
   final bool initialIsFirstTime;
 
-  FullDateTimeInput({super.key,
-  required this.onChanged,
-  required this.placeholder,
-  required this.minDate,
-  required this.maxDate,
-  required this.maxDisplayedDate,
-  required this.initialDate,
-  this.initialIsFirstTime = true});
+  /// Creates a [FullDateTimeInput] with required properties and initial state.
+  FullDateTimeInput({
+    super.key,
+    required this.onChanged,
+    required this.placeholder,
+    required this.minDate,
+    required this.maxDate,
+    required this.maxDisplayedDate,
+    required this.initialDate,
+    this.initialIsFirstTime = true,
+  });
 
   @override
   _FullDateTimeInputState createState() => _FullDateTimeInputState();
 }
 
-//Created partly with GPT
+/// Manages the state for date and time selection with platform-specific pickers.
 class _FullDateTimeInputState extends State<FullDateTimeInput> {
   DateTime date = DateTime.now();
   bool isFirstTime = true;
+
+  /// Initializes state with the provided initial date and first-time flag.
   @override
   void initState() {
     super.initState();
@@ -36,6 +41,7 @@ class _FullDateTimeInputState extends State<FullDateTimeInput> {
     isFirstTime = widget.initialIsFirstTime;
   }
 
+  /// Determines if a day is selectable based on min and max date constraints.
   bool _decideWhichDayToEnable(DateTime day) {
     if ((day.isAfter(widget.minDate) && day.isBefore(widget.maxDate))) {
       return true;
@@ -43,6 +49,7 @@ class _FullDateTimeInputState extends State<FullDateTimeInput> {
     return false;
   }
 
+  /// Selects the appropriate date picker based on the platform.
   _selectDate(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     switch (theme.platform) {
@@ -57,6 +64,7 @@ class _FullDateTimeInputState extends State<FullDateTimeInput> {
     }
   }
 
+  /// Builds the UI with a button displaying the selected date-time or placeholder.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -112,6 +120,7 @@ class _FullDateTimeInputState extends State<FullDateTimeInput> {
     );
   }
 
+  /// Displays a Cupertino-style date picker for iOS/macOS platforms.
   buildCupertinoDatePicker(BuildContext context) {
     showModalBottomSheet(
         context: context,
@@ -139,8 +148,9 @@ class _FullDateTimeInputState extends State<FullDateTimeInput> {
         });
   }
 
+  /// Displays a Material-style date and time picker for Android and other platforms.
   buildMaterialDatePicker(BuildContext context) async {
-    if(!context.mounted)return;
+    if (!context.mounted) return;
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: date,
@@ -169,15 +179,14 @@ class _FullDateTimeInputState extends State<FullDateTimeInput> {
         context: context,
         initialTime: TimeOfDay.fromDateTime(DateTime.now()),
         builder: (BuildContext context, Widget? child) {
-      return Theme(
-        data: ThemeData.light(),
-        child: child!,
+          return Theme(
+            data: ThemeData.light(),
+            child: child!,
+          );
+        },
       );
-    },
-      );
-
       if (time != null) {
-        if(!mounted)return;
+        if (!mounted) return;
         setState(() {
           date = DateTime(picked.year, picked.month, picked.day, time.hour, time.minute);
           isFirstTime = false;

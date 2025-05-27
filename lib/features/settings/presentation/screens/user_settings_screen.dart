@@ -13,21 +13,27 @@ import 'package:mtaa_frontend/themes/bloc/theme_bloc.dart';
 import 'package:mtaa_frontend/themes/bloc/theme_event.dart';
 import 'package:mtaa_frontend/themes/bloc/theme_state.dart';
 
+/// Displays the user settings screen with options for logout, scheduled posts, and theme selection.
 class UserSettingsScreen extends StatefulWidget {
   final TokenStorage tokenStorage;
+
+  /// Creates a [UserSettingsScreen] with required dependencies.
   const UserSettingsScreen({super.key, required this.tokenStorage});
 
   @override
   State<UserSettingsScreen> createState() => _UserSettingsScreenState();
 }
 
+/// Manages the state for the user settings screen.
 class _UserSettingsScreenState extends State<UserSettingsScreen> {
   final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
+  /// Changes the app theme by dispatching a theme change event.
   void _changeTheme(AppThemeMode mode) {
     context.read<ThemeBloc>().add(ChangeThemeEvent(mode));
   }
 
+  /// Initializes state and registers the current context in the dependency injector.
   @override
   void initState() {
     super.initState();
@@ -37,10 +43,10 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
     getIt.registerSingleton<BuildContext>(context);
   }
 
+  /// Builds the UI with settings options and theme toggle buttons.
   @override
   Widget build(BuildContext context) {
     final isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
-
     return Scaffold(
         appBar: AppBar(),
         body: Column(

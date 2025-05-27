@@ -15,18 +15,22 @@ import 'package:mtaa_frontend/features/shared/presentation/widgets/dotLoader.dar
 import 'package:mtaa_frontend/themes/bloc/theme_bloc.dart';
 import 'package:mtaa_frontend/themes/bloc/theme_event.dart';
 
+/// Screen for verifying email during the signup process.
 class SignUpVerificationByEmailScreen extends StatefulWidget {
   final IdentityApi identityApi;
 
+  /// Creates a [SignUpVerificationByEmailScreen] with required identity API.
   const SignUpVerificationByEmailScreen({super.key, required this.identityApi});
 
   @override
   State<SignUpVerificationByEmailScreen> createState() => _SignUpVerificationByEmailScreenState();
 }
 
+/// Manages the state for email verification, including code input and resend functionality.
 class _SignUpVerificationByEmailScreenState extends State<SignUpVerificationByEmailScreen> {
   bool isLoading = false;
 
+  /// Navigates to the create account screen after successful verification.
   void _navigateToCreateAccount() {
     Future.microtask(() {
       if (!mounted) return;
@@ -34,6 +38,7 @@ class _SignUpVerificationByEmailScreenState extends State<SignUpVerificationByEm
     });
   }
 
+  /// Builds the UI with verification instructions, code input, and resend button.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -132,7 +137,11 @@ class _SignUpVerificationByEmailScreenState extends State<SignUpVerificationByEm
                     setState(() => isLoading = false);
                   },
                 );
-              }),
-            ])));
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

@@ -13,22 +13,26 @@ import 'package:mtaa_frontend/features/shared/presentation/widgets/dotLoader.dar
 import 'package:mtaa_frontend/themes/bloc/theme_bloc.dart';
 import 'package:mtaa_frontend/themes/bloc/theme_event.dart';
 
+/// Displays a screen for user group list and account creation.
 class UserGroupListScreen extends StatefulWidget {
   final IdentityApi identityApi;
   final NotificationsService notificationsService;
 
+  /// Creates a [UserGroupListScreen] with required dependencies.
   const UserGroupListScreen({super.key, required this.identityApi, required this.notificationsService});
 
   @override
   State<UserGroupListScreen> createState() => _UserGroupListScreenState();
 }
 
+/// Manages the state and UI for user group list and account creation form.
 class _UserGroupListScreenState extends State<UserGroupListScreen> {
   final GlobalKey<FormState> _emailformKey = GlobalKey<FormState>();
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
   bool isLoading = false;
 
+  /// Disposes controllers to prevent memory leaks.
   @override
   void dispose() {
     usernameController.dispose();
@@ -36,16 +40,17 @@ class _UserGroupListScreenState extends State<UserGroupListScreen> {
     super.dispose();
   }
 
+  /// Navigates to the first update display name screen.
   void _navigateToFirstUpdateDisplayNameScreenRoute() {
-    Future.microtask(() async{
+    Future.microtask(() async {
       if (!mounted) return;
       GoRouter.of(context).push(firstUpdateDisplayNameScreenRoute);
     });
   }
 
+  /// Builds the UI with an account creation form and theme toggle.
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         actions: <Widget>[

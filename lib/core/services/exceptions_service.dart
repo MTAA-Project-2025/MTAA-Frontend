@@ -1,14 +1,18 @@
 import 'package:dio/dio.dart';
 import 'package:mtaa_frontend/core/services/my_toast_service.dart';
 
+/// Defines methods for handling exceptions.
 abstract class ExceptionsService {
+  /// Handles Dio HTTP errors.
   Future httpError(DioException exception);
 }
 
+/// Implements exception handling with toast notifications.
 class ExceptionsServiceImpl extends ExceptionsService {
   final MyToastService myToastService;
   ExceptionsServiceImpl(this.myToastService);
 
+  /// Processes HTTP errors and shows error message via toast.
   @override
   Future httpError(DioException exception) async {
     if (exception.response != null) {

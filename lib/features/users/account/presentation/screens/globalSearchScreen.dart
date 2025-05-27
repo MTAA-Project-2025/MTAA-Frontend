@@ -8,11 +8,13 @@ import 'package:mtaa_frontend/features/users/account/data/repositories/account_r
 import 'package:mtaa_frontend/features/users/account/presentation/widgets/usersGlobalSearch.dart';
 import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
 
+/// Screen for global search with tabs for posts and users.
 class GlobalSearchScreen extends StatefulWidget {
   final PostsRepository postsRepository;
   final AccountRepository usersRepository;
   final TokenStorage tokenStorage;
 
+  /// Creates a [GlobalSearchScreen] with required repositories and token storage.
   const GlobalSearchScreen({
     super.key,
     required this.postsRepository,
@@ -24,17 +26,20 @@ class GlobalSearchScreen extends StatefulWidget {
   State<GlobalSearchScreen> createState() => _GlobalSearchScreenState();
 }
 
+/// Manages the state for tab navigation in global search.
 class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
   String activeTab = 'posts';
   String searchQuery = '';
   final searchController = TextEditingController();
 
+  /// Updates the active tab when changed.
   void onTabChange(String tabId) {
     setState(() {
       activeTab = tabId;
     });
   }
 
+  /// Builds a tab widget with label and active state indicator.
   Widget _buildTab(String tabId, String label) {
     final isActive = activeTab == tabId;
     return GestureDetector(
@@ -60,13 +65,14 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
                 color: isActive ? secondary1InvincibleColor : Colors.transparent,
                 borderRadius: BorderRadius.circular(2),
               ),
-            )
+            ),
           ],
         ),
       ),
     );
   }
 
+  /// Builds the UI with tab navigation and search content.
   @override
   Widget build(BuildContext context) {
     return Scaffold(

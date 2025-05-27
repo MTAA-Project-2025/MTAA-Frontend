@@ -4,28 +4,33 @@ import 'package:mtaa_frontend/features/images/data/models/responses/myImageGroup
 import 'package:mtaa_frontend/features/images/data/network/preset_avatar_images_api.dart';
 import 'package:mtaa_frontend/features/shared/presentation/widgets/dotLoader.dart';
 
+/// Displays a grid of preset images for selection.
 class PresetImagesList extends StatefulWidget {
   final void Function(MyImageGroupResponse) onChanged;
   final PresetAvatarImagesApi presetAvatarImagesApi;
 
+  /// Creates a [PresetImagesList] with required dependencies.
   PresetImagesList({super.key, required this.onChanged, required this.presetAvatarImagesApi});
 
   @override
   _PresetImagesListState createState() => _PresetImagesListState();
 }
 
+/// Manages the state and loading of preset images.
 class _PresetImagesListState extends State<PresetImagesList> {
   bool isFirstTime = true;
   MyImageGroupResponse? selectedImage;
   List<MyImageGroupResponse> images = [];
   bool isLoading = true;
 
+  /// Initializes state and fetches preset images.
   @override
   void initState() {
     super.initState();
     initialize();
   }
 
+  /// Loads preset images and updates the selected image.
   Future<void> initialize() async {
     final fetchedImages = await widget.presetAvatarImagesApi.getAllPresetImages();
     if (mounted) {
@@ -40,6 +45,7 @@ class _PresetImagesListState extends State<PresetImagesList> {
     }
   }
 
+  /// Builds the UI with a grid of selectable preset images.
   @override
   Widget build(BuildContext context) {
     return Scaffold(

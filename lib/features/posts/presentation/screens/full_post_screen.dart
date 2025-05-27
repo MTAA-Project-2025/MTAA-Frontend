@@ -30,6 +30,7 @@ import 'package:mtaa_frontend/features/shared/presentation/widgets/phone_bottom_
 import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
 import 'package:uuid/uuid_value.dart';
 
+/// Displays a detailed view of a single post with its location and comments.
 class FullPostScreen extends StatefulWidget {
   final PostsRepository repository;
   final LocationsRepository locationsRepository;
@@ -37,22 +38,31 @@ class FullPostScreen extends StatefulWidget {
   final FullPostResponse? post;
   final TokenStorage tokenStorage;
 
-  const FullPostScreen({super.key, required this.repository, required this.locationsRepository, this.postId, this.post, required this.tokenStorage});
+  /// Creates a [FullPostScreen] with required dependencies and optional post data.
+  const FullPostScreen({
+    super.key,
+    required this.repository,
+    required this.locationsRepository,
+    this.postId,
+    this.post,
+    required this.tokenStorage,
+  });
 
   @override
   State<FullPostScreen> createState() => _FullPostScreenScreenState();
 }
 
+/// Manages the state for loading and displaying post details, location, and comments.
 class _FullPostScreenScreenState extends State<FullPostScreen> {
   FullPostResponse? post;
   SimpleLocationPointResponse? locationPoint;
   LocationPostResponse? locationPost;
   final mapController = MapController();
 
+  /// Initializes state, checks airplane mode, and loads post data.
   @override
   void initState() {
     super.initState();
-
     context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: false, exceptionType: ExceptionTypes.none, message: ''));
 
     Future.microtask(() async {
@@ -81,6 +91,7 @@ class _FullPostScreenScreenState extends State<FullPostScreen> {
     initialize();
   }
 
+  /// Loads post and location data based on provided post or postId.
   Future initialize() async {
     if (widget.post != null) {
       post = widget.post!;
@@ -96,7 +107,6 @@ class _FullPostScreenScreenState extends State<FullPostScreen> {
     if (!mounted) return;
     if (post != null && post!.locationId != null) {
       locationPost = await widget.locationsRepository.getLocationPostById(post!.locationId!);
-
       if (locationPost != null) {
         if (!mounted) return;
         setState(() {
@@ -114,6 +124,7 @@ class _FullPostScreenScreenState extends State<FullPostScreen> {
     }
   }
 
+  /// Builds the UI with post details, location map, and comments section.
   @override
   Widget build(BuildContext contex) {
     return Scaffold(

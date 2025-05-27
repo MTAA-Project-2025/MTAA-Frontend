@@ -1,8 +1,12 @@
+/// Defines a method for formatting numbers.
 abstract class NumberFormatingService {
+  /// Formats a number into a compact string representation.
   String formatNumber(int number);
 }
 
+/// Implements number formatting with compact units (k, M, B).
 class NumberFormatingServiceImpl extends NumberFormatingService {
+  /// Formats a number into a string, using 'k' for thousands, 'M' for millions, and 'B' for billions.
   @override
   String formatNumber(int number) {
     if (number < 1000) {

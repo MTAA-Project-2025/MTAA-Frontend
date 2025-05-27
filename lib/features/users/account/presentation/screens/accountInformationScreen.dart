@@ -19,20 +19,24 @@ import 'package:mtaa_frontend/features/users/account/presentation/widgets/profil
 import 'package:mtaa_frontend/features/users/account/presentation/widgets/tabNavigation.dart';
 import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
 
+/// Displays user account information with tabbed content for posts, saved, and liked posts.
 class AccountInformationScreen extends StatefulWidget {
   final AccountRepository repository;
   final TokenStorage tokenStorage;
 
+  /// Creates an [AccountInformationScreen] with required dependencies.
   const AccountInformationScreen({super.key, required this.repository, required this.tokenStorage});
-  
+
   @override
   State<AccountInformationScreen> createState() => _AccountInformationScreenState();
 }
 
+/// Manages the state for account information, including loading and tab navigation.
 class _AccountInformationScreenState extends State<AccountInformationScreen> {
   bool isLoading = false;
   AccountTabType activeTab = AccountTabType.Posts;
 
+  /// Updates the active tab when changed.
   void handleTabChange(AccountTabType tabType) {
     if (!mounted) return;
     setState(() {
@@ -40,21 +44,21 @@ class _AccountInformationScreenState extends State<AccountInformationScreen> {
     });
   }
 
+  /// Initializes state, registers context, and loads account if necessary.
   @override
   void initState() {
     super.initState();
-
     if (getIt.isRegistered<BuildContext>()) {
       getIt.unregister<BuildContext>();
     }
     getIt.registerSingleton<BuildContext>(context);
-
     final accountState = context.read<AccountBloc>().state;
     if (accountState.account == null) {
       loadAccount();
     }
   }
 
+  /// Loads account data from the repository.
   Future loadAccount() async {
     if (isLoading) return;
     if (!mounted) return;
@@ -73,10 +77,10 @@ class _AccountInformationScreenState extends State<AccountInformationScreen> {
     });
   }
 
+  /// Builds the UI with app bar, profile info, tabs, and content based on orientation.
   @override
   Widget build(BuildContext context) {
     final isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
-
     return BlocBuilder<AccountBloc, AccountState>(builder: (context, accountState) {
       return Scaffold(
           appBar: AppBar(

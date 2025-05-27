@@ -8,14 +8,18 @@ import 'package:mtaa_frontend/features/shared/bloc/exception_type.dart';
 import 'package:mtaa_frontend/features/shared/bloc/exceptions_bloc.dart';
 import 'package:mtaa_frontend/features/shared/bloc/exceptions_event.dart' show SetExceptionsEvent;
 
-
 //+-GPT + Doc + myself
+/// Manages internet connectivity and airplane mode checks.
 class InternetChecker {
+  /// Connectivity instance for checking network status.
   static final Connectivity connectivity = Connectivity();
+  /// Broadcasts internet connection status changes.
   static final StreamController<bool> connectionController = StreamController<bool>.broadcast();
 
+  /// Stream of internet connection status.
   static Stream<bool> get connectionStream => connectionController.stream;
 
+  /// Initializes connectivity monitoring.
   static void initialize() {
     connectivity.onConnectivityChanged.listen((result) {
       bool hasConnection = false;
@@ -30,10 +34,12 @@ class InternetChecker {
     });
   }
 
+  /// Closes the connection stream.
   static void dispose(){
     connectionController.close();
   }
 
+  /// Checks if airplane mode is on and internet is disabled.
   static Future<bool> fullIsFlightMode() async{
     final status = await AirplaneModeChecker.instance.checkAirplaneMode();
     if (status == AirplaneModeStatus.on && !await isInternetEnabled()) {
@@ -47,6 +53,7 @@ class InternetChecker {
     return false;
   }
 
+  /// Checks if internet is available via mobile or Wi-Fi.
   static Future<bool> isInternetEnabled() async {
     try {
       final List<ConnectivityResult> result = await connectivity.checkConnectivity();

@@ -20,21 +20,25 @@ import 'package:mtaa_frontend/features/shared/presentation/widgets/phone_bottom_
 import 'package:mtaa_frontend/features/shared/presentation/widgets/server_error_notification_section.dart';
 import 'package:uuid/uuid.dart';
 
+/// Displays a list of location posts for a specific cluster.
 class LocationClusterPointsScreen extends StatefulWidget {
   final LocationsRepository repository;
   final UuidValue clusterId;
 
+  /// Creates a [LocationClusterPointsScreen] with required dependencies.
   const LocationClusterPointsScreen({super.key, required this.repository, required this.clusterId});
 
   @override
   State<LocationClusterPointsScreen> createState() => _LocationClusterPointsScreenState();
 }
 
+/// Manages the state and pagination of location posts.
 class _LocationClusterPointsScreenState extends State<LocationClusterPointsScreen> {
   PaginationScrollController paginationScrollController = PaginationScrollController();
   List<LocationPostResponse> points = [];
   late final AppLifecycleListener _listener;
 
+  /// Initializes state, pagination, and airplane mode checking.
   @override
   void initState() {
     paginationScrollController.init(loadAction: () => loadPosts());
@@ -43,7 +47,7 @@ class _LocationClusterPointsScreenState extends State<LocationClusterPointsScree
     context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: false, exceptionType: ExceptionTypes.none, message: ''));
 
     Future.microtask(() async {
-      if(!mounted)return;
+      if (!mounted) return;
       final status = await AirplaneModeChecker.instance.checkAirplaneMode();
       if (status == AirplaneModeStatus.on && mounted) {
         context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: true, exceptionType: ExceptionTypes.flightMode, message: 'Flight mode is enabled'));
@@ -52,7 +56,7 @@ class _LocationClusterPointsScreenState extends State<LocationClusterPointsScree
 
     _listener = AppLifecycleListener(
       onResume: () async {
-        if(!mounted)return;
+        if (!mounted) return;
         Future.microtask(() async {
           if (context.mounted && mounted) {
             final status = await AirplaneModeChecker.instance.checkAirplaneMode();
@@ -68,10 +72,11 @@ class _LocationClusterPointsScreenState extends State<LocationClusterPointsScree
     loadFirst();
   }
 
+  /// Loads additional location posts for pagination.
   Future loadPosts() async {
-    if(!mounted)return;
+    if (!mounted) return;
     var res = await widget.repository.getClusterLocationPoints(widget.clusterId, paginationScrollController.pageParameters);
-    if(!mounted)return;
+    if (!mounted) return;
     paginationScrollController.pageParameters.pageNumber++;
     if (res.length < paginationScrollController.pageParameters.pageSize) {
       if (!mounted) return false;
@@ -80,38 +85,39 @@ class _LocationClusterPointsScreenState extends State<LocationClusterPointsScree
       });
     }
     if (res.isNotEmpty) {
-      if(!mounted)return;
+      if (!mounted) return;
       setState(() {
         points.addAll(res);
       });
     }
   }
 
+  /// Disposes controllers and listeners to prevent memory leaks.
   @override
   void dispose() {
     paginationScrollController.dispose();
     _listener.dispose();
-    
     super.dispose();
   }
 
+  /// Resets and loads the first page of location posts.
   Future loadFirst() async {
     points.clear();
     paginationScrollController.dispose();
     paginationScrollController.init(loadAction: () => loadPosts());
-    if(!mounted)return;
+    if (!mounted) return;
     setState(() {
       paginationScrollController.isLoading = true;
     });
-    if(!mounted)return;
+    if (!mounted) return;
     await loadPosts();
-
-    if(!mounted)return;
+    if (!mounted) return;
     setState(() {
       paginationScrollController.isLoading = false;
     });
   }
 
+  /// Builds the UI with a paginated list of location posts.
   @override
   Widget build(BuildContext contex) {
     return Scaffold(

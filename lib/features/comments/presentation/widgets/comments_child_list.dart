@@ -16,6 +16,7 @@ import 'package:mtaa_frontend/features/shared/presentation/widgets/server_error_
 import 'package:mtaa_frontend/features/users/authentication/shared/data/storages/tokenStorage.dart';
 import 'package:uuid/uuid.dart';
 
+/// Displays a list of child comments for a parent comment.
 class CommentsChildList extends StatefulWidget {
   final UuidValue postId;
   final String postOwnerId;
@@ -27,6 +28,7 @@ class CommentsChildList extends StatefulWidget {
   final bool isMovedToTop;
   final TokenStorage tokenStorage;
 
+  /// Creates a [CommentsChildList] with required dependencies and configuration.
   const CommentsChildList(
       {super.key,
       required this.postId,
@@ -43,6 +45,7 @@ class CommentsChildList extends StatefulWidget {
   State<CommentsChildList> createState() => _CommentsChildListState();
 }
 
+/// Manages the state and loading of child comments.
 class _CommentsChildListState extends State<CommentsChildList> {
   PageParameters pageParameters = PageParameters(pageNumber: 0, pageSize: 10);
   bool isLoading = false;
@@ -53,6 +56,7 @@ class _CommentsChildListState extends State<CommentsChildList> {
 
   List<CommentController> childCommentControllers = [];
 
+  /// Initializes state and sets up comment controller for adding and closing child comments.
   @override
   void initState() {
     super.initState();
@@ -65,7 +69,7 @@ class _CommentsChildListState extends State<CommentsChildList> {
       });
     };
 
-    widget.commentController.closeChildComments = (){
+    widget.commentController.closeChildComments = () {
       if (!mounted) return;
       for (var element in childCommentControllers) {
         element.closeChildren();
@@ -75,16 +79,18 @@ class _CommentsChildListState extends State<CommentsChildList> {
     loadFirst();
   }
 
+  /// Loads the first page of child comments.
   Future loadFirst() async {
     if (!context.mounted) return;
     isLoadMoreAvailable = true;
     childComments = [];
-    childCommentControllers=[];
+    childCommentControllers = [];
     pageParameters.pageNumber = 0;
 
     await loadComments();
   }
 
+  /// Loads additional child comments for pagination.
   Future loadComments() async {
     if (isLoading) return;
     if (!mounted) return;
@@ -92,13 +98,13 @@ class _CommentsChildListState extends State<CommentsChildList> {
       isLoading = true;
     });
     var res = await widget.commentsRepository.getChildComments(widget.parentCommentId, pageParameters);
-    if(res.length<pageParameters.pageSize) {
-      if(!mounted) return;
+    if (res.length < pageParameters.pageSize) {
+      if (!mounted) return;
       setState(() {
         isLoadMoreAvailable = false;
       });
     }
-    for(var element in res) {
+    for (var element in res) {
       CommentController controller = CommentController();
       childCommentControllers.add(controller);
     }
@@ -111,7 +117,9 @@ class _CommentsChildListState extends State<CommentsChildList> {
     pageParameters.pageNumber++;
   }
 
-  double lineWidth=1;
+  double lineWidth = 1;
+
+  /// Builds the UI for the child comments list with pagination and error handling.
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ExceptionsBloc, ExceptionsState>(builder: (context, state) {

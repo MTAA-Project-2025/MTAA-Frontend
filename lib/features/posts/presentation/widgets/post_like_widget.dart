@@ -4,18 +4,27 @@ import 'package:mtaa_frontend/core/services/number_formating_service.dart';
 import 'package:mtaa_frontend/features/posts/data/models/responses/full_post_response.dart';
 import 'package:mtaa_frontend/features/posts/data/repositories/posts_repository.dart';
 
+/// Displays a like button and count for a post.
 class PostLikeWidget extends StatefulWidget {
   final PostsRepository repository;
   final NumberFormatingService numberFormatingService;
   final FullPostResponse post;
 
-  const PostLikeWidget({super.key, required this.repository, required this.numberFormatingService, required this.post});
+  /// Creates a [PostLikeWidget] with required dependencies and post data.
+  const PostLikeWidget({
+    super.key,
+    required this.repository,
+    required this.numberFormatingService,
+    required this.post,
+  });
 
   @override
   State<PostLikeWidget> createState() => _PostLikeWidgetState();
 }
 
+/// Manages the state for liking or unliking a post.
 class _PostLikeWidgetState extends State<PostLikeWidget> {
+  /// Builds the UI with a like button and formatted like count.
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -34,15 +43,12 @@ class _PostLikeWidgetState extends State<PostLikeWidget> {
                 widget.post.likesCount--;
               }
             });
-
             bool res = false;
-
             if (widget.post.isLiked) {
               res = await widget.repository.likePost(widget.post.id);
             } else {
               res = await widget.repository.removePostLike(widget.post.id);
             }
-
             if (!mounted) return;
             setState(() {
               if (!res) {

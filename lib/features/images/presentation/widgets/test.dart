@@ -6,9 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 
+/// Displays a home page for image uploading and cropping.
 class HomePage extends StatefulWidget {
   final String title;
 
+  /// Creates a [HomePage] with a required title.
   const HomePage({
     super.key,
     required this.title,
@@ -18,10 +20,12 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
+/// Manages the state for image picking and cropping.
 class _HomePageState extends State<HomePage> {
   XFile? _pickedFile;
   CroppedFile? _croppedFile;
 
+  /// Builds the scaffold with conditional app bar and body.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -47,6 +51,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  /// Returns the appropriate body widget based on image state.
   Widget _body() {
     if (_croppedFile != null || _pickedFile != null) {
       return _imageCard();
@@ -55,6 +60,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  /// Displays the selected or cropped image with action buttons.
   Widget _imageCard() {
     return Center(
       child: Column(
@@ -79,6 +85,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  /// Renders the image from picked or cropped file.
   Widget _image() {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
@@ -105,6 +112,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  /// Displays action buttons for deleting or cropping the image.
   Widget _menu() {
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -133,6 +141,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  /// Displays a card for uploading an image.
   Widget _uploaderCard() {
     return Center(
       child: Card(
@@ -206,6 +215,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  /// Crops the picked image using the image cropper.
   Future<void> _cropImage() async {
     if (_pickedFile != null) {
       final croppedFile = await ImageCropper().cropImage(
@@ -246,7 +256,7 @@ class _HomePageState extends State<HomePage> {
         ],
       );
       if (croppedFile != null) {
-        if(!mounted)return;
+        if (!mounted) return;
         setState(() {
           _croppedFile = croppedFile;
         });
@@ -254,19 +264,21 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  /// Picks an image from the gallery.
   Future<void> _uploadImage() async {
     final pickedFile =
         await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
-      if(!mounted)return;
+      if (!mounted) return;
       setState(() {
         _pickedFile = pickedFile;
       });
     }
   }
 
+  /// Clears the picked and cropped image.
   void _clear() {
-    if(!mounted)return;
+    if (!mounted) return;
     setState(() {
       _pickedFile = null;
       _croppedFile = null;
@@ -274,6 +286,7 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
+/// Custom aspect ratio preset for 2x3 cropping.
 class CropAspectRatioPresetCustom implements CropAspectRatioPresetData {
   @override
   (int, int)? get data => (2, 3);

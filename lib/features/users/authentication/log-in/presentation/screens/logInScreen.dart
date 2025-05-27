@@ -13,19 +13,25 @@ import 'package:mtaa_frontend/features/shared/presentation/widgets/dotLoader.dar
 import 'package:mtaa_frontend/themes/bloc/theme_bloc.dart';
 import 'package:mtaa_frontend/themes/bloc/theme_event.dart';
 
+/// Screen for user login with email or phone number.
 class LogInScreen extends StatefulWidget {
   final IdentityApi identityApi;
   final NotificationsService notificationsService;
   final TokenStorage tokenStorage;
 
-  const LogInScreen({super.key, required this.identityApi,
-  required this.notificationsService,
-  required this.tokenStorage});
+  /// Creates a [LogInScreen] with required dependencies.
+  const LogInScreen({
+    super.key,
+    required this.identityApi,
+    required this.notificationsService,
+    required this.tokenStorage,
+  });
 
   @override
   State<LogInScreen> createState() => _LogInScreenState();
 }
 
+/// Manages the state for the login form and authentication process.
 class _LogInScreenState extends State<LogInScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final loginController = TextEditingController();
@@ -33,6 +39,7 @@ class _LogInScreenState extends State<LogInScreen> {
   bool isLoading = false;
   final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
+  /// Cleans up controllers on widget disposal.
   @override
   void dispose() {
     loginController.dispose();
@@ -40,13 +47,15 @@ class _LogInScreenState extends State<LogInScreen> {
     super.dispose();
   }
 
+  /// Navigates to the main recommendations screen after successful login.
   void _navigateToMainScreen() {
-    Future.microtask(() async{
+    Future.microtask(() async {
       if (!mounted) return;
       GoRouter.of(context).go(userRecommendationsScreenRoute);
     });
   }
 
+  /// Builds the UI with login form, theme toggle, and navigation options.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
