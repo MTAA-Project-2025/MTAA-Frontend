@@ -8,23 +8,25 @@ import 'package:mtaa_frontend/core/constants/storages/storage_boxes.dart';
 import 'package:mtaa_frontend/features/notifications/data/network/notificationsService.dart';
 import 'package:mtaa_frontend/features/synchronization/synchronization_service.dart';
 
-class TokenStorage {
+class TokenStorageImpl implements TokenStorage {
   static const String tokenKey = "auth_token";
   late SynchronizationService synchronizationService;
   late NotificationsService notificationsService;
   Dio? dio;
   final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
+  @override
   Future<void> initialize(SynchronizationService synchronizationService, NotificationsService notificationsService) async {
     this.synchronizationService = synchronizationService;
     this.notificationsService = notificationsService;
   }
 
+  @override
   Future<void> saveToken(String token) async {
     var box = Hive.box(currentUserDataBox);
 
     await box.put(tokenKey, token);
-    if(token.isEmpty) return;
+    if (token.isEmpty) return;
     await notificationsService.startSSE(token);
     await synchronizationService.synchronize();
 
@@ -32,16 +34,16 @@ class TokenStorage {
 
     await analytics.logEvent(name: 'save_token');
   }
-  Future saveFirebaseToken() async{
-    if(dio == null)return;
+
+  @override
+  Future saveFirebaseToken() async {
+    if (dio == null) return;
     String? token = await FirebaseMessaging.instance.getToken();
-    if(token == null)return;
+    if (token == null) return;
 
     final fullUrl = 'Account/save-firebase-token';
     try {
-      await dio!.post(fullUrl, data: {
-        'token' : token
-      });
+      await dio!.post(fullUrl, data: {'token': token});
 
       await analytics.logEvent(name: 'save_firebase_token');
     } catch (e) {
@@ -49,15 +51,18 @@ class TokenStorage {
     }
   }
 
+  @override
   Future initializeDio(Dio dio) async {
     this.dio = dio;
   }
 
+  @override
   Future<String?> getToken() async {
     var box = Hive.box(currentUserDataBox);
     return box.get(tokenKey);
   }
 
+  @override
   Future<void> deleteToken() async {
     var box = Hive.box(currentUserDataBox);
     await box.delete(tokenKey);
@@ -65,6 +70,7 @@ class TokenStorage {
     await analytics.logEvent(name: 'delete_token');
   }
 
+  @override
   Future<String?> getUserId() async {
     try {
       var token = await getToken();
@@ -79,10 +85,20 @@ class TokenStorage {
       final Map<String, dynamic> decodedPayload = jsonDecode(payload);
 
       var id = decodedPayload['Id']?.toString();
-      if(id == null) return null;
+      if (id == null) return null;
       return id;
     } catch (e) {
       return null;
     }
   }
+}
+
+abstract class TokenStorage {
+  Future<void> initialize(SynchronizationService synchronizationService, NotificationsService notificationsService);
+  Future<void> saveToken(String token);
+  Future saveFirebaseToken();
+  Future initializeDio(Dio dio);
+  Future<String?> getToken();
+  Future<void> deleteToken();
+  Future<String?> getUserId();
 }

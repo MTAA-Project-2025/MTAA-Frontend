@@ -61,6 +61,7 @@ class NotificationsServiceImpl extends NotificationsService {
 
       Future.delayed(const Duration(seconds: 5), () {
         print('Reconnecting to SSE...');
+        isSSEStarted=false;
         startSSE(token);
       });
     });

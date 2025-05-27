@@ -35,6 +35,7 @@ class EmptyErrorNotificationSectionWidget extends StatelessWidget {
         const SizedBox(height: 10),
         if (onPressed != null)
           TextButton(
+            key: const Key('try_again_button'),
             onPressed: () {
               context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: false, exceptionType: ExceptionTypes.none, message: ''));
               onPressed!();

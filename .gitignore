@@ -358,3 +358,4 @@ fabric.properties
 ### AndroidStudio Patch ###
 
 !/gradle/wrapper/gradle-wrapper.jar
+test/configuration/account_test_data.dart

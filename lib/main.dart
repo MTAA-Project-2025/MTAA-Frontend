@@ -45,6 +45,14 @@ import 'package:timezone/data/latest.dart' as tz;
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
+  runApp(await createApp());
+}
+
+const bool isIntegrationTest = bool.fromEnvironment('INTEGRATION_TEST', defaultValue: false);
+
+Future<Widget> createApp() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  print("WidgetsFlutterBinding done");
   await Hive.initFlutter();
   Hive.registerAdapter(FullPostHiveAdapter());
   Hive.registerAdapter(MyImageGroupHiveAdapter());
@@ -66,24 +74,33 @@ Future<void> main() async {
   await Hive.openBox<UserPositionHive>(prevUserLocationDataBox);
   await Hive.openBox(accountDataBox);
 
+  print("Hive done");
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  print("Firebase done");
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
-  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+  print("Firebase background done");
+  if (!isIntegrationTest) {
+    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+  }
+  print("Firebase onError done");
 
   tz.initializeTimeZones();
+  print("initializeTimeZones done");
 
   const environment = String.fromEnvironment('ENV', defaultValue: 'development');
   AppConfig.loadConfig(environment);
+  print("loadConfig done");
   setupDependencies();
+  print("Dependencies done");
   HttpOverrides.global = MyHttpOverrides();
-  WidgetsFlutterBinding.ensureInitialized();
   String initialRoute = await getInitialRoute();
 
-
   await FMTCObjectBoxBackend().initialise();
+  print("FMTC done");
   await FMTCStore(tilesBox).manage.create();
+  print("FMTC2 done");
   var sse = getIt<NotificationsService>();
   var tokenStorage = getIt<TokenStorage>();
   var synchronizationService = getIt<SynchronizationService>();
@@ -92,10 +109,12 @@ Future<void> main() async {
     sse.startSSE(token);
     synchronizationService.synchronize();
   }
+  if (!isIntegrationTest) {
+    await requestNotificationPermissions();
+  }
+  print("requestNotificationPermissions done");
 
-  await requestNotificationPermissions();
-
-  runApp(MultiBlocProvider(
+  return MultiBlocProvider(
     providers: [
       BlocProvider<ThemeBloc>(
         create: (_) => ThemeBloc(),
@@ -119,7 +138,7 @@ Future<void> main() async {
       postsStorage: getIt<PostsStorage>(),
       synchronizationService: getIt<SynchronizationService>(),
     ),
-  ));
+  );
 }
 
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -143,7 +162,7 @@ Future<String> getInitialRoute() async {
 Future requestNotificationPermissions() async {
   FirebaseMessaging messaging = FirebaseMessaging.instance;
 
- await messaging.requestPermission(
+  await messaging.requestPermission(
     alert: true,
     badge: true,
     sound: true,
@@ -151,8 +170,7 @@ Future requestNotificationPermissions() async {
   );
 }
 
-class Permission {
-}
+class Permission {}
 
 class MyApp extends StatefulWidget {
   final String initialRoute;

@@ -71,6 +71,7 @@ class _FullDateTimeInputState extends State<FullDateTimeInput> {
                   child: FocusScope(
                     child: isFirstTime
                         ? OutlinedButton(
+                            key: const Key('select_date_button'),
                             onPressed: () => _selectDate(context),
                             style: OutlinedButton.styleFrom(
                               side: BorderSide(color: primarily0InvincibleColor),
@@ -88,6 +89,7 @@ class _FullDateTimeInputState extends State<FullDateTimeInput> {
                                   color: !isFirstTime ? Theme.of(context).textTheme.labelMedium?.decorationColor : Theme.of(context).textTheme.labelMedium?.color,
                                 )))
                         : OutlinedButton(
+                            key: const Key('select_date_button'),
                             onPressed: () => _selectDate(context),
                             style: OutlinedButton.styleFrom(
                               side: BorderSide(color: primarily0InvincibleColor),
