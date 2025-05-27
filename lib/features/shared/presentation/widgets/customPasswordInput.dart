@@ -47,6 +47,7 @@ class _CustomPasswordInputState extends State<CustomPasswordInput> {
       child: Focus(
         onFocusChange: (focus) => setState(() => _isFocused = focus),
         child: TextFormField(
+          key: const Key('password_input_field'),
           obscureText: !passwordVisible,
           validator: widget.validator?.call,
           style: Theme.of(context).textTheme.bodyMedium,
@@ -61,6 +62,7 @@ class _CustomPasswordInputState extends State<CustomPasswordInput> {
                   : Theme.of(context).textTheme.labelMedium?.color,
             ),
             suffixIcon: IconButton(
+              key: const Key('password_visibility_toggle'),
               icon: Icon(passwordVisible ? Icons.visibility : Icons.visibility_off),
               color: Theme.of(context).textTheme.labelMedium?.decorationColor,
               onPressed: () {

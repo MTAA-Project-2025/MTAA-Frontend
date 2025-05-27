@@ -38,54 +38,66 @@ final GetIt getIt = GetIt.instance;
 void setupDependencies() {
 
   getIt.registerSingleton<TokenStorage>(
-    TokenStorage(),
+    TokenStorageImpl(),
   );
-
+  print("TokenStorage registered");
   Dio dio = Dio(BaseOptions(baseUrl: AppConfig.config.baseUrl));
   dio.interceptors.add(AuthInterceptor(getIt<TokenStorage>()));
   dio.interceptors.add(ErrorInterceptor());
 
   getIt.registerSingleton<Dio>(dio);
+  print("Dio registered");
   getIt.get<TokenStorage>().initializeDio(dio);
 
   getIt.registerSingleton<MyToastService>(
     MyToastServiceImpl(),
   );
+  print("MyToastService registered");
   getIt.registerSingleton<MyImageStorage>(
     MyImageStorageImpl(),
   );
+  print("MyImageStorage registered");
 
   getIt.registerSingleton<MyDbContext>(
     MyDbContext(),
   );
+  print("MyDbContext registered");
 
   getIt.registerSingleton<TimeFormatingService>(
     TimeFormatingServiceImpl(),
   );
+  print("TimeFormatingService registered");
   getIt.registerSingleton<NumberFormatingService>(
     NumberFormatingServiceImpl(),
   );
+  print("NumberFormatingServiceImpl registered");
   getIt.registerSingleton<ExceptionsService>(
     ExceptionsServiceImpl(getIt<MyToastService>()),
   );
+  print("ExceptionsService registered");
   getIt.registerSingleton<PresetAvatarImagesApi>(
     PresetAvatarImagesApiImpl(getIt<Dio>()),
   );
+  print("PresetAvatarImagesApi registered");
   getIt.registerSingleton<IdentityApi>(
     IdentityImplApi(getIt<Dio>(), getIt<ExceptionsService>()),
   );
+  print("IdentityApi registered");
 
   getIt.registerSingleton<LocationsApi>(
     LocationsApiImpl(getIt<Dio>(), getIt<ExceptionsService>()),
   );
+  print("LocationsApi registered");
 
   getIt.registerSingleton<PostsApi>(
     PostsApiImpl(getIt<Dio>(), getIt<ExceptionsService>()),
   );
+  print("PostsApi registered");
 
   getIt.registerSingleton<PhoneNotificationsService>(
     PhoneNotificationsServiceImpl(),
   );
+  print("PhoneNotificationsServiceImpl registered");
 
   getIt.registerSingleton<PostsStorage>(
     PostsStorageImpl(getIt<MyDbContext>(),
@@ -94,44 +106,56 @@ void setupDependencies() {
     getIt<PhoneNotificationsService>(),
     getIt<TokenStorage>()),
   );
+  print("PostsStorage registered");
   getIt.registerSingleton<PostsRepository>(
     PostsRepositoryImpl(getIt<PostsApi>(), getIt<PostsStorage>(), getIt<TokenStorage>()),
   );
+  print("PostsRepository registered");
 
   getIt.registerSingleton<LocationsStorage>(
     LocationsStorageImpl(),
   );
+  print("LocationsStorage registered");
   getIt.registerSingleton<LocationsRepository>(
     LocationsRepositoryImpl(getIt<LocationsApi>(),
     getIt<PostsStorage>(),
     getIt<LocationsStorage>()),
   );
+  print("LocationsRepository registered");
 
   getIt.registerSingleton<AccountApi>(
     AccountApiImpl(getIt<Dio>(), getIt<ExceptionsService>()),
   );
+  print("AccountApi registered");
   getIt.registerSingleton<AccountStorage>(
     AccountStorageImpl()
   );
+  print("AccountStorage registered");
 
   getIt.registerSingleton<AccountRepository>(
     AccountRepositoryImpl(getIt<AccountApi>(), getIt<AccountStorage>()),
   );
+  print("AccountRepository registered");
   
   getIt.registerSingleton<NotificationsApi>(
     NotificationsApiImpl(getIt<Dio>(), getIt<ExceptionsService>()),
   );
+  print("NotificationsApi registered");
+
   getIt.registerSingleton<NotificationsRepository>(
     NotificationsRepositoryImpl(getIt<NotificationsApi>()),
   );
+  print("NotificationsRepository registered");
 
   getIt.registerSingleton<VersionItemsApi>(
     VersionItemsApiImpl(getIt<Dio>(), getIt<ExceptionsService>()),
   );
+  print("VersionItemsApi registered");
 
   getIt.registerSingleton<VersionItemsStorage>(
     VersionItemsStorageImpl(),
   );
+  print("VersionItemsStorage registered");
 
   getIt.registerSingleton<SynchronizationService>(
     SynchronizationServiceImpl(getIt<PostsApi>(),
@@ -142,17 +166,21 @@ void setupDependencies() {
         getIt<AccountApi>(),
         getIt<TokenStorage>())
   );
+  print("SynchronizationService registered");
 
   getIt.registerSingleton<NotificationsService>(
   NotificationsServiceImpl(getIt<MyToastService>(),
         getIt<SynchronizationService>()),
   );
+  print("NotificationsService registered");
   getIt.registerSingleton<CommentsApi>(
     CommentsApiImpl(getIt<Dio>(), getIt<ExceptionsService>()),
   );
+  print("CommentsApi registered");
   getIt.registerSingleton<CommentsRepository>(
     CommentsRepositoryImpl(getIt<CommentsApi>()),
   );
+  print("CommentsRepository registered");
 
   getIt.get<TokenStorage>().initialize(getIt<SynchronizationService>(), getIt<NotificationsService>());
 }

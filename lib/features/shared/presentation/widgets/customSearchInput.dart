@@ -60,6 +60,7 @@ class _CustomSearchInputState extends State<CustomSearchInput> {
                   : Theme.of(context).textTheme.labelMedium?.color,
             ),
             prefixIcon: IconButton(
+              key: const Key('search_icon'),
               icon: Icon(Icons.search_rounded),
               color: Theme.of(context).textTheme.labelMedium?.decorationColor,
               onPressed: () {

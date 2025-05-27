@@ -43,6 +43,7 @@ class _CustomTextInputState extends State<CustomTextInput> {
       child: Focus(
         onFocusChange: (focus) => setState(() => _isFocused = focus),
         child: TextFormField(
+          key: const Key('custom_text_input_field'),
           validator: widget.validator?.call,
           style: Theme.of(context).textTheme.bodyMedium,
           cursorColor: Theme.of(context).textTheme.labelMedium?.decorationColor,

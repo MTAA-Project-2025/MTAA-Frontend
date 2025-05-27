@@ -48,6 +48,7 @@ class AirModeErrorNotificationSectionWidget extends StatelessWidget {
             ),
             const SizedBox(width: 5),
             TextButton(
+              key: const Key('try_again_button'),
               onPressed: () async {
                 context.read<ExceptionsBloc>().add(SetExceptionsEvent(isException: false, exceptionType: ExceptionTypes.none, message: ''));
                 onPressed();
