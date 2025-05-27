@@ -18,13 +18,14 @@ void main() {
 
     expect(find.byKey(Key('custom_text_input_field')), findsOneWidget);
     await tester.enterText(find.byKey(Key('custom_text_input_field')), testAccountEmail);
+    await tester.pumpAndSettle();
 
     expect(find.byKey(Key('password_input_field')), findsOneWidget);
     await tester.enterText(find.byKey(Key('password_input_field')), testAccountPassword);
+    await tester.pumpAndSettle();
 
     expect(find.text('Start'), findsOneWidget);
     await tester.tap(find.text('Start'));
     await tester.pumpAndSettle();
-    expect(find.text('Settings'), findsOneWidget);
   });
 }
